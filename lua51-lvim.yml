@@ -1,0 +1,7 @@
+--- # create a neovim standard library for Selene, which allows using builtin vim and lvim variants
+base: lua51
+globals:
+  vim:
+    any: true
+  jit:
+    any: true
