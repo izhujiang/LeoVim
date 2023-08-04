@@ -19,12 +19,13 @@ return {
   -- :LoadLastSession, :LoadCurrentSession, :StopSession, :StartSession, :SaveSession
   {
     "folke/persistence.nvim",
+    enabled = false,
     event = "VimEnter",
-    opts = { options = { "buffers", "curdir", "tabpages", "winsize", "help", "globals", "skiprtp" } },
-    -- keys = {
-    -- 		{ "<leader>ls", function() require("persistence").load({ last = true }) end, desc = "Restore Last Session" },
-    -- },
-    pre_save = nil, -- a function to call before saving the session
+    opts = {
+      dir = vim.fn.expand(vim.fn.stdpath("state") .. "/sessions/"),
+      options = { "buffers", "curdir", "tabpages", "winsize", "help", "globals", "skiprtp" },
+      pre_save = nil, -- a function to call before saving the session
+    },
 
     config = function()
       local persistence = require("persistence")

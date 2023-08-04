@@ -109,8 +109,6 @@ return {
             c = cmp.mapping.close(),
           }, { "i", "c" }),
           -- ["<C-y>"] =cmp.mapping.confirm({ select = true }, { "i", "c" }), -- ["<C-y>"] for confirm Tabnine suggestion.
-          -- Accept currently selected item. If none selected, `select` first item.
-          -- ["<CR>"] = cmp.mapping.confirm { select = false },
           ["<CR>"] = cmp.mapping.confirm({ select = true }, { "i", "c" }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
           -- TODO: setup <Tab> and <S-Tab>
           ["<Tab>"] = cmp.mapping(function(fallback)
@@ -178,7 +176,8 @@ return {
           { name = "nvim_lsp",               group_index = 1, priority = 700, keyword_length = 1 },
           { name = "luasnip",                group_index = 1, priority_ = 900 },
           { name = 'cmp_tabnine',            group_index = 1, priority = 500, },
-          { name = "buffer" },
+          { name = "buffer",                 group_index = 2 },
+          { name = "nvim_lua",               group_index = 2 },
           { name = "nvim_lsp_signature_help" },
           { name = "path" },
           -- { name = "copilot",                group_index = 1 },
@@ -216,10 +215,23 @@ return {
       })
       -- autocompletion for command line
       cmp.setup.cmdline(":", {
+        preselect = cmp.PreselectMode.Item,
         mapping = cmp.mapping.preset.cmdline(),
+
+        -- mapping = cmp.mapping.preset.cmdline({
+        --   ["<CR>"] = {
+        --     c = cmp.mapping.confirm({ select = true }),
+        --   }
+        --   -- ["<CR>"] = cmp.mapping(function(fallback)
+        --   --   cmp.confirm({ select = true })
+        --   --   -- fallback()
+        --   -- end, "c")
+        -- }),
+        -- TODO: add nvim builtin documentation as source
+        -- TODO: mapping <CR> as select and execute the command
         sources = cmp.config.sources({
-          { name = "path",    keyword_length = 1 },
           { name = "cmdline", keyword_length = 1 },
+          { name = "path",    keyword_length = 1 },
         }),
         confirm_opts = {
           behavior = cmp.ConfirmBehavior.Replace,

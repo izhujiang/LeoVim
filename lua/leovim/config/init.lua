@@ -12,8 +12,8 @@ local defaults = {
   end,
   -- load the default settings
   defaults = {
-    options = true, -- leovim.config.options
-    keymaps = true, -- leovim.config.keymaps
+    options = true,  -- leovim.config.options
+    keymaps = true,  -- leovim.config.keymaps
     autocmds = true, -- leovim.config.autocmds
     -- leovim.config.options can't be configured here since that's loaded before leovim setup
     -- if you want to disable loading options, add `package.loaded["leovim.config.options"] = true` to the top of your init.lua

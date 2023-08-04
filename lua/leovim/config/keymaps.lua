@@ -169,7 +169,6 @@ vim.keymap.set("c", "<C-k>", "<Up>", { silent = true })
 vim.keymap.set("c", "<C-j>", "<Down>", { silent = true })
 vim.keymap.set("c", "%%", "getcmdtype() == ':' ? expand('%:p:h').'/' : '%%'", { expr = true, silent = false })
 
--- stylua: ignore start
 -- toggle options (un-)
 -- TODO: add others options (parse...)
 vim.keymap.set("n", "<leader>us", function() Util.toggle("spell") end, { desc = "Toggle Spelling" })
@@ -186,16 +185,6 @@ if vim.lsp.inlay_hint then
   vim.keymap.set("n", "<leader>uh", function() vim.lsp.inlay_hint(0, nil) end, { desc = "Toggle Inlay Hints" })
 end
 
--- lazygit
-vim.keymap.set("n", "<leader>gg",
-  function() Util.float_term({ "lazygit" }, { cwd = Util.get_root(), esc_esc = false, ctrl_hjkl = false }) end,
-  { desc = "Lazygit (root dir)" })
-vim.keymap.set("n", "<leader>gG", function() Util.float_term({ "lazygit" }, { esc_esc = false, ctrl_hjkl = false }) end,
-  { desc = "Lazygit (cwd)" })
-
--- quit
--- vim.keymap.set("n", "<leader>qq", "<cmd>qa<cr>", { desc = "Quit all" })
-
 -- highlights under cursor
 if vim.fn.has("nvim-0.9.0") == 1 then
   vim.keymap.set("n", "<leader>ui", vim.show_pos, { desc = "Inspect Pos" })
@@ -205,11 +194,15 @@ end
 local floatTerm = function() Util.float_term(nil, { cwd = Util.get_root() }) end
 vim.keymap.set("n", "<c-/>", floatTerm, { desc = "Terminal (root dir)" })
 vim.keymap.set("n", "<c-_>", floatTerm, { desc = "which_key_ignore" })
-
--- Terminal vim.keymap.setpings
 vim.keymap.set("t", "<esc><esc>", "<c-\\><c-n>", { desc = "Enter Normal Mode" })
-vim.keymap.set("t", "<C-/>", "<cmd>close<cr>", { desc = "Hide Terminal" })
-vim.keymap.set("t", "<c-_>", "<cmd>close<cr>", { desc = "which_key_ignore" })
+
+-- lazygit
+vim.keymap.set("n", "<leader>gg",
+  function() Util.float_term({ "lazygit" }, { cwd = Util.get_root(), esc_esc = false, ctrl_hjkl = false }) end,
+  { desc = "Lazygit (root dir)" })
+vim.keymap.set("n", "<leader>gG", function() Util.float_term({ "lazygit" }, { esc_esc = false, ctrl_hjkl = false }) end,
+  { desc = "Lazygit (cwd)" })
+
 
 vim.cmd.iabbrev("adn and")
 vim.cmd.iabbrev("waht what")

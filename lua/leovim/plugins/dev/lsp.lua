@@ -3,11 +3,10 @@ return {
   {
     "neovim/nvim-lspconfig",
     -- lazy = false, -- lazy load to override keymaps
-    event = {"BufReadPost", "BufNewFile"},   -- Important: right time to load and config lsp. config function is executed when the plugin loads.
+    event = { "BufReadPost", "BufNewFile" }, -- Important: right time to load and config lsp. config function is executed when the plugin loads.
     dependencies = {
       {
         "hrsh7th/cmp-nvim-lsp",
-        event = "VeryLazy",
       },
       { "jose-elias-alvarez/typescript.nvim" },
     },
@@ -100,8 +99,8 @@ return {
     },
     opts = function()
       return {
-        servers = require("leovim.plugins.dev.settings.lsp.servers"),
-        setup = require("leovim.plugins.dev.settings.lsp.setup"),
+        -- servers = require("leovim.plugins.dev.settings.lsp.servers"),
+        -- setup = require("leovim.plugins.dev.settings.lsp.setup"),
         diagnostics = {
           underline = true,
           update_in_insert = false,
@@ -124,31 +123,26 @@ return {
       }
     end,
     config = function(_, opts)
-      -- setup servers
-      local lspconfig = require("lspconfig")
-      local cmp_nvim_lsp = require("cmp_nvim_lsp")
-      local capabilities = cmp_nvim_lsp.default_capabilities()
-      capabilities.textDocument.completion.completionItem.snippetSupport = true
-      local on_attach = function(client, bufnr)
-        -- lsp_keymaps(bufnr)
-        require("illuminate").on_attach(client)
-      end
-
-      if opts.servers then
-        for name, server_opts in pairs(opts.servers) do
-        -- local name = "gopls"
-        -- local server_opts = opts.servers[name]
-        --
-        -- print(name)
-        -- print(vim.inspect(server_opts))
-          Opts = {
-            on_attach = on_attach,
-            capabilities = capabilities,
-          }
-          Opts = vim.tbl_deep_extend("force", Opts, server_opts)
-          lspconfig[name].setup(Opts)
-        end
-      end
+      -- local lspconfig = require("lspconfig")
+      -- local cmp_nvim_lsp = require("cmp_nvim_lsp")
+      -- local capabilities = cmp_nvim_lsp.default_capabilities()
+      -- capabilities.textDocument.completion.completionItem.snippetSupport = true
+      -- local on_attach = function(client, bufnr)
+      --   require("illuminate").on_attach(client)
+      -- end
+      --
+      -- if opts.servers then
+      --   for name, server_opts in pairs(opts.servers) do
+      --     -- local name = "gopls"
+      --     -- local server_opts = opts.servers[name]
+      --     Opts = {
+      --       on_attach = on_attach,
+      --       capabilities = capabilities,
+      --     }
+      --     Opts = vim.tbl_deep_extend("force", Opts, server_opts)
+      --     lspconfig[name].setup(Opts)
+      --   end
+      -- end
       -- lspconfig["gopls"].setup({
       --   on_attach = on_attach,
       --   capabilities = capabilities,
@@ -159,7 +153,7 @@ return {
       for _, sign in pairs(signs) do
         vim.fn.sign_define(sign.name, { texthl = sign.name, text = sign.symbol, numhl = "" })
       end
-      vim.diagnostic.config(opts.diagnostics)
+      vim.diagnostic.config(opts.diagnostic)
 
       -- Formatting
       -- Only a few language servers (lua-language-server) provide formatting but others (bash-language-server) don’t.

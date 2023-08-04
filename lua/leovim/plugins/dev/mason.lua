@@ -7,30 +7,30 @@ return {
     -- g? for more informatioin in Mason UI
     --
     "williamboman/mason.nvim",
-    cmd = "Mason",
-    event = "VimEnter",
-    -- event = "BufReadPre",
+    lazy = false, -- load at nvim startup to ensure the language servers to be found, which insert vim.stdpath("data")/mason/bin into $PATH dynamically.
+    -- cmd = "Mason",
+    -- event = "VimEnter",
     build = ":MasonUpdate",
     dependencies = {
-      -- TODO: it's better to remove mason-lspconfig.nvim, mason-null-ls.mvim, and mason-nvim-dap.nvim
       {
         "williamboman/mason-lspconfig.nvim",
-        lazy = true,
         dependencies = {
           "neovim/nvim-lspconfig",
-          lazy = true,
-        },
+          "hrsh7th/cmp-nvim-lsp",
+
+          "p00f/clangd_extensions.nvim",
+          "simrat39/rust-tools.nvim",
+          "jose-elias-alvarez/typescript.nvim"
+        }
       },
       {
         "jay-babu/mason-null-ls.nvim",
-        lazy = true,
         dependencies = {
           "jose-elias-alvarez/null-ls.nvim",
         },
       },
       {
         "jay-babu/mason-nvim-dap.nvim",
-        lazy = true,
         cmd = { "DapInstall", "DapUninstall" },
       },
     },
@@ -85,7 +85,7 @@ return {
           "cssls",
           -- "denols",
           "dockerls",
-          "docker_compose_language_service",
+          -- "docker_compose_language_service",
           "gopls",
           "html",
           "jsonls",
@@ -94,12 +94,16 @@ return {
           "pyright",
           "ruff_lsp",
           "solargraph",
+          "taplo",
           "tsserver", -- confix with denols
           "vimls",
           "yamlls",
         },
         automatic_installation = false, -- All servers set up via lspconfig are automatically installed.
+        handlers = require("leovim.plugins.dev.settings.lsp.handlers"),
+        -- handlers = handlers
       })
+
 
       -- TODO: disable denols or tsserver depending on has("deno.json/deno.jsonc")
       -- if Util.lsp_get_config("denols") and Util.lsp_get_config("tsserver") then
@@ -111,6 +115,7 @@ return {
       -- end
 
       require("mason-null-ls").setup({
+        -- Opt to list sources here, when available in mason.
         ensure_installed = {
           "black",
           "actionlint",
