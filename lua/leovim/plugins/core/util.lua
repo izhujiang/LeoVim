@@ -70,8 +70,15 @@ return {
   },
 
   -- library (async, job) used by other plugins
-  { "nvim-lua/plenary.nvim", lazy = true },
+  {
+    "nvim-lua/plenary.nvim",
+    -- event = "VeryLazy"
+  },
 
-  -- makes some plugins dot-repeatable like leap
-  { "tpope/vim-repeat",      event = "VeryLazy" },
+  -- icons
+  {
+    "nvim-tree/nvim-web-devicons",
+    -- event = "VeryLazy",
+  },
+
 }

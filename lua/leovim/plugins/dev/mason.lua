@@ -1,38 +1,14 @@
 return {
+  -- Portable package manager for Neovim that runs everywhere Neovim runs.
+  -- Easily install and manage (external editor toolkits) such as LSP servers, DAP servers, linters, and formatters.
+  -- g? for more informatioin in Mason UI
   {
-    -- Portable package manager for Neovim that runs everywhere Neovim runs.
-    -- Easily install and manage (external editor toolkits) such as LSP servers, DAP servers, linters, and formatters through a single interface.
-    -- Packages are installed in Neovim's data directory (:h standard-path) by default.
-    -- :checkhealth mason
-    -- g? for more informatioin in Mason UI
-    --
     "williamboman/mason.nvim",
-    lazy = false, -- load at nvim startup to ensure the language servers to be found, which insert vim.stdpath("data")/mason/bin into $PATH dynamically.
-    -- cmd = "Mason",
-    -- event = "VimEnter",
+    -- lazy = false, -- load at nvim startup to ensure the language servers to be found, which insert vim.stdpath("data")/mason/bin into $PATH dynamically.
+    cmd = "Mason",
     build = ":MasonUpdate",
-    dependencies = {
-      {
-        "williamboman/mason-lspconfig.nvim",
-        dependencies = {
-          "neovim/nvim-lspconfig",
-          "hrsh7th/cmp-nvim-lsp",
-
-          "p00f/clangd_extensions.nvim",
-          "simrat39/rust-tools.nvim",
-          "jose-elias-alvarez/typescript.nvim"
-        }
-      },
-      {
-        "jay-babu/mason-null-ls.nvim",
-        dependencies = {
-          "jose-elias-alvarez/null-ls.nvim",
-        },
-      },
-      {
-        "jay-babu/mason-nvim-dap.nvim",
-        cmd = { "DapInstall", "DapUninstall" },
-      },
+    keys = {
+      { "<leader>Im", "<cmd>Mason<cr>", desc = "Mason" },
     },
     opts = {
       ui = {
@@ -72,12 +48,46 @@ return {
       },
     },
     config = function(_, opts)
-      -- It's important that you set up the plugins in the following order:
-      -- 1) mason.nvim
-      -- 2) mason-lspconfig.nvim
-      -- 3) Setup servers via lspconfig
-
       require("mason").setup(opts)
+
+      -- local mr = require("mason-registry")
+      -- local function ensure_installed()
+      --   for _, tool in ipairs(opts.ensure_installed) do
+      --     local p = mr.get_package(tool)
+      --     if not p:is_installed() then
+      --       p:install()
+      --     end
+      --   end
+      -- end
+
+      -- if mr.refresh then
+      --   mr.refresh(ensure_installed)
+      -- else
+      --   ensure_installed()
+      -- end
+    end,
+  },
+
+  -- it is recommended to use other 3rd party plugins to further integrate these packages.
+  -- The following plugins are recommended:
+  -- -   LSP: `lspconfig` & `mason-lspconfig.nvim`
+  -- -   DAP: `nvim-dap`
+  -- -   Linters: `null-ls.nvim` or `nvim-lint`
+  -- -   Formatters: `null-ls.nvim` or `formatter.nvim`
+
+  {
+    "williamboman/mason-lspconfig.nvim",
+    event = { "BufReadPost", "BufNewFile" }, -- Important: right time to load and config lsp. config function is executed when the plugin loads.
+    dependencies = {
+      { "williamboman/mason.nvim" },
+      { "neovim/nvim-lspconfig" },
+    },
+    config = function()
+      -- It's important that you set up the plugins in the following order:
+      -- 1) mason.nvim                      -- require("mason").setup()
+      -- 2) mason-lspconfig.nvim            -- require("mason-lspconfig").setup()
+      -- 3) Setup servers via lspconfig     -- or via handlers, require("lspconfig")[server_name].setup(make_server_opts({}))
+
       require("mason-lspconfig").setup({
         ensure_installed = {
           "bashls",
@@ -101,21 +111,28 @@ return {
         },
         automatic_installation = false, -- All servers set up via lspconfig are automatically installed.
         handlers = require("leovim.plugins.dev.settings.lsp.handlers"),
-        -- handlers = handlers
       })
 
-
-      -- TODO: disable denols or tsserver depending on has("deno.json/deno.jsonc")
+      -- TODO: disable tsserver or denols (https://www.lazyvim.org/plugins/lsp)
       -- if Util.lsp_get_config("denols") and Util.lsp_get_config("tsserver") then
-      --   local is_deno = require("lspconfig.util").root_pattern("deno.json", "deno.jsonc")
+      --   local is_deno = require("lspconfig.util").root_pattern("deno.json", "deno.jsonc")zend xjfnc,m[pl;,.]
       --   Util.lsp_disable("tsserver", is_deno)
       --   Util.lsp_disable("denols", function(root_dir)
       --     return not is_deno(root_dir)
       --   end)
       -- end
+    end
+  },
 
+  {
+    "jay-babu/mason-null-ls.nvim",
+    event = { "BufReadPost", "BufNewFile" }, -- Important: right time to load and config lsp. config function is executed when the plugin loads.
+    dependencies = {
+      "williamboman/mason.nvim",
+      "jose-elias-alvarez/null-ls.nvim",
+    },
+    config = function()
       require("mason-null-ls").setup({
-        -- Opt to list sources here, when available in mason.
         ensure_installed = {
           "black",
           "actionlint",
@@ -131,7 +148,8 @@ return {
           "impl",
           "jq",
           "misspell",
-          "rome",
+          -- "rome",
+          "biome",
           "shfmt",
           "selene",
           "stylua",
@@ -141,7 +159,18 @@ return {
         automatic_installation = false, -- disable automatic, due to mason-null-ls missing tools like makecheck in null-ls list
         -- automatic_installation = { exclude = { "rust_analyzer", "solargraph" } }
       })
+    end
+  },
 
+  {
+    "jay-babu/mason-nvim-dap.nvim",
+    event = "VeryLazy",
+    dependencies = {
+      "williamboman/mason.nvim",
+      "mfussenegger/nvim-dap",
+    },
+    cmd = { "DapInstall", "DapUninstall" },
+    config = function()
       require("mason-nvim-dap").setup({
         -- {'python', 'cppdbg', 'delve', 'node2', 'chrome', 'firefox', 'php', 'coreclr', 'js', 'codelldb', 'bash', 'javadbg', 'javatest', 'mock', 'puppet', 'elixir', 'kotlin', 'dart', 'haskell'}
         ensure_installed = {
@@ -154,15 +183,6 @@ return {
 
         handlers = {}, -- sets up dap in the predefined manner. Provides a dynamic way of setting up sources and any other logic needed;
       })
-    end,
+    end
   },
-
-  -- Although many packages are perfectly usable out of the box through Neovim
-  -- builtins, it is recommended to use other 3rd party plugins to further
-  -- integrate these. The following plugins are recommended:
-
-  -- -   LSP: `lspconfig` & `mason-lspconfig.nvim`
-  -- -   DAP: `nvim-dap`
-  -- -   Linters: `null-ls.nvim` or `nvim-lint`
-  -- -   Formatters: `null-ls.nvim` or `formatter.nvim`
 }

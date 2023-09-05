@@ -1,4 +1,4 @@
---- # create a neovim standard library for Selene, which allows using builtin vim and lvim variants
+--- # create a neovim standard library for Selene, which allows using builtin vim
 base: lua51
 globals:
   vim:

@@ -1,9 +1,42 @@
 return {
+  {
+    -- autoclose and autorename html tag
+    "windwp/nvim-ts-autotag",
+    ft = { "html", "xml", "jsx", "tsx" },
+    config = function()
+      require("nvim-ts-autotag").setup()
+    end,
+  },
+
+  -- Python vertual environment Selector
+  {
+    "linux-cultist/venv-selector.nvim",
+    enabled = false,
+    dependencies = {
+      "neovim/nvim-lspconfig",
+      "mfussenegger/nvim-dap-python"
+    },
+    opts = {
+      dap_enabled = true,
+    },
+    cmd = "VenvSelect",
+    keys = { { "<leader>pv", "<cmd>:VenvSelect<cr>", desc = "Select VirtualEnv" } },
+  },
+
   -- Clangd's off-spec features for neovim's LSP client
   {
     "p00f/clangd_extensions.nvim",
     enabled = false, -- don't forget to uncomment "hrsh7th/nvim-cmp" in clangd when enabled = true.
-    lazy = true,
+    dependencies = {
+      {
+        -- "hrsh7th/nvim-cmp",
+        -- optional = true,
+        -- opts = function(_, opts)
+        --   -- table.insert(opts.sorting.comparators, 1, require("clangd_extensions.cmp_scores"))
+        -- end,
+      },
+    },
+    ft = { "c", "c++" },
     opts = {
       extensions = {
         inlay_hints = {
@@ -31,33 +64,11 @@ return {
         },
       },
     },
+    config = function(_, opts)
+      require("clangd_extensions").setup(opts)
+    end,
   },
-  -- Clangd's off-spec features for cmp
-  -- {
-  --   "hrsh7th/nvim-cmp",
-  --   optional = true,
-  --   opts = function(_, opts)
-  --     table.insert(opts.sorting.comparators, 1, require("clangd_extensions.cmp_scores"))
-  --   end,
-  -- },
 
-  -- Python vertual environment Selector
-  {
-    "linux-cultist/venv-selector.nvim",
-    enabled = false,
-    dependencies = {
-      "neovim/nvim-lspconfig",
-      "nvim-telescope/telescope.nvim",
-      -- for DAP support
-      "mfussenegger/nvim-dap-python"
-    },
-    event = "VeryLazy", -- only use `:VenvSelect` without a keymapping
-    opts = {
-      dap_enabled = true,
-    },
-    cmd = "VenvSelect",
-    -- keys = { { "<leader>cv", "<cmd>:VenvSelect<cr>", desc = "Select VirtualEnv" } },
-  },
 
   -- TODO:config for rust-tools and cmp are not ready.
   -- Tools for better development in rust using neovim's builtin lsp

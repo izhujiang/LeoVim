@@ -15,17 +15,18 @@ local function register(opts)
   end
   vim.opt.rtp:prepend(vim.env.LAZY or lazypath)
 
-  -- Make sure to set `mapleader` in config before lazy so your mappings are correct
-  require("leovim.config").setup({})
+  require("leovim.config").setup({ colorscheme = "everforest" })
+  -- require("leovim.config").setup()
 
   -- setup lazy.nvim
+  -- When import specs, override them by simply adding a spec for the same plugin to your local specs, adding any keys you want to override / merge.
+  -- opts, dependencies, cmd, event, ft and keys are always merged with the parent spec. Any other property will override the property from the parent spec.
   require("lazy").setup({
     spec = {
       { import = "leovim.plugins.core" },
       { import = "leovim.plugins.dev" },
-      { import = "leovim.plugins.extra.coding" },
-      { import = "leovim.plugins.extra.ui" },
-      { import = "leovim.plugins.extra.misc" },
+      { import = "leovim.plugins.extra" },
+
       -- import any extras modules here
       { import = opts.user_plugins },
     },
@@ -36,7 +37,11 @@ local function register(opts)
       -- version = false, -- always use the latest git commit
       version = "*", -- try installing the latest stable version for plugins that support semver
     },
-    install = { colorscheme = { "tokyonight", "habamax" } },
+    install = {
+      -- install missing plugins on startup.
+      missing = true,
+      colorscheme = { "everforest", "tokyonight", "habamax" }
+    },
     ui = {
       -- size = {
       -- 	width = 1,
@@ -71,6 +76,9 @@ local function register(opts)
       },
     },
   })
+  -- TODO: it's better to colorscheme asynchronously, not here
+  -- must colorscheme after bufferline.nvim is loaded
+  vim.cmd.colorscheme("everforest")
 end
 
 -- nvim entry point

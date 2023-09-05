@@ -1,129 +1,80 @@
 return {
 
-  -- snippets engine
-  {
-    "L3MON4D3/LuaSnip",
-    build = (not jit.os:find("Windows"))
-        and "echo 'NOTE: jsregexp is optional, so not a big deal if it fails to build'; make install_jsregexp"
-        or nil,
-    dependencies = {
-      "rafamadriz/friendly-snippets",
-      config = function()
-        require("luasnip.loaders.from_vscode").lazy_load()
-      end,
-    },
-
-    opts = {
-      history = true,
-      delete_check_events = "TextChanged",
-    },
-    keys = {
-      {
-        "<tab>",
-        function()
-          return require("luasnip").expand_or_jumpable() and "<Plug>luasnip-expand-or-jump" or "<tab>"
-        end,
-        expr = true,
-        silent = true,
-        mode = "i",
-      },
-      {
-        "<tab>",
-        function()
-          require("luasnip").jump(1)
-        end,
-        mode = "s",
-      },
-      {
-        "<s-tab>",
-        function()
-          require("luasnip").jump(-1)
-        end,
-        mode = { "i", "s" },
-      },
-    },
-  },
-
   -- auto completion
   {
     "hrsh7th/nvim-cmp",
     version = false, -- last release is way too old
-    event = {
-      "InsertEnter",
-      "CmdlineEnter",
-    },
+    event = { "InsertEnter", "CmdlineEnter" },
     dependencies = {
-      { "hrsh7th/cmp-nvim-lsp" },
-      { "hrsh7th/cmp-buffer" },
-      { "hrsh7th/cmp-path" },
-      { "hrsh7th/cmp-cmdline" },
-      { "saadparwaiz1/cmp_luasnip" },
-      { "hrsh7th/cmp-nvim-lua" },
-      { "hrsh7th/cmp-nvim-lsp-signature-help" },
-      {
-        "L3MON4D3/LuaSnip",
-        event = "InsertEnter",
-        dependencies = {
-          "rafamadriz/friendly-snippets",
-        },
-      },
-
+      { "hrsh7th/cmp-nvim-lsp" },                -- source: nvim-lsp
+      { "hrsh7th/cmp-buffer" },                  -- source: buffer
+      { "hrsh7th/cmp-path" },                    -- source: path
+      { "hrsh7th/cmp-cmdline" },                 -- nvim-cmp source for vim's cmdline
+      { "saadparwaiz1/cmp_luasnip" },            -- source: luasnip
+      { "hrsh7th/cmp-nvim-lua" },                -- source: complete neovim's Lua runtime API such vim.lsp.*
+      { "hrsh7th/cmp-nvim-lsp-signature-help" }, -- source: function signatures
+      { "tzachar/cmp-tabnine" },                 -- source: Tabnine
+      { "L3MON4D3/LuaSnip" },                    -- Snippet Engine for Neovim
     },
     opts = function()
       local has_words_before = function()
-        unpack = unpack or table.unpack
+        -- unpack = unpack or table.unpack
         local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-        return col ~= 0
-            and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
+        return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
       end
 
       local cmp = require("cmp")
       local luasnip = require("luasnip")
       local defaults = require("cmp.config.default")()
+      local cmp_mapping = require("cmp.config.mapping")
+      local cmp_types = require("cmp.types.cmp")
+      local ConfirmBehavior = cmp_types.ConfirmBehavior
+      local SelectBehavior = cmp_types.SelectBehavior
 
       return {
-        -- preselect = cmp.PreselectMode.None,
+        preselect = cmp.PreselectMode.None, -- disable lsp select item automatically, which enable cmp to select the first snip, and other sources as well
         completion = {
           keyword_length = 1,
           completeopt = "menu,menuone,noinsert",
+          -- completeopt = "menu,menuone,noinsert,noselect",
         },
         snippet = {
           expand = function(args)
             luasnip.lsp_expand(args.body)
           end,
         },
-        -- mapping = cmp.mapping.preset.insert({
-        mapping = {
-          -- override vim builtin I_CTRL_N/P,
-          -- Find next/previous match for words that start with the keyword in front of the cursor, looking in places specified with the 'complete' option.
-          ["<C-n>"] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Insert }, { "i", "c" }),
-          ["<C-p>"] = cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Insert }, { "i", "c" }),
-
-          ["<C-j>"] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Insert }, { "i", "c" }),
-          ["<C-k>"] = cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Insert }, { "i", "c" }),
-          ["<C-b>"] = cmp.mapping(cmp.mapping.scroll_docs(-4), { "i", "c" }),
-          ["<C-f>"] = cmp.mapping(cmp.mapping.scroll_docs(4), { "i", "c" }),
-          ["<C-Space>"] = cmp.mapping(cmp.mapping.complete(), { "i", "c" }),
-          ["<C-e>"] = cmp.mapping({
-            i = cmp.mapping.abort(),
-            c = cmp.mapping.close(),
-          }, { "i", "c" }),
-          -- ["<C-y>"] =cmp.mapping.confirm({ select = true }, { "i", "c" }), -- ["<C-y>"] for confirm Tabnine suggestion.
-          ["<CR>"] = cmp.mapping.confirm({ select = true }, { "i", "c" }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
-          -- TODO: setup <Tab> and <S-Tab>
-          ["<Tab>"] = cmp.mapping(function(fallback)
+        mapping = cmp_mapping.preset.insert({
+          ["<C-k>"] = cmp_mapping(cmp_mapping.select_prev_item(), { "i", "c" }),
+          ["<C-j>"] = cmp_mapping(cmp_mapping.select_next_item(), { "i", "c" }),
+          ["<Down>"] = cmp_mapping(cmp_mapping.select_next_item({ behavior = SelectBehavior.Select }), { "i" }),
+          ["<Up>"] = cmp_mapping(cmp_mapping.select_prev_item({ behavior = SelectBehavior.Select }), { "i" }),
+          ["<C-d>"] = cmp_mapping.scroll_docs(-4),
+          ["<C-f>"] = cmp_mapping.scroll_docs(4),
+          ["<C-y>"] = cmp_mapping({
+            i = cmp_mapping.confirm({ behavior = ConfirmBehavior.Replace, select = false }),
+            -- c = function(fallback)
+            --   if cmp.visible() then
+            --     cmp.confirm({ behavior = ConfirmBehavior.Replace, select = true })
+            --   else
+            --     fallback()
+            --   end
+            -- end,
+          }),
+          ["<Tab>"] = cmp_mapping(function(fallback)
             if cmp.visible() then
               cmp.select_next_item()
-            elseif luasnip.expand_or_jumpable() then
+            elseif luasnip.expand_or_locally_jumpable() then
               luasnip.expand_or_jump()
+            elseif luasnip.jumpable(1) then
+              luasnip.jump(1)
             elseif has_words_before() then
-              cmp.complete()
+              -- cmp.complete()
+              fallback()
             else
               fallback()
             end
           end, { "i", "s" }),
-
-          ["<S-Tab>"] = cmp.mapping(function(fallback)
+          ["<S-Tab>"] = cmp_mapping(function(fallback)
             if cmp.visible() then
               cmp.select_prev_item()
             elseif luasnip.jumpable(-1) then
@@ -132,7 +83,29 @@ return {
               fallback()
             end
           end, { "i", "s" }),
-        },
+          ["<C-Space>"] = cmp_mapping.complete(),
+          ["<C-e>"] = cmp_mapping.abort(),
+          ["<CR>"] = cmp_mapping({
+            i = function(fallback)
+              if cmp.visible() then
+                -- local confirm_opts = { behavior = ConfirmBehavior.Replace, select = false }
+                local confirm_opts = { behavior = ConfirmBehavior.Replace, select = true }
+                local entry = cmp.get_selected_entry()
+                -- local is_copilot = entry and entry.source.name == "copilot"
+                -- if is_copilot then
+                --   confirm_opts.behavior = ConfirmBehavior.Replace
+                --   confirm_opts.select = true
+                -- end
+                if cmp.confirm(confirm_opts) then
+                  return -- success, exit early
+                end
+              end
+              fallback() -- if not exited early, always fallback
+            end,
+            s = cmp.mapping.confirm({ select = true }),
+            -- c = cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = true }),
+          }),
+        }),
 
         matching = {
           -- fuzzy_matching not friedly to ultisnips
@@ -154,14 +127,14 @@ return {
                 item.kind = string.format("%s %s", icons_misc.Smiley, item.kind)
               end
             end
-            vim.menu = ({
+            item.menu = ({
               nvim_lsp = "[LSP]",
               spell = "[Spellings]",
               zsh = "[Zsh]",
               buffer = "[Buffer]",
               ultisnips = "[Snip]",
+              luasnip = "[Snip]",
               treesitter = "[Treesitter]",
-              -- calc = "[Calculator]",
               nvim_lua = "[Lua]",
               path = "[Path]",
               nvim_lsp_signature_help = "[Signature]",
@@ -172,19 +145,27 @@ return {
             return item
           end,
         },
-        sources = cmp.config.sources({
-          { name = "nvim_lsp",               group_index = 1, priority = 700, keyword_length = 1 },
-          { name = "luasnip",                group_index = 1, priority_ = 900 },
-          { name = 'cmp_tabnine',            group_index = 1, priority = 500, },
-          { name = "buffer",                 group_index = 2 },
-          { name = "nvim_lua",               group_index = 2 },
-          { name = "nvim_lsp_signature_help" },
-          { name = "path" },
-          -- { name = "copilot",                group_index = 1 },
-          -- 📓 Note 1: The above settings make sure that buffer source is visible in the completion menu only when the nvim_lsp and ultisnips sources are not available.
-          -- Similarly, nvim_lsp_signature_help will be visible only when the nvim_lsp, ultisnips, and buffer are not available. The same goes for source path.
-          -- 📓 Note 2: Having nvim_lsp and ultisnips in a single bracket will allow them to be mixed in the listing otherwise, all the autocompletion menu’s place is taken over by nvim_lsp.
-        }),
+        sources = cmp.config.sources(
+          { -- group 1
+            { name = "nvim_lsp",    priority = 900, keyword_length = 1 },
+            { name = "luasnip",     priority_ = 700 },
+            { name = "cmp_tabnine", priority = 500 },
+            { name = "nvim_lua" },
+          },
+          { -- group 2
+            { name = "buffer" },
+            { name = "path" },
+          },
+          {
+            { name = "nvim_lsp_signature_help", keyword_length = 2 },
+          }
+
+        -- { name = "copilot",                group_index = 1 },
+        -- https://smarttech101.com/nvim-lsp-autocompletion-mapping-snippets-fuzzy-search/
+        -- 📓 Note 1: The above settings make sure that buffer source is visible in the completion menu only when the nvim_lsp and ultisnips sources are not available.
+        -- Similarly, nvim_lsp_signature_help will be visible only when the nvim_lsp, ultisnips, and buffer are not available. The same goes for source path.
+        -- 📓 Note 2: Having nvim_lsp and ultisnips in a single bracket will allow them to be mixed in the listing otherwise, all the autocompletion menu’s place is taken over by nvim_lsp.
+        ),
         confirm_opts = {
           behavior = cmp.ConfirmBehavior.Replace,
           select = true,
@@ -193,18 +174,16 @@ return {
           completion = cmp.config.window.bordered(),
           documentation = cmp.config.window.bordered(),
         },
-        -- experimental = {
-        -- 	ghost_text = {
-        -- 		hl_group = "CmpGhostText",
-        -- 	},
-        -- },
         sorting = defaults.sorting,
       }
     end,
     config = function(_, opts)
       local cmp = require("cmp")
+      local cmp_mapping = require("cmp.config.mapping")
+      local cmp_types = require("cmp.types.cmp")
+      local ConfirmBehavior = cmp_types.ConfirmBehavior
+
       cmp.setup(opts)
-      require("luasnip/loaders/from_vscode").lazy_load()
 
       cmp.setup.filetype("gitcommit", {
         sources = cmp.config.sources({
@@ -214,24 +193,29 @@ return {
         }),
       })
       -- autocompletion for command line
+      local confirm_completion = function(fallback)
+        if cmp.visible() then
+          cmp.confirm({ behavior = ConfirmBehavior.Replace, select = true })
+        else
+          fallback()
+        end
+      end
       cmp.setup.cmdline(":", {
-        preselect = cmp.PreselectMode.Item,
-        mapping = cmp.mapping.preset.cmdline(),
+        preselect = cmp.PreselectMode.None,
+        completion = {
+          keyword_length = 1,
+          -- completeopt = "menu,menuone,noinsert",
+          completeopt = "menu,menuone,noinsert,noselect",
+        },
+        mapping = cmp.mapping.preset.cmdline({
+          ["<C-y>"] = cmp_mapping({
+            c = confirm_completion,
+          }),
+        }),
 
-        -- mapping = cmp.mapping.preset.cmdline({
-        --   ["<CR>"] = {
-        --     c = cmp.mapping.confirm({ select = true }),
-        --   }
-        --   -- ["<CR>"] = cmp.mapping(function(fallback)
-        --   --   cmp.confirm({ select = true })
-        --   --   -- fallback()
-        --   -- end, "c")
-        -- }),
-        -- TODO: add nvim builtin documentation as source
-        -- TODO: mapping <CR> as select and execute the command
         sources = cmp.config.sources({
-          { name = "cmdline", keyword_length = 1 },
           { name = "path",    keyword_length = 1 },
+          { name = "cmdline", keyword_length = 1 },
         }),
         confirm_opts = {
           behavior = cmp.ConfirmBehavior.Replace,
@@ -240,149 +224,160 @@ return {
       })
 
       -- autocompletion for search (/)
-      -- cmp.setup.cmdline('/', {
-      -- 	sources = {
-      -- 		{ name = 'buffer' },
-      -- 	}
-      -- })
+      cmp.setup.cmdline("/", {
+        preselect = cmp.PreselectMode.None,
+        completion = {
+          keyword_length = 1,
+          -- completeopt = "menu,menuone,noinsert",
+          completeopt = "menu,menuone,noinsert,noselect",
+        },
+        sources = {
+          { name = "buffer" },
+        },
+        mapping = cmp.mapping.preset.cmdline({
+          ["<C-y>"] = cmp_mapping({
+            c = confirm_completion,
+          }),
+        }),
+      })
 
       vim.api.nvim_set_hl(0, "CmpGhostText", { link = "Comment", default = true })
     end,
   },
 
-  -- auto pairs, Minimal and fast autopairs
-  -- usage: ([{'"
+  -- snippets engine
   {
-    "echasnovski/mini.pairs",
-    event = "VeryLazy",
-    opts = {},
+    "L3MON4D3/LuaSnip",
+    build = (not jit.os:find("Windows"))
+        and "echo 'NOTE: jsregexp is optional, so not a big deal if it fails to build'; make install_jsregexp"
+        or nil,
+    dependencies = {
+      { "rafamadriz/friendly-snippets" },
+    },
+    config = function()
+      require("luasnip.loaders.from_lua").lazy_load()
+      require("luasnip.loaders.from_vscode").lazy_load()
+      require("luasnip.loaders.from_snipmate").lazy_load()
+    end,
   },
 
-  -- surround
+  -- TabNine plugin for hrsh7th/nvim-cmp
+  {
+    "tzachar/cmp-tabnine",
+    build = "./install.sh",
+    opts = {
+      max_lines = 1000,
+      max_num_results = 20,
+      sort = true,
+      run_on_every_keystroke = true,
+      snippet_placeholder = "..",
+      ignored_file_types = {
+        -- default is not to ignore
+        -- uncomment to ignore in lua:
+        -- lua = true
+      },
+      show_prediction_strength = false,
+    },
+    config = function(_, opts)
+      local tabnine = require("cmp_tabnine.config")
+      tabnine:setup(opts)
+    end,
+  },
+
+  {
+    "windwp/nvim-autopairs",
+    event = "InsertEnter",
+    opts = {
+      disable_filetype = { "TelescopePrompt", "spectre_panel", "vim" },
+      disable_in_macro = true,       -- disable when recording or executing a macro
+      disable_in_visualblock = true, -- disable when insert after visual block mode
+      disable_in_replace_mode = true,
+      ignored_next_char = string.gsub([[ [%w%%%'%[%"%.] ]], "%s+", ""),
+      enable_moveright = true,
+      enable_afterquote = true,          -- add bracket pairs after quote
+      enable_check_bracket_line = false, --- check bracket in same line
+      enable_bracket_in_quote = true,
+      enable_abbr = false,               -- trigger abbreviation
+      break_undo = true,                 -- switch for basic rule break undo sequence
+      check_ts = true,                   -- check treesitter
+      ts_config = {
+        lua = { "string", "source" },
+        javascript = { "string", "template_string" },
+        java = false,
+      },
+
+      map_cr = true,
+      map_bs = true,   -- map the <BS> key
+      map_c_h = true,  -- Map the <C-h> key to delete a pair
+      map_c_w = false, -- map <c-w> to delete a pair if possible
+
+      fast_wrap = {
+        map = "<M-e>",
+        chars = { "{", "[", "(", '"', "'" },
+        pattern = string.gsub([[ [%'%"%)%>%]%)%}%,] ]], "%s+", ""),
+        offset = 0, -- Offset from pattern match
+        end_key = "$",
+        keys = "qwertyuiopzxcvbnmasdfghjkl",
+        check_comma = true,
+        highlight = "Search",
+        highlight_grey = "Comment",
+      },
+    },
+    config = function(_, opts)
+      local status_ok, autopairs = pcall(require, "nvim-autopairs")
+      if not status_ok then
+        return
+      end
+      autopairs.setup(opts)
+
+      pcall(function()
+        local function on_confirm_done(...)
+          require("nvim-autopairs.completion.cmp").on_confirm_done()(...)
+        end
+        require("cmp").event:off("confirm_done", on_confirm_done)
+        require("cmp").event:on("confirm_done", on_confirm_done)
+      end)
+    end,
+  },
+
+  -- Nvim-Surround (Manipulating SurrOundings)
   -- usage:
-  -- 	gs{iw/motion}{" ' { [ ( t }
+  -- 	ys{iw/motion}" ' { [ ( t }  Examples: ys$"
   -- 	cs{s1}{s2}
   -- 	ds{s1}
+  -- 	Use a single character as an alias for several text-object,
+  -- 	  q for nearest quote(', ", or `),
+  -- 	  t for tag,
+  -- 	  b for bracket,
+  -- 	  f for function
   {
-    "echasnovski/mini.surround",
-    keys = function(_, keys)
-      -- Populate the keys based on the user's options
-      local plugin = require("lazy.core.config").spec.plugins["mini.surround"]
-      local opts = require("lazy.core.plugin").values(plugin, "opts", false)
-      local mappings = {
-        { opts.mappings.add,            desc = "Add surrounding",                     mode = { "n", "v" } },
-        { opts.mappings.delete,         desc = "Delete surrounding" },
-        { opts.mappings.find,           desc = "Find right surrounding" },
-        { opts.mappings.find_left,      desc = "Find left surrounding" },
-        { opts.mappings.highlight,      desc = "Highlight surrounding" },
-        { opts.mappings.replace,        desc = "Replace surrounding" },
-        { opts.mappings.update_n_lines, desc = "Update `MiniSurround.config.n_lines`" },
-      }
-      mappings = vim.tbl_filter(function(m)
-        return m[1] and #m[1] > 0
-      end, mappings)
-      return vim.list_extend(mappings, keys)
+    "kylechui/nvim-surround",
+    event = { "BufReadPost", "BufNewFile" },
+    config = function()
+      require("nvim-surround").setup()
     end,
-    opts = {
-      -- TODO: try to figure out much better keymaps for surrounding
-      mappings = {
-        add = "gs",               -- Add surrounding in Normal and Visual modes
-        delete = "ds",            -- Delete surrounding
-        find = "<leader>sf",      -- Find surrounding (to the right)
-        find_left = "<leader>sb", -- Find surrounding (to the left)
-        highlight = "<leader>sh", -- Highlight surrounding
-        replace = "cs",           -- Replace surrounding
-        update_n_lines = "gSn",   -- Update `n_lines`
-      },
-    },
   },
 
-  -- comments, setting the commentstring option based on the cursor location in the file.
-  -- usage: gc, gcc
-  { "JoosepAlviste/nvim-ts-context-commentstring", lazy = true },
+  -- Comments
+  -- Smart and powerful comment plugin for neovim
+  -- Supports line (//) and block (/* */) comments
+  -- Dot (.) repeat support for gcc, gbc
+  -- usage:
+  --  g{c/b}{c/motion}
+  --  gcO/o/A
   {
-    "echasnovski/mini.comment",
-    event = "VeryLazy",
+    "numToStr/Comment.nvim",
+    keys = { { "gc", mode = { "n", "v" } }, { "gb", mode = { "n", "v" } } },
     opts = {
-      options = {
-        custom_commentstring = function()
-          return require("ts_context_commentstring.internal").calculate_commentstring()
-              or vim.bo.commentstring
-        end,
-      },
+      ---Lines to be ignored while comment/uncomment. a regex string or a function that returns a regex string.
+      ignore = "^$",
+      ---Pre-hook, called before commenting the line
+      pre_hook = function(...)
+        local loaded, ts_comment = pcall(require, "ts_context_commentstring.integrations.comment_nvim")
+        if loaded and ts_comment then
+          return ts_comment.create_pre_hook()(...)
+        end
+      end,
     },
-  },
-
-  -- better text-objects
-  -- 		enhances some builtin textobjects (like a(, a), a', and more),
-  -- 		creates new ones (like a*, a<Space>, af, a?, and more), and allows user to create their own
-  {
-    "echasnovski/mini.ai",
-    -- keys = {
-    --   { "a", mode = { "x", "o" } },
-    --   { "i", mode = { "x", "o" } },
-    -- },
-    event = "VeryLazy",
-    dependencies = { "nvim-treesitter-textobjects" },
-    opts = function()
-      local ai = require("mini.ai")
-      return {
-        n_lines = 500,
-        custom_textobjects = {
-          o = ai.gen_spec.treesitter({
-            a = { "@block.outer", "@conditional.outer", "@loop.outer" },
-            i = { "@block.inner", "@conditional.inner", "@loop.inner" },
-          }, {}),
-          f = ai.gen_spec.treesitter({ a = "@function.outer", i = "@function.inner" }, {}),
-          c = ai.gen_spec.treesitter({ a = "@class.outer", i = "@class.inner" }, {}),
-        },
-      }
-    end,
-    config = function(_, opts)
-      require("mini.ai").setup(opts)
-      -- register all text objects with which-key
-      if require("leovim.util").has("which-key.nvim") then
-        ---@type table<string, string|table>
-        local i = {
-          [" "] = "Whitespace",
-          ['"'] = 'Balanced "',
-          ["'"] = "Balanced '",
-          ["`"] = "Balanced `",
-          ["("] = "Balanced (",
-          [")"] = "Balanced ) including white-space",
-          [">"] = "Balanced > including white-space",
-          ["<lt>"] = "Balanced <",
-          ["]"] = "Balanced ] including white-space",
-          ["["] = "Balanced [",
-          ["}"] = "Balanced } including white-space",
-          ["{"] = "Balanced {",
-          ["?"] = "User Prompt",
-          _ = "Underscore",
-          a = "Argument",
-          b = "Balanced ), ], }",
-          c = "Class",
-          f = "Function",
-          o = "Block, conditional, loop",
-          q = "Quote `, \", '",
-          t = "Tag",
-        }
-        local a = vim.deepcopy(i)
-        for k, v in pairs(a) do
-          a[k] = string.gsub(tostring(v), " including.*", "")
-        end
-
-        local ic = vim.deepcopy(i)
-        local ac = vim.deepcopy(a)
-        for key, name in pairs({ n = "Next", l = "Last" }) do
-          i[key] = vim.tbl_extend("force", { name = "Inside " .. name .. " textobject" }, ic)
-          a[key] = vim.tbl_extend("force", { name = "Around " .. name .. " textobject" }, ac)
-        end
-        require("which-key").register({
-          mode = { "o", "x" },
-          i = i,
-          a = a,
-        })
-      end
-    end,
   },
 }

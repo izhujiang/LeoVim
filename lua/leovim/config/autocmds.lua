@@ -36,7 +36,8 @@ vim.api.nvim_create_autocmd("BufReadPost", {
     local mark = vim.api.nvim_buf_get_mark(buf, '"')
     local lcount = vim.api.nvim_buf_line_count(buf)
     if mark[1] > 0 and mark[1] <= lcount then
-      pcall(vim.api.nvim_win_set_cursor, buf, mark)
+      local win = vim.api.nvim_get_current_win()
+      pcall(vim.api.nvim_win_set_cursor, win, mark)
     end
   end,
 })
@@ -60,6 +61,7 @@ vim.api.nvim_create_autocmd("FileType", {
     "neotest-summary",
     "neotest-output-panel",
     "fugitive",
+    "Trouble",
   },
   callback = function(event)
     vim.bo[event.buf].buflisted = false
@@ -89,40 +91,35 @@ vim.api.nvim_create_autocmd({ "BufWritePre" }, {
   end,
 })
 
--- TODO: to close all non-normal windows when the last normal window is closed
--- close_if_last_window
-
+-- close_if_last_window: close all non-normal windows when the last normal window is closed
 -- When using `:quit`, `:wq` or `:qall`, before deciding whether it closes the current window or quits Vim.
 -- For `:wq` the buffer is written before QuitPre is triggered.
 -- Can be used to close any non-essential window (quickfix, neo-tree, fugitive, spectre ...) if the current window is the last ordinary window.
--- vim.api.nvim_create_autocmd({ "QuitPre" }, {
--- 	group = augroup("close_if_last_window"),
--- 	callback = function()
--- 		-- add more filetypes
--- 		local filetypes = {
--- 			"spectre_panel",
--- 			"fugitive",
--- 		}
---
--- 		local current_tabpage = vim.api.nvim_get_current_tabpage()
--- 		local window_count = vim.fn.tabpagewinnr(current_tabpage, "$")
--- 		-- FIX: vim.fn.tabpagewinnr return not 1, guess that notice create another two windows
---
--- 		-- Close Neovim if there's only one window left (the last one)
--- 		if window_count == 1 then
--- 			-- Check if the current buffer's filetype is "spectre_panel"
--- 			local current_buf = vim.api.nvim_win_get_buf(0)
--- 			local filetype = vim.api.nvim_buf_get_option(current_buf, "filetype")
---
--- 			-- for k,ft in pairs(filetypes) do
--- 				-- if ft == filetype then
--- 					-- Save any changes before closing, if necessary (optional)
--- 					-- vim.cmd("w")
---
--- 					-- Close the last window and exit Neovim
--- 					vim.cmd("qall!")
--- 				-- end
--- 			-- end
--- 		end
--- 	end,
--- })
+vim.api.nvim_create_autocmd({ "QuitPre" }, {
+  group = augroup("close_if_last_window"),
+  callback = function()
+    local non_essential_filetypes = require("leovim.config").non_essential_filetypes
+
+    local win_id = vim.api.nvim_get_current_win()
+    local tabid = vim.api.nvim_get_current_tabpage()
+    local wins = vim.api.nvim_tabpage_list_wins(tabid)
+
+    local is_essential_win = function(win)
+      local buf = vim.api.nvim_win_get_buf(win)
+      local ft = vim.api.nvim_buf_get_option(buf, "filetype")
+      return not vim.tbl_contains(non_essential_filetypes, ft)
+    end
+
+    local essential_wins = vim.tbl_filter(is_essential_win, wins)
+    local win_count = #essential_wins
+
+    if (win_count == 1 and is_essential_win(win_id)) then
+      -- close nonessential windows except current window which is closing
+      for _, win in ipairs(wins) do
+        if win ~= win_id then
+          vim.api.nvim_win_close(win, true)
+        end
+      end
+    end
+  end,
+})

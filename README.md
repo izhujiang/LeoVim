@@ -13,7 +13,7 @@ nvim --headless "+Lazy! install" "+60sleep" +qa
 
 
 ## Usage
-### Usefull keymapping
+### Useful keybindings
 
 #### Navagate
 -- ], [
@@ -88,29 +88,24 @@ s/S 																				leap.nvim
 | <leader>uw  | wrap								|
 
 
-<leader>t{char}   --  Toggle windows
+<leader>a{char}   --  Toggle windows
 
 | Keymap      	| Description 												|
 | 	----------- | ----------------------------------- |
-| <leader>tt  	| Document Diagnostics (Trouble)			|
-| <leader>t.  	| Trouble Todo-comments								|
-| <leader>tc  	| Console Terminal(cwd)								|
-| <leader>tC  	| Console Terminal(root)							|
+| <leader>ad  	| Dap UI                        			|
+| <leader>a-  	| Trouble Todo-comments								|
+| <leader>ac  	| Console Terminal(cwd)								|
+| <leader>at  	| Quickfix/TroubleToggle quickfix			|
 
 
 | Keymap      | Description 													|
 | ----------- | ------------------------------------	|
-| <C-/>				| Terminal(root), same as <leader>tC		|
-| <leader>Q  	| Quickfix/TroubleToggle quickfix				|
-| <leader>L  	| Loclist/TroubleToggle loclist 				|
-| <leader>D  	| TroubleToggle workspace_diagnostistics|
-| <Leader>e		| Neo-tree filesystem	root							|
-| <Leader>E		| Neo-tree filesystem	cwd								|
-| <Leader>B		| Neo-tree buffers											|
-| <Leader>R		| Neo-tree document_symbols 						|
-| <Leader>G		| Neo-tree git_status										|
+| <Leader>ee  | Neo-tree filesystem	root							|
+| <Leader>ec	| Neo-tree filesystem	cwd								|
+| <Leader>eb	| Neo-tree buffers											|
+| <Leader>es	| Neo-tree document_symbols 						|
+| <Leader>eg	| Neo-tree git_status										|
 | ..					| 																			|
-| <Leader>S		| Replace in files (Spectre)						|
 
 
 Index
@@ -122,4 +117,5 @@ common objects for ]/[, <leader>f/F, <leader>t/T,
 | l 					| loclist									|
 | q 					| quickfix								|
 | t 					| tab											|
-| . 					| todo-list/todo-comments	|
+| -/+					| todo-list/todo-comments	|
+| %           | unmatched group         |

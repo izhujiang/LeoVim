@@ -1,18 +1,28 @@
 local make_server_opts = function(opts)
-  local has_cmp, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
-  local capabilities = vim.tbl_deep_extend(
-    "force",
-    {},
-    vim.lsp.protocol.make_client_capabilities(),
-    has_cmp and cmp_nvim_lsp.default_capabilities() or {}
-  )
-  capabilities.textDocument.completion.completionItem.snippetSupport = true
+  local capabilities = vim.lsp.protocol.make_client_capabilities()
+  -- capabilities.textDocument.completion.completionItem.snippetSupport = true
+  capabilities.textDocument.completion.completionItem.resolveSupport = {
+    properties = {
+      "documentation",
+      "detail",
+      "additionalTextEdits",
+    },
+  }
+
+  local status_ok, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
+  if status_ok then
+    capabilities = cmp_nvim_lsp.default_capabilities()
+  end
+
+  -- !!! DON'T enable cmp_nvim_lsp snippetSupport
+  capabilities.textDocument.completion.completionItem.snippetSupport = false
 
   local server_opts = vim.tbl_deep_extend("force", {
     capabilities = vim.deepcopy(capabilities),
   }, opts or {})
 
   return server_opts
+  -- return {}
 end
 
 local lsp_handlers = {
@@ -64,7 +74,10 @@ local lsp_handlers = {
 
     -- setup clangd_extensions
     -- local clangd_ext_opts = require("leovim.util").opts("clangd_extensions.nvim")
-    -- require("clangd_extensions").setup(vim.tbl_deep_extend("force", clangd_ext_opts or {}, { server = opts }))
+    -- local status_ok, clangd_extensions = pcall(require, "clangd_extensions")
+    -- if status_ok then
+    -- clangd_extensions.setup(vim.tbl_deep_extend("force", clangd_ext_opts or {}, { server = opts }))
+    -- end
 
     -- setup lsp server clangd
     require("lspconfig").clangd.setup(opts)
@@ -105,7 +118,8 @@ local lsp_handlers = {
           completeUnimported = true,
           staticcheck = true,
           directoryFilters = { "-.git", "-.vscode", "-.idea", "-.vscode-test", "-node_modules" },
-          semanticTokens = true,
+          semanticTokens = false,
+          -- semanticTokens = true,
         },
       },
     })
@@ -128,7 +142,7 @@ local lsp_handlers = {
     --   end
     -- end)
 
-    require("lspconfig").gopls.setup(opts)
+    require("lspconfig").gopls.setup(make_server_opts(opts))
   end,
 
   jsonls = function()
@@ -150,7 +164,15 @@ local lsp_handlers = {
   end,
 
   lua_ls = function()
-    require("lspconfig").sumneko_lua.setup(make_server_opts({
+    -- IMPORTANT: make sure to setup neodev BEFORE lspconfig lua_ls
+    local status_ok, neodev = pcall(require, "neodev")
+    if status_ok then
+      neodev.setup({})
+    end
+
+    require("lspconfig").lua_ls.setup(make_server_opts({
+      -- "neovim/nvim-lspconfig" <= v0.1.6
+      -- require("lspconfig").sumneko_lua.setup(make_server_opts({
       settings = {
         Lua = {
           runtime = {
@@ -164,6 +186,7 @@ local lsp_handlers = {
             globals = { "vim" }
           },
           workspace = {
+            checkThirdParty = false,
             library = {
               [vim.fn.expand("$VIMRUNTIME/lua")] = true,
               [vim.fn.stdpath("data") .. "/lazy/lazy.nvim/lua"] = true,
@@ -295,8 +318,6 @@ local lsp_handlers = {
         },
       },
     })
-
-    require("typescript").setup({ server = opts })
 
     require("lspconfig").tsserver.setup(opts)
   end,

@@ -2,10 +2,13 @@ return {
   {
     "nvim-neotest/neotest",
     dependencies = {
-      "nvim-neotest/neotest-plenary",
+      "nvim-lua/plenary.nvim",
+      "nvim-treesitter/nvim-treesitter",
+
       "nvim-neotest/neotest-go",
       "nvim-neotest/neotest-python",
-      "nvim-neotest/neotest-vim-test",
+      -- "nvim-neotest/neotest-vim-test",
+      -- "markemmons/neotest-deno"
     },
     keys = function()
       -- local neotest = require("neotest")
@@ -25,7 +28,7 @@ return {
           desc = "Test all files(cwd)",
         },
         {
-          "<leader>tr",
+          "<leader>tf",
           function()
             require("neotest").run.run()
           end,
@@ -39,7 +42,7 @@ return {
           desc = "Debug the nearest test",
         },
         {
-          "<leader>tS",
+          "<leader>ts",
           function()
             require("neotest").run.stop()
           end,
@@ -53,25 +56,32 @@ return {
           desc = "Attach to the nearest test",
         },
         {
-          "<leader>ts",
+          "<leader>tS",
+          function()
+            require("neotest").summary.open()
+          end,
+          desc = "Test Summary",
+        },
+        {
+          "<leader>aT",
           function()
             require("neotest").summary.toggle()
           end,
-          desc = "Toggle Summary",
+          desc = "Test Summary",
         },
         {
           "<leader>to",
           function()
             require("neotest").output.open({ enter = true, auto_close = true })
           end,
-          desc = "Show Output",
+          desc = "Output(Test)",
         },
         {
-          "<leader>tO",
+          "<leader>ao",
           function()
             require("neotest").output_panel.toggle()
           end,
-          desc = "Toggle Output Panel",
+          desc = "Test Output Panel",
         },
       }
     end,
@@ -83,17 +93,6 @@ return {
         ["neotest-python"] = {
           -- runner = "pytest",
           -- python = ".venv/bin/python",
-        },
-        ["neotest-rust"] = {},
-        ["neotest-rspec"] = {
-          -- NOTE: By default neotest-rspec uses the system wide rspec gem instead of the one through bundler
-          -- rspec_cmd = function()
-          --   return vim.tbl_flatten({
-          --     "bundle",
-          --     "exec",
-          --     "rspec",
-          --   })
-          -- end,
         },
       },
       status = { virtual_text = true },
