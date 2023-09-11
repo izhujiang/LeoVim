@@ -26,49 +26,20 @@ return {
       { "nvim-treesitter/nvim-treesitter-textobjects" }, -- treesitter plugin: Syntax aware text-objects, select, move, swap, and peek support.
       { "JoosepAlviste/nvim-ts-context-commentstring" }, -- treesitter plugin for setting the commentstring based on the cursor location.
     },
-    ---@type TSConfig
     opts = {
       -- https://github.com/nvim-treesitter/nvim-treesitter#supported-languages
       ensure_installed = {
-        "bash",
-        "c",
-        "cmake",
         "comment",
-        "cpp",
-        "css",
         "diff",
-        "dockerfile",
         "dot",
         "gitcommit",
-        "go",
-        "gomod",
-        "gowork",
-        "gosum",
-        "html",
-        "java",
-        "javascript",
-        "json",
-        "json5",
-        "jsonc",
-        "lua",
-        "markdown",
-        "markdown_inline",
-        "ninja",
-        "prisma",
-        "python",
-        "ruby",
-        "ron",
-        "rust",
         "sql",
-        "toml",
-        "tsx",
-        "typescript",
-        "vim",
-        "vimdoc",
-        "yaml",
       },
 
-      sync_install = false,
+      sync_install = false, -- Install parsers synchronously (only applied to `ensure_installed`)
+
+      -- Automatically install missing parsers when entering buffer
+      -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
       auto_install = true,
       -- List of parsers to ignore installing (for "all")
       ignore_install = {},
@@ -163,9 +134,9 @@ return {
             ["as"] = { query = "@scope", query_group = "locals", desc = "Language scope" },
           },
           selection_modes = {
-            ['@parameter.outer'] = 'v', -- charwise
-            ['@function.outer'] = 'V',  -- linewise
-            ['@class.outer'] = '<c-v>', -- blockwise
+            ["@parameter.outer"] = "v", -- charwise
+            ["@function.outer"] = "V", -- linewise
+            ["@class.outer"] = "<c-v>", -- blockwise
           },
           include_surrounding_whitespace = false,
         },
@@ -217,7 +188,7 @@ return {
         },
         lsp_interop = {
           enable = false,
-        }
+        },
       },
       textsubjects = {
         enable = false,
@@ -226,19 +197,32 @@ return {
 
       rainbow = {
         enable = false,
-        extended_mode = true,  -- Highlight also non-parentheses delimiters, boolean or table: lang -> boolean
+        extended_mode = true, -- Highlight also non-parentheses delimiters, boolean or table: lang -> boolean
         max_file_lines = 1000, -- Do not enable for files with more than 1000 lines, int
       },
     },
     ---@param opts TSConfig
     config = function(_, opts)
       -- avoid running in headless mode since it's harder to detect failures
-      -- if #vim.api.nvim_list_uis() == 0 then
-      --   vim.notify("headless mode detected, skipping running setup for treesitter")
-      --   return
-      -- end
+      if #vim.api.nvim_list_uis() == 0 then
+        vim.notify("headless mode detected, skipping running setup for treesitter")
+        return
+      end
 
       vim.cmd.syntax("off") -- tree-sitter highlight enabled along with syntax on
+
+      if type(opts.ensure_installed) == "table" then
+        ---@type table<string, boolean>
+        local added = {}
+        opts.ensure_installed = vim.tbl_filter(function(lang)
+          if added[lang] then
+            return false
+          end
+          added[lang] = true
+          return true
+        end, opts.ensure_installed)
+      end
+
       require("nvim-treesitter.configs").setup(opts)
 
       vim.opt.foldmethod = "expr"
@@ -261,5 +245,4 @@ return {
       -- vim.keymap.set({ "n", "x", "o" }, "T", ts_repeat_move.builtin_T)
     end,
   },
-
 }

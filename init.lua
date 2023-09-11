@@ -25,7 +25,11 @@ local function register(opts)
     spec = {
       { import = "leovim.plugins.core" },
       { import = "leovim.plugins.dev" },
-      { import = "leovim.plugins.extra" },
+      { import = "leovim.plugins.extras" },
+      { import = "leovim.plugins.langs" },
+      -- or lang list
+      -- { import = "leovim.plugins.langs.golang" },
+      -- { import = "leovim.plugins.langs.lua" },
 
       -- import any extras modules here
       { import = opts.user_plugins },

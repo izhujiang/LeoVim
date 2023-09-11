@@ -177,13 +177,13 @@ local lsp_handlers = {
         Lua = {
           runtime = {
             -- Tell the language server which version of Lua you're using (most likely LuaJIT in the case of Neovim)
-            version = 'LuaJIT',
+            version = "LuaJIT",
           },
           format = {
             enable = true,
           },
           diagnostics = {
-            globals = { "vim" }
+            globals = { "vim" },
           },
           workspace = {
             checkThirdParty = false,
@@ -194,8 +194,8 @@ local lsp_handlers = {
               [vim.fn.stdpath("config") .. "/lua"] = true,
             },
           },
-        }
-      }
+        },
+      },
     }))
   end,
 
@@ -230,17 +230,17 @@ local lsp_handlers = {
         {
           "K",
           "<cmd>RustHoverActions<cr>",
-          desc = "Hover Actions (Rust)"
+          desc = "Hover Actions (Rust)",
         },
         {
           "<leader>cR",
           "<cmd>RustCodeAction<cr>",
-          desc = "Code Action (Rust)"
+          desc = "Code Action (Rust)",
         },
         {
           "<leader>dr",
           "<cmd>RustDebuggables<cr>",
-          desc = "Run Debuggables (Rust)"
+          desc = "Run Debuggables (Rust)",
         },
       },
       settings = {
@@ -296,7 +296,7 @@ local lsp_handlers = {
     local opts = make_server_opts({
       keys = {
         { "<leader>co", "<cmd>TypescriptOrganizeImports<CR>", desc = "Organize Imports" },
-        { "<leader>cR", "<cmd>TypescriptRenameFile<CR>",      desc = "Rename File" },
+        { "<leader>cR", "<cmd>TypescriptRenameFile<CR>", desc = "Rename File" },
       },
       settings = {
         typescript = {

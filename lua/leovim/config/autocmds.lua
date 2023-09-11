@@ -113,7 +113,7 @@ vim.api.nvim_create_autocmd({ "QuitPre" }, {
     local essential_wins = vim.tbl_filter(is_essential_win, wins)
     local win_count = #essential_wins
 
-    if (win_count == 1 and is_essential_win(win_id)) then
+    if win_count == 1 and is_essential_win(win_id) then
       -- close nonessential windows except current window which is closing
       for _, win in ipairs(wins) do
         if win ~= win_id then

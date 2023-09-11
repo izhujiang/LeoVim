@@ -337,26 +337,91 @@ return {
             width = 0.9,
             prompt_position = "top",
 
-            preview_width = 0.6,
+            -- preview_width = 0.6,
             preview_cutoff = 80,
           },
         },
         pickers = {
-          current_buffer_fuzzy_find = {
-            layout_config = {
-              preview_width = 0.5,
-            },
-          },
           autocommands = {
             layout_config = {
               preview_width = 0.5,
             },
           },
+          buffers = {
+            layout_config = {
+              preview_width = 0.6,
+            }
+          },
+          colorscheme = {
+            layout_config = {
+              preview_width = 0.6,
+            }
+          },
+          current_buffer_fuzzy_find = {
+            layout_config = {
+              preview_width = 0.5,
+            },
+          },
+          diagnostics = {
+            layout_config = {
+              preview_width = 0.6,
+            }
+          },
+          git_branches = {
+            layout_config = {
+              preview_width = 0.6,
+            }
+          },
+          git_commit = {
+            layout_config = {
+              preview_width = 0.6,
+            }
+          },
+          git_status = {
+            layout_config = {
+              preview_width = 0.6,
+            }
+          },
+          grep_string = {
+            layout_config = {
+              preview_width = 0.6,
+            }
+          },
+          help_tags = {
+            layout_config = {
+              preview_width = 0.6,
+            }
+          },
+          live_grep = {
+            layout_config = {
+              preview_width = 0.6,
+            }
+          },
+          lsp_document_symbols = {
+            layout_config = {
+              preview_width = 0.6,
+            }
+          },
+          lsp_workspace_symbols = {
+            layout_config = {
+              preview_width = 0.6,
+            }
+          },
+          marks = {
+            layout_config = {
+              preview_width = 0.6,
+            }
+          },
+          man_pages = {
+            layout_config = {
+              preview_width = 0.6,
+            }
+          },
           oldfiles = {
             layout_config = {
-              preview_width = 0.4,
+              preview_width = 0.5,
             },
-          }
+          },
         },
         extensions = {
           fzf = {

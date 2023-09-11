@@ -11,7 +11,7 @@ return {
       { "rcarriga/nvim-dap-ui" },
       { "theHamsta/nvim-dap-virtual-text" },
       { "nvim-telescope/telescope-dap.nvim" },
-      { "jbyuki/one-small-step-for-vimkind" },
+      -- { "jbyuki/one-small-step-for-vimkind" },
     },
     cmd = { "Debug" },
     -- TODO: add more other language supports
@@ -137,19 +137,21 @@ return {
       }
     end,
     opts = {
-      adapters = require("leovim.plugins.dev.settings.dap.adapters"),
-      configurations = require("leovim.plugins.dev.settings.dap.configurations"),
+      -- adapters = require("leovim.plugins.dev.settings.dap.adapters"),
+      -- configurations = require("leovim.plugins.dev.settings.dap.configurations"),
+      adapters = {},
+      configurations = {},
     },
     config = function(_, opts)
       -- config dap.adapters and configurations by mason-nvim-dap in mason.lua, but only 24 adapters are supported.
       -- OR install and config adapters manually (as following) (https://github.com/mfussenegger/nvim-dap/wiki/Debug-Adapter-installation)
-      -- local dap = require("dap")
-      -- for name, adapter in pairs(opts.adapters) do
-      --   dap.adapters[name] = adapter
-      -- end
-      -- for name, conf in pairs(opts.configurations) do
-      --   dap.configurations[name] = conf
-      -- end
+      local dap = require("dap")
+      for name, adapter in pairs(opts.adapters) do
+        dap.adapters[name] = adapter
+      end
+      for name, conf in pairs(opts.configurations) do
+        dap.configurations[name] = conf
+      end
 
       local icons = require("leovim.config").icons
       vim.api.nvim_set_hl(0, "DapStoppedLine", { default = true, link = "Visual" })
@@ -256,20 +258,8 @@ return {
       },
     },
     config = function(_, opts)
-      -- local dap = require("dap")
       local dapui = require("dapui")
-
       dapui.setup(opts)
-
-      -- dap.listeners.after.event_initialized["dapui_config"] = function()
-      --   dapui.open({})
-      -- end
-      -- dap.listeners.before.event_terminated["dapui_config"] = function()
-      --   dapui.close({})
-      -- end
-      -- dap.listeners.before.event_exited["dapui_config"] = function()
-      --   dapui.close({})
-      -- end
     end,
   },
 
@@ -284,46 +274,4 @@ return {
     end
   },
 
-  -- an adapter for the Neovim lua language
-  {
-    "jbyuki/one-small-step-for-vimkind",
-    keys = {
-      {
-        "<leader>daL",
-        function()
-          require("osv").launch({ port = 8086 })
-        end,
-        desc = "Adapter Lua Server",
-      },
-      {
-        "<leader>dal",
-        function()
-          require("osv").run_this()
-        end,
-        desc = "Adapter Lua",
-      },
-    },
-  },
-  -- {
-  --   "mfussenegger/nvim-dap-python",
-  --   keys = {
-  --     { "<leader>dT", function() require('dap-python').test_method() end, desc = "Debug Method(Python)" },
-  --     { "<leader>dc", function() require('dap-python').test_class() end,  desc = "Debug Class(Python)" },
-  --   },
-  --   config = function()
-  --     -- TODO: setup dap-python path
-  --     local path = require("mason-registry").get_package("debugpy"):get_install_path()
-  --     require("dap-python").setup(path .. "/venv/bin/python")
-  --   end,
-  -- },
-  -- { ruby only
-  --   "suketa/nvim-dap-ruby",
-  --   config = function()
-  --     require("dap-ruby").setup()
-  --   end,
-  -- }
-  -- {
-  -- DAPInstall.nvim is a NeoVim plugin written in Lua that extends nvim-dap's functionality for managing various debuggers. Everything from installation, configuration, setup, etc.
-  -- "ravenxrz/DAPInstall.nvim",
-  -- }
 }

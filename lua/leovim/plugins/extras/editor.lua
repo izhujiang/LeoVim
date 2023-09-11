@@ -5,6 +5,7 @@ return {
   --  lazygit: a simple terminal UI for git commands running in shell or via terminal
   {
     "tpope/vim-fugitive",
+    enabled = false,
     cmd = {
       "G",
       "Git",
@@ -21,5 +22,4 @@ return {
       "Gedit",
     },
   },
-
 }
