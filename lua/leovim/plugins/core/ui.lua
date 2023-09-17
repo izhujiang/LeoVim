@@ -41,7 +41,6 @@ return {
   -- Neovim plugin to improve the default vim.ui interfaces (select, input)
   {
     "stevearc/dressing.nvim",
-    lazy = true,
     init = function()
       ---@diagnostic disable-next-line: duplicate-set-field
       vim.ui.select = function(...)

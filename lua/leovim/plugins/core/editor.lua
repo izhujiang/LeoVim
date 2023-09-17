@@ -353,6 +353,7 @@ return {
             }
           },
           colorscheme = {
+            enable_preview = true,
             layout_config = {
               preview_width = 0.6,
             }
@@ -363,6 +364,19 @@ return {
             },
           },
           diagnostics = {
+            layout_config = {
+              preview_width = 0.6,
+            }
+          },
+          find_files = {
+            hidden = true,
+            layout_config = {
+              preview_width = 0.6,
+            }
+          },
+          git_files = {
+            hidden = true,
+            show_untracked = true,
             layout_config = {
               preview_width = 0.6,
             }
@@ -1060,9 +1074,9 @@ return {
     opts = {
       size = function(term)
         if term.direction == "horizontal" then
-          return vim.fn.winheight(0) * 0.4
+          return vim.o.lines * 0.4
         elseif term.direction == "vertical" then
-          return vim.fn.winwidth(0) * 0.8
+          return vim.o.columns * 0.4
         else
           return 0
         end

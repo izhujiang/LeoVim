@@ -41,6 +41,16 @@ return {
           return vim.tbl_extend("force", { buffer = bufnr, noremap = true, silent = true }, opts or {})
         end
 
+        require("which-key").register({
+          ["<leader>l"] = {
+            name = "+LSP",
+          }
+        }, {
+          buffer = bufnr,
+          silent = true,
+          noremap = true,
+        })
+
         -- Definition and Declaration
         vim.keymap.set("n", "gd", vim.lsp.buf.definition, buf_opts({ desc = "Definition(Lsp)" }))
         vim.keymap.set("n", "gD", vim.lsp.buf.declaration, buf_opts({ desc = "Declaration(Lsp)" }))
@@ -195,7 +205,7 @@ return {
       -- responses and notifications from LSP servers.
       vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = "rounded" })
       vim.lsp.handlers["textDocument/signatureHelp"] =
-        vim.lsp.with(vim.lsp.handlers.signature_help, { border = "rounded" })
+          vim.lsp.with(vim.lsp.handlers.signature_help, { border = "rounded" })
 
       -- Formatting
       -- Only a few language servers (lua-language-server) provide formatting but others (bash-language-server) don’t.

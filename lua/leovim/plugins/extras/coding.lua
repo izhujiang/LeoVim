@@ -1,4 +1,7 @@
 return {
+
+  -- TODO: config "zbirenbaum/copilot.lua", "zbirenbaum/copilot-cmp", and "nvim-lualine/lualine.nvim" at same time
+  -- Ref https://www.lazyvim.org/extras/coding/copilot#copilot-cmp
   {
     -- AI pair programmer
     -- Make sure to run :Lazy load copilot-cmp followed by
