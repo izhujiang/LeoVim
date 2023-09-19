@@ -30,7 +30,7 @@ return {
       vim.list_extend(opts.ensure_installed, {
         "css-lsp", -- lsp
         "html-lsp",
-        -- "denols",
+        "deno",
         "typescript-language-server", -- confix with denols
         "rome",                       -- linter
         "js-debug-adapter",           -- debugger adapter
@@ -66,7 +66,28 @@ return {
               completeFunctionCalls = true,
             },
           },
+          root_dir = require('lspconfig').util.root_pattern("package.json"),
+          single_file_support = false
         },
+        denols = {
+          settings = {
+            {
+              deno = {
+                enable = true,
+                suggest = {
+                  imports = {
+                    hosts = {
+                      ["https://crux.land"] = true,
+                      ["https://deno.land"] = true,
+                      ["https://x.nest.land"] = true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          root_dir = require('lspconfig').util.root_pattern("deno.json", "deno.jsonc"),
+        }
       },
       setup = {},
     },
@@ -81,11 +102,11 @@ return {
       local methods = null_ls.methods
       return {
         sources = {
-          -- formatting.deno_fmt.with({
-          --   condition = function(utils) -- ndicating whether null-ls should register the source.
-          --     return utils.root_has_file({ "deno.jsonc" })
-          --   end,
-          -- }),
+          formatting.deno_fmt.with({
+            condition = function(utils)
+              return utils.root_has_file({ "deno.jsonc", "deno.json" })
+            end,
+          }),
 
           formatting.rome.with({
             filetypes = { "javascript", "typescript", "javascriptreact", "typescriptreact", "json" },
@@ -95,16 +116,16 @@ return {
             timeout = 1000,
           }),
 
-          -- diagnostics.deno_lint.with({
-          --   condition = function(utils)
-          --     return utils.root_has_file({ "deno.jsonc" })
-          --   end,
-          --   method = methods.DIAGNOSTICS_ON_SAVE,
-          -- }),
+          diagnostics.deno_lint.with({
+            condition = function(utils)
+              return utils.root_has_file({ "deno.jsonc", "deno.json" })
+            end,
+            method = methods.DIAGNOSTICS_ON_SAVE,
+          }),
 
           diagnostics.tsc.with({
             condition = function(utils)
-              return not utils.root_has_file({ "deno.jsonc" })
+              return utils.root_has_file({ "package.json" })
             end,
             method = methods.DIAGNOSTICS_ON_SAVE,
           }),

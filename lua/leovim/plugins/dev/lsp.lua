@@ -201,6 +201,15 @@ return {
         end
       end
 
+      local Util = require("leovim.util")
+      if Util.lsp_get_config("denols") and Util.lsp_get_config("tsserver") then
+        local is_deno = require("lspconfig.util").root_pattern("deno.json", "deno.jsonc")
+        Util.lsp_disable("tsserver", is_deno)
+        Util.lsp_disable("denols", function(root_dir)
+          return not is_deno(root_dir)
+        end)
+      end
+
       -- lsp-handlers are functions with special signatures that are designed to handle
       -- responses and notifications from LSP servers.
       vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = "rounded" })
@@ -244,7 +253,6 @@ return {
         end)
       end
 
-      -- TODO: config in denols config
       -- To appropriately highlight codefences returned from denols
       vim.g.markdown_fenced_languages = { "ts=typescript" }
     end,
