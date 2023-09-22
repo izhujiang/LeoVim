@@ -44,7 +44,7 @@ return {
         require("which-key").register({
           ["<leader>l"] = {
             name = "+LSP",
-          }
+          },
         }, {
           buffer = bufnr,
           silent = true,
@@ -215,7 +215,7 @@ return {
       -- responses and notifications from LSP servers.
       vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = "rounded" })
       vim.lsp.handlers["textDocument/signatureHelp"] =
-          vim.lsp.with(vim.lsp.handlers.signature_help, { border = "rounded" })
+        vim.lsp.with(vim.lsp.handlers.signature_help, { border = "rounded" })
 
       -- Formatting
       -- Only a few language servers (lua-language-server) provide formatting but others (bash-language-server) don’t.
@@ -265,24 +265,22 @@ return {
     event = { "BufReadPost", "BufNewFile" },
     dependencies = {
       "nvim-lua/plenary.nvim",
+      "williamboman/mason.nvim",
     },
     opts = function()
       local null_ls = require("null-ls")
       -- local formatting = null_ls.builtins.formatting
       local diagnostics = null_ls.builtins.diagnostics
-      -- local code_actions = null_ls.builtins.code_actions
+      local code_actions = null_ls.builtins.code_actions
       local methods = null_ls.methods
       return {
         -- debug = true,
         -- TODO: config project root
         -- root_dir(function) Determines the root of the null-ls server.
         -- On startup, null-ls will call root_dir with the full path to the first file that null-ls attaches to.
-        root_dir = require("null-ls.utils").root_pattern(".null-ls-root", ".neoconf.json", "Makefile", ".git"),
+        -- root_dir = require("null-ls.utils").root_pattern(".null-ls-root", ".neoconf.json", "Makefile", ".git"),
         sources = {
           diagnostics.commitlint.with({
-            method = methods.DIAGNOSTICS_ON_SAVE,
-          }),
-          diagnostics.dotenv_linter.with({
             method = methods.DIAGNOSTICS_ON_SAVE,
           }),
           diagnostics.editorconfig_checker.with({
@@ -292,10 +290,10 @@ return {
             method = methods.DIAGNOSTICS_ON_SAVE,
           }),
 
-          -- code_actions.refactoring,
-          -- code_actions.gitsigns.with({
-          -- 	disabled_filetypes = { "lua" },
-          -- }),
+          code_actions.refactoring,
+          code_actions.gitsigns.with({
+            disabled_filetypes = { "lua" },
+          }),
         },
       }
     end,

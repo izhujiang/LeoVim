@@ -13,8 +13,13 @@ return {
       { "saadparwaiz1/cmp_luasnip" },            -- source: luasnip
       { "hrsh7th/cmp-nvim-lua" },                -- source: complete neovim's Lua runtime API such vim.lsp.*
       { "hrsh7th/cmp-nvim-lsp-signature-help" }, -- source: function signatures
-      { "tzachar/cmp-tabnine" },                 -- source: Tabnine
       { "L3MON4D3/LuaSnip" },                    -- Snippet Engine for Neovim
+      {                                          -- source: Tabnine
+        "tzachar/cmp-tabnine",
+        cond = function()
+          return vim.loop.os_uname().machine ~= "aarch64"
+        end,
+      },
     },
     opts = function()
       local has_words_before = function()

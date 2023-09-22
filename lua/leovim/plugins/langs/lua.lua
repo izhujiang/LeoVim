@@ -29,9 +29,15 @@ return {
               runtime = {
                 -- Tell the language server which version of Lua you're using (most likely LuaJIT in the case of Neovim)
                 version = "LuaJIT",
+                -- path = {
+                --   '?.lua',
+                --   '?/init.lua',
+                --   vim.fn.expand'~/.luarocks/share/lua/5.3/?.lua',
+                --   vim.fn.expand'~/.luarocks/share/lua/5.3/?/init.lua',
+                -- }
               },
               format = {
-                enable = true,
+                enable = false,
               },
               diagnostics = {
                 globals = { "vim" },
@@ -92,6 +98,7 @@ return {
           --     return utils.root_has_file({ "stylua.toml", ".stylua.toml" })
           --   end,
           -- }),
+
           diagnostics.selene.with({
             condition = function(utils) -- indicating whether null-ls should register the source.
               return utils.root_has_file({ "selene.toml" })
@@ -120,9 +127,9 @@ return {
             request = "attach",
             name = "Attach to running Neovim instance",
           },
-        }
+        },
       },
-    }
+    },
   },
 
   -- an adapter for the Neovim lua language
@@ -145,5 +152,4 @@ return {
       },
     },
   },
-
 }

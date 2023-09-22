@@ -28,12 +28,12 @@ return {
     "williamboman/mason.nvim",
     opts = function(_, opts)
       vim.list_extend(opts.ensure_installed, {
-        "css-lsp", -- lsp
+        "css-lsp",
         "html-lsp",
         "deno",
-        "typescript-language-server", -- confix with denols
-        "rome",                       -- linter
-        "js-debug-adapter",           -- debugger adapter
+        "typescript-language-server",
+        "eslint_d",
+        "js-debug-adapter", -- debugger adapter
       })
     end,
   },
@@ -108,11 +108,11 @@ return {
             end,
           }),
 
-          formatting.rome.with({
-            filetypes = { "javascript", "typescript", "javascriptreact", "typescriptreact", "json" },
-            -- To prefer using a local executable for a built-in. This will cause null-ls to search upwards from the current buffer's directory,
-            -- try to find a local executable at each parent directory, and fall back to a global executable if it can't find one locally.
-            prefer_local = "node_modules/.bin",
+          formatting.eslint_d.with({
+            condition = function(utils)
+              return utils.root_has_file({ "package.json" })
+            end,
+            method = methods.DIAGNOSTICS_ON_SAVE,
             timeout = 1000,
           }),
 
@@ -125,7 +125,7 @@ return {
 
           diagnostics.tsc.with({
             condition = function(utils)
-              return utils.root_has_file({ "package.json" })
+              return utils.root_has_file({ "tsconfig.json" })
             end,
             method = methods.DIAGNOSTICS_ON_SAVE,
           }),

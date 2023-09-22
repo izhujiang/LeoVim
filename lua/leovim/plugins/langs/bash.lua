@@ -46,6 +46,9 @@ return {
           diagnostics.shellcheck.with({
             method = methods.DIAGNOSTICS_ON_SAVE,
           }), -- shell script diagnostics
+          diagnostics.dotenv_linter.with({
+            method = methods.DIAGNOSTICS_ON_SAVE,
+          }),
 
           code_actions.shellcheck, -- shell script code actions
         })

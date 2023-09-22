@@ -49,6 +49,9 @@ return {
   {
     "codota/tabnine-nvim",
     -- enabled = false,
+    cond = function()
+      return vim.loop.os_uname().machine ~= "aarch64"
+    end,
     build = function()
       if vim.loop.os_uname().sysname == "Windows_NT" then -- Windows installations need to be adjusted to utilize PowerShell with dl_binaries.ps1
         -- The build script needs a set execution policy (https://github.com/codota/tabnine-nvim).
@@ -114,48 +117,41 @@ return {
         "y",
         "<Plug>(YankyYank)",
         mode = { "n", "x" },
-        desc =
-        "Yank"
+        desc = "Yank",
       },
       {
         "p",
         "<Plug>(YankyPutAfter)",
         mode = { "n", "x" },
-        desc =
-        "Put"
+        desc = "Put",
       },
       {
         "P",
         "<Plug>(YankyPutBefore)",
         mode = { "n", "x" },
-        desc =
-        "Put before"
+        desc = "Put before",
       },
       {
         "gp",
         "<Plug>(YankyGPutAfter)",
         mode = { "n", "x" },
-        desc =
-        "Put"
+        desc = "Put",
       },
       {
         "gP",
         "<Plug>(YankyGPutBefore)",
         mode = { "n", "x" },
-        desc =
-        "Put before"
+        desc = "Put before",
       },
       {
         "=p",
         "<Plug>(YankyPutAfterFilter)",
-        desc =
-        "Put after applying a filter"
+        desc = "Put after applying a filter",
       },
       {
         "=P",
         "<Plug>(YankyPutBeforeFilter)",
-        desc =
-        "Put before applying a filter"
+        desc = "Put before applying a filter",
       },
     },
   },
