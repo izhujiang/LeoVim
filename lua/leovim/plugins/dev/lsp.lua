@@ -201,14 +201,15 @@ return {
         end
       end
 
-      local Util = require("leovim.util")
-      if Util.lsp_get_config("denols") and Util.lsp_get_config("tsserver") then
-        local is_deno = require("lspconfig.util").root_pattern("deno.json", "deno.jsonc")
-        Util.lsp_disable("tsserver", is_deno)
-        Util.lsp_disable("denols", function(root_dir)
-          return not is_deno(root_dir)
-        end)
-      end
+      -- not necessary, tsserver and denols setup with root_dir option
+      -- local Util = require("leovim.util")
+      -- if Util.lsp_get_config("denols") and Util.lsp_get_config("tsserver") then
+      --   local is_deno = require("lspconfig.util").root_pattern("deno.json", "deno.jsonc")
+      --   Util.lsp_disable("tsserver", is_deno)
+      --   Util.lsp_disable("denols", function(root_dir)
+      --     return not is_deno(root_dir)
+      --   end)
+      -- end
 
       -- lsp-handlers are functions with special signatures that are designed to handle
       -- responses and notifications from LSP servers.

@@ -8,18 +8,9 @@ local defaults = {
   -- colorscheme can be a string like `catppuccin` or a function that will load the colorscheme
   ---@type string|fun()
   colorscheme = function()
-    -- require("everforest").load()
-    require("tokyonight").load()
+    require("everforest").load()
+    -- require("tokyonight").load()
   end,
-  -- load the default settings
-
-  -- defaults = {
-  --   options = true,  -- leovim.config.options
-  --   keymaps = true,  -- leovim.config.keymaps
-  --   autocmds = true, -- leovim.config.autocmds
-  --   -- leovim.config.options can't be configured here since that's loaded before leovim setup
-  --   -- if you want to disable loading options, add `package.loaded["leovim.config.options"] = true` to the top of your init.lua
-  -- },
   -- icons used by other plugins
   icons = {
     dap = {
