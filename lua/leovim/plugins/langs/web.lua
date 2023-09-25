@@ -45,7 +45,7 @@ return {
         tsserver = {
           keys = {
             { "<leader>co", "<cmd>TypescriptOrganizeImports<CR>", desc = "Organize Imports" },
-            { "<leader>cR", "<cmd>TypescriptRenameFile<CR>",      desc = "Rename File" },
+            { "<leader>cR", "<cmd>TypescriptRenameFile<CR>", desc = "Rename File" },
           },
           settings = {
             typescript = {
@@ -66,8 +66,8 @@ return {
               completeFunctionCalls = true,
             },
           },
-          root_dir = require('lspconfig').util.root_pattern("package.json"),
-          single_file_support = false
+          root_dir = require("lspconfig").util.root_pattern("package.json"),
+          single_file_support = false,
         },
         denols = {
           settings = {
@@ -79,15 +79,15 @@ return {
                     hosts = {
                       ["https://crux.land"] = true,
                       ["https://deno.land"] = true,
-                      ["https://x.nest.land"] = true
-                    }
-                  }
-                }
-              }
-            }
+                      ["https://x.nest.land"] = true,
+                    },
+                  },
+                },
+              },
+            },
           },
-          root_dir = require('lspconfig').util.root_pattern("deno.json", "deno.jsonc"),
-        }
+          root_dir = require("lspconfig").util.root_pattern("deno.json", "deno.jsonc"),
+        },
       },
       setup = {},
     },
@@ -95,13 +95,14 @@ return {
 
   {
     "jose-elias-alvarez/null-ls.nvim",
-    opts = function()
+    opts = function(_, opts)
       local null_ls = require("null-ls")
       local formatting = null_ls.builtins.formatting
       local diagnostics = null_ls.builtins.diagnostics
       local methods = null_ls.methods
-      return {
-        sources = {
+
+      if type(opts.sources) == "table" then
+        vim.list_extend(opts.sources, {
           formatting.deno_fmt.with({
             condition = function(utils)
               return utils.root_has_file({ "deno.jsonc", "deno.json" })
@@ -129,8 +130,8 @@ return {
             end,
             method = methods.DIAGNOSTICS_ON_SAVE,
           }),
-        },
-      }
+        })
+      end
     end,
   },
 
@@ -147,10 +148,10 @@ return {
           args = function()
             return {
               require("mason-registry").get_package("js-debug-adapter"):get_install_path()
-              .. "/js-debug/src/dapDebugServer.js",
+                .. "/js-debug/src/dapDebugServer.js",
               "${port}",
             }
-          end
+          end,
         },
       }
       opts.configurations.typescript = {
@@ -171,6 +172,6 @@ return {
           cwd = "${workspaceFolder}",
         },
       }
-    end
-  }
+    end,
+  },
 }

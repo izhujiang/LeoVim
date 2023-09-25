@@ -38,7 +38,7 @@ return {
         vim.list_extend(opts.sources, {
           diagnostics.actionlint.with({
             method = methods.DIAGNOSTICS_ON_SAVE,
-          }), -- shell script diagnostics
+          }),
         })
       end
     end,
