@@ -5,6 +5,7 @@ return {
     build = ":TSUpdate",
     event = { "BufReadPost", "BufNewFile" },
     cmd = {
+      "TSConfigInfo",
       "TSInstall",
       "TSUninstall",
       "TSUpdate",
@@ -13,14 +14,6 @@ return {
       "TSInstallSync",
       "TSInstallFromGrammar",
     },
-    -- keys = {
-    --   { "<c-space>", desc = "Increment selection" },
-    --   { "<bs>", desc = "Decrement selection", mode = "x" },
-    -- },
-    keys = {
-      { "<leader>It", "<cmd>TSConfigInfo<cr>", desc = "Treesitter" },
-    },
-
     dependencies = {
       { "nvim-tree/nvim-web-devicons" },
       { "nvim-treesitter/nvim-treesitter-textobjects" }, -- treesitter plugin: Syntax aware text-objects, select, move, swap, and peek support.
@@ -29,11 +22,38 @@ return {
     opts = {
       -- https://github.com/nvim-treesitter/nvim-treesitter#supported-languages
       ensure_installed = {
+        "bash",
+        "c",
+        "cmake",
         "comment",
+        "cpp",
+        "css",
         "diff",
+        "dockerfile",
         "dot",
         "gitcommit",
+        "go",
+        "gomod",
+        "gosum",
+        "gowork",
+        "html",
+        "javascript",
+        "json",
+        "json5",
+        "jsonc",
+        "latex",
+        "lua",
+        "markdown",
+        "markdown_inline",
+        "python",
+        "rust",
         "sql",
+        "toml",
+        "tsx",
+        "typescript",
+        "vim",
+        "vimdoc",
+        "yaml",
       },
 
       sync_install = false, -- Install parsers synchronously (only applied to `ensure_installed`)
@@ -112,13 +132,8 @@ return {
         },
       },
       autotag = {
-        enable = false,
-        -- enable = true,
-        -- enable_rename = true,
-        -- enable_close = true,
-        -- enable_close_on_slash = true,
-        -- filetypes = { "html", "xml" },
-      }, -- "windwp/nvim-ts-autotag" autoclose and autorename html tag
+        enable = false, -- autotag will be enabled by nvim-ts-autotag automatically
+      },
 
       -- nvim-treesitter-textobjects(https://github.com/nvim-treesitter/nvim-treesitter-textobjects)
       textobjects = {
@@ -159,7 +174,7 @@ return {
             ["]m"] = { query = "@function.outer", desc = "Next function(start)" },
             -- ["]]"] = { query = "@class.outer", desc = "Next class(start)" },
             --
-            -- You can use regex matching (i.e. lua pattern) and/or pass a list in a "query" key to group multiple queires.
+            -- You can use regex matching (i.e. lua pattern) and/or pass a list in a "query" key to group multiple queries.
             ["]o"] = { query = "@loop.*", desc = "Next loop" },
             -- ["]o"] = { query = { "@loop.inner", "@loop.outer" } }
             --
@@ -243,6 +258,25 @@ return {
       -- vim.keymap.set({ "n", "x", "o" }, "F", ts_repeat_move.builtin_F)
       -- vim.keymap.set({ "n", "x", "o" }, "t", ts_repeat_move.builtin_t)
       -- vim.keymap.set({ "n", "x", "o" }, "T", ts_repeat_move.builtin_T)
+    end,
+  },
+
+  {
+    -- Use treesitter to autoclose and autorename html tag
+    "windwp/nvim-ts-autotag",
+    ft = {
+      "javascript",
+      "typescript",
+      "jsx",
+      "tsx",
+      "html",
+      "xml",
+      "astro",
+    },
+    config = function()
+      require("nvim-ts-autotag").setup({
+        -- filetypes = { "html", "xml" },
+      })
     end,
   },
 }

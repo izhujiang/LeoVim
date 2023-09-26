@@ -5,8 +5,8 @@ return {
       "nvim-lua/plenary.nvim",
       "nvim-treesitter/nvim-treesitter",
 
-      -- "nvim-neotest/neotest-go",
-      -- "nvim-neotest/neotest-python",
+      "nvim-neotest/neotest-go",
+      "nvim-neotest/neotest-python",
       -- "nvim-neotest/neotest-vim-test",
       -- "markemmons/neotest-deno"
     },
@@ -87,13 +87,13 @@ return {
     end,
     opts = {
       adapters = {
-        -- ["neotest-go"] = {
-        --   -- args = { "-tags=integration" }
-        -- },
-        -- ["neotest-python"] = {
+        ["neotest-go"] = {
+          -- args = { "-tags=integration" }
+        },
+        ["neotest-python"] = {
         --   -- runner = "pytest",
         --   -- python = ".venv/bin/python",
-        -- },
+        },
       },
       status = { virtual_text = true },
       output = { open_on_run = true },
@@ -149,5 +149,5 @@ return {
 
       require("neotest").setup(opts)
     end,
-  },
+  }
 }

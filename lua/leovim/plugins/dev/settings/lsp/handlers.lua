@@ -1,28 +1,30 @@
 local make_server_opts = function(opts)
-  local capabilities = vim.lsp.protocol.make_client_capabilities()
+  -- local capabilities = vim.lsp.protocol.make_client_capabilities()
   -- capabilities.textDocument.completion.completionItem.snippetSupport = true
-  capabilities.textDocument.completion.completionItem.resolveSupport = {
-    properties = {
-      "documentation",
-      "detail",
-      "additionalTextEdits",
-    },
-  }
+  -- capabilities.textDocument.completion.completionItem.resolveSupport = {
+  --   properties = {
+  --     "documentation",
+  --     "detail",
+  --     "additionalTextEdits",
+  --   },
+  -- }
 
-  local status_ok, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
-  if status_ok then
-    capabilities = cmp_nvim_lsp.default_capabilities()
-  end
+  local has_cmp, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
+  local capabilities = vim.tbl_deep_extend(
+    "force",
+    {},
+    vim.lsp.protocol.make_client_capabilities(),
+    has_cmp and cmp_nvim_lsp.default_capabilities() or {},
+    opts.capabilities or {}
+  )
 
   -- !!! DON'T enable cmp_nvim_lsp snippetSupport
   capabilities.textDocument.completion.completionItem.snippetSupport = false
-
   local server_opts = vim.tbl_deep_extend("force", {
-    capabilities = vim.deepcopy(capabilities),
+    capabilities = capabilities,
   }, opts or {})
 
   return server_opts
-  -- return {}
 end
 
 local lsp_handlers = {
@@ -170,13 +172,10 @@ local lsp_handlers = {
       neodev.setup({})
     end
 
-    require("lspconfig").lua_ls.setup(make_server_opts({
-      -- "neovim/nvim-lspconfig" <= v0.1.6
-      -- require("lspconfig").sumneko_lua.setup(make_server_opts({
+    local opts = make_server_opts({
       settings = {
         Lua = {
           runtime = {
-            -- Tell the language server which version of Lua you're using (most likely LuaJIT in the case of Neovim)
             version = "LuaJIT",
           },
           format = {
@@ -186,7 +185,7 @@ local lsp_handlers = {
             globals = { "vim" },
           },
           workspace = {
-            checkThirdParty = false,
+            checkThirdParty = false, -- disable Luv, and Luassert prompts
             library = {
               [vim.fn.expand("$VIMRUNTIME/lua")] = true,
               [vim.fn.stdpath("data") .. "/lazy/lazy.nvim/lua"] = true,
@@ -196,7 +195,11 @@ local lsp_handlers = {
           },
         },
       },
-    }))
+    })
+
+    -- "neovim/nvim-lspconfig" <= v0.1.6
+    -- require("lspconfig").sumneko_lua.setup
+    require("lspconfig").lua_ls.setup(opts)
   end,
 
   pyright = function()
@@ -222,57 +225,10 @@ local lsp_handlers = {
   end,
 
   -- ["rust_analyzer"] = function()
-  --   require("rust-tools").setup {}
+  -- Ref: https://github.com/simrat39/rust-tools.nvim
+  --sets up nvim-lspconfig for rust_analyzer
+  -- require("rust-tools").setup({})
   -- end,
-  rust_analyzer = function()
-    local opts = make_server_opts({
-      keys = {
-        {
-          "K",
-          "<cmd>RustHoverActions<cr>",
-          desc = "Hover Actions (Rust)",
-        },
-        {
-          "<leader>cR",
-          "<cmd>RustCodeAction<cr>",
-          desc = "Code Action (Rust)",
-        },
-        {
-          "<leader>dr",
-          "<cmd>RustDebuggables<cr>",
-          desc = "Run Debuggables (Rust)",
-        },
-      },
-      settings = {
-        ["rust-analyzer"] = {
-          cargo = {
-            allFeatures = true,
-            loadOutDirsFromCheck = true,
-            runBuildScripts = true,
-          },
-          -- Add clippy lints for Rust.
-          checkOnSave = {
-            allFeatures = true,
-            command = "clippy",
-            extraArgs = { "--no-deps" },
-          },
-          procMacro = {
-            enable = true,
-            ignored = {
-              ["async-trait"] = { "async_trait" },
-              ["napi-derive"] = { "napi" },
-              ["async-recursion"] = { "async_recursion" },
-            },
-          },
-        },
-      },
-    })
-
-    local rust_tools_opts = require("lazyvim.util").opts("rust-tools.nvim")
-    require("rust-tools").setup(vim.tbl_deep_extend("force", rust_tools_opts or {}, { server = opts }))
-
-    require("lspconfig").rust_analyzer.setup(opts)
-  end,
 
   taplo = function()
     require("lspconfig").taplo.setup(make_server_opts({
@@ -306,20 +262,67 @@ local lsp_handlers = {
             tabSize = vim.o.tabstop,
           },
         },
-        javascript = {
-          format = {
-            indentSize = vim.o.shiftwidth,
-            convertTabsToSpaces = vim.o.expandtab,
-            tabSize = vim.o.tabstop,
-          },
-        },
         completions = {
           completeFunctionCalls = true,
         },
       },
+
+      root_dir = require("lspconfig").util.root_pattern("package.json"),
+      single_file_support = false,
     })
 
+    -- TODO: config "jose-elias-alvarez/typescript.nvim" ?
+    -- require("typescript").setup({ server = opts })
     require("lspconfig").tsserver.setup(opts)
+  end,
+
+  denols = function()
+    local opts = make_server_opts({
+      settings = {
+        {
+          deno = {
+            enable = true,
+            suggest = {
+              imports = {
+                hosts = {
+                  ["https://crux.land"] = true,
+                  ["https://deno.land"] = true,
+                  ["https://x.nest.land"] = true,
+                },
+              },
+            },
+          },
+        },
+      },
+      root_dir = require("lspconfig").util.root_pattern("deno.json", "deno.jsonc"),
+    })
+    require("lspconfig").denols.setup(opts)
+  end,
+
+  tailwindcss = function()
+    local opts = make_server_opts({
+      filetypes = {
+        "astro",
+        "elixir",
+        "gohtml",
+        "haml",
+        "html",
+        "php",
+        "css",
+        "less",
+        "postcss",
+        "sass",
+        "scss",
+        "stylus",
+        "javascript",
+        "javascriptreact",
+        "typescript",
+        "typescriptreact",
+        "vue",
+        "svelte",
+      },
+    })
+    require("lspconfig").tailwindcss.setup(opts)
   end,
 }
 

@@ -50,11 +50,10 @@ return {
         group = vim.api.nvim_create_augroup("leovim_" .. "typescript", { clear = true }),
         pattern = { "javascript", "typescript" },
         callback = function()
-          vim.api.nvim_buf_set_keymap(0, "n", "<C-a>", require("dial.map").inc_normal("typescript"), {noremap = true})
-          vim.api.nvim_buf_set_keymap(0, "n", "<C-x>", require("dial.map").dec_normal("typescript"), {noremap = true})
+          vim.api.nvim_buf_set_keymap(0, "n", "<C-a>", require("dial.map").inc_normal("typescript"), { noremap = true })
+          vim.api.nvim_buf_set_keymap(0, "n", "<C-x>", require("dial.map").dec_normal("typescript"), { noremap = true })
         end,
       })
-
     end,
   },
   -- fugitive.vim: A Git wrapper. (fugitive.vim vs lazygit)

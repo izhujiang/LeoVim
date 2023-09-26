@@ -112,19 +112,18 @@ return {
         "<cmd>BufferLinePickClose<cr>",
         desc = "Close Buffer",
       },
-
     },
     config = function()
       local bufferline = require("bufferline")
       -- vim.opt.showtabline = 2
 
       local options = {
-        mode = "buffers",      -- set to "tabs" to only show tabpages instead
+        mode = "buffers", -- set to "tabs" to only show tabpages instead
         -- style_preset = bufferline.style_preset.minimal, -- or bufferline.style_preset.default,
-        themable = true,       -- allows highlight groups to be overridden i.e. sets highlights as default
+        themable = true, -- allows highlight groups to be overridden i.e. sets highlights as default
         numbers = "buffer_id", -- "none" | "ordinal" | "buffer_id" | "both" | function({ ordinal, id, lower, raise }): string,
         indicator = {
-          style = "icon",      --'icon', 'underline' | 'none',
+          style = "icon", --'icon', 'underline' | 'none',
         },
 
         buffer_close_icon = "󰅖",
@@ -142,7 +141,7 @@ return {
         -- end,
         max_name_length = 18,
         max_prefix_length = 15, -- prefix used when a buffer is de-duplicated
-        truncate_names = true,  -- whether or not tab names should be truncated
+        truncate_names = true, -- whether or not tab names should be truncated
         tab_size = 18,
         diagnostics = "nvim_lsp",
         diagnostics_update_in_insert = false,
@@ -155,15 +154,15 @@ return {
           return s
         end,
 
-        color_icons = true,       -- whether or not to add the filetype icon highlights
+        color_icons = true, -- whether or not to add the filetype icon highlights
         show_buffer_icons = true, -- disable filetype icons for buffers
         show_buffer_close_icons = true,
         show_close_icon = true,
         show_tab_indicators = true,
         show_duplicate_prefix = true, -- whether to show duplicate buffer prefix
-        persist_buffer_sort = true,   -- whether or not custom sorted buffers should persist
-        move_wraps_at_ends = false,   -- whether or not the move command "wraps" at the first or last position
-        separator_style = "thin",     --"slant" | "slope" | "thick" | "thin" | { 'any', 'any' },
+        persist_buffer_sort = true, -- whether or not custom sorted buffers should persist
+        move_wraps_at_ends = false, -- whether or not the move command "wraps" at the first or last position
+        separator_style = "thin", --"slant" | "slope" | "thick" | "thin" | { 'any', 'any' },
         sort_by = "id",
 
         close_command = function(n)
@@ -236,8 +235,6 @@ return {
           theme = "auto",
           component_separators = nil,
           section_separators = nil, -- { left = "", right = "" },
-          -- component_separators = { left = '', right = '' },
-          -- section_separators = { left = '', right = '' },
           disabled_filetypes = { "alpha", "dashboard" },
           always_divide_middle = true,
         },
@@ -248,9 +245,9 @@ return {
             {
               "diff",
               symbols = {
-                added = icons.git.added,
-                modified = icons.git.modified,
-                removed = icons.git.removed,
+                added = icons.git.LineAdded,
+                modified = icons.git.LineModified,
+                removed = icons.git.LineRemoved,
               },
               cond = function()
                 return vim.fn.winwidth(0) > 80
@@ -268,7 +265,11 @@ return {
               "filename",
               path = 1,
               -- TODO: find icons for readonly and unnamed
-              symbols = { modified = "", readonly = "", unnamed = "" },
+              symbols = {
+                modified = icons.file.Modified,
+                readonly = icons.file.Readonly,
+                unnamed = icons.file.Unnamed,
+              },
             },
             {
               function()
@@ -330,29 +331,32 @@ return {
   {
     "lukas-reineke/indent-blankline.nvim",
     event = { "BufReadPost", "BufNewFile" },
+    main = "ibl", -- update from version 2 to version 3
     opts = {
       -- char = "▏",
-      char = "│",
-      buftype_exclude = { "terminal", "nofile" },
-      filetype_exclude = {
-        "help",
-        "alpha",
-        "dashboard",
-        "NvimTree",
-        "neo-tree",
-        "Trouble",
-        "lazy",
-        "mason",
-        "notify",
-        "toggleterm",
-        "lazyterm",
-        "fugitive",
+      indent = {
+        char = "│",
       },
-      show_trailing_blankline_indent = false,
-      show_current_context = false,
-
-      show_first_indent_level = true,
-      use_treesitter = true,
+      exclude = {
+        buftypes = { "terminal", "nofile" },
+        filetypes = {
+          "help",
+          "alpha",
+          "dashboard",
+          "NvimTree",
+          "neo-tree",
+          "Trouble",
+          "lazy",
+          "mason",
+          "notify",
+          "toggleterm",
+          "lazyterm",
+          "fugitive",
+        },
+      },
+      scope = {
+        enabled = true,
+      },
     },
   },
 

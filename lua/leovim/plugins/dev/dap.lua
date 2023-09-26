@@ -14,8 +14,6 @@ return {
       -- { "jbyuki/one-small-step-for-vimkind" },
     },
     cmd = { "Debug" },
-    -- TODO: add more other language supports
-    -- ft = { "go", "c", "c++", "python", "lua", "javascript", "typescript" },
     keys = function()
       return {
         {
@@ -137,17 +135,21 @@ return {
       }
     end,
     opts = {
-      -- adapters = require("leovim.plugins.dev.settings.dap.adapters"),
-      -- configurations = require("leovim.plugins.dev.settings.dap.configurations"),
-      adapters = {},
-      configurations = {},
+      adapters = require("leovim.plugins.dev.settings.dap.adapters"),
+      configurations = require("leovim.plugins.dev.settings.dap.configurations"),
+      -- adapters = {},
+      -- configurations = {},
     },
     config = function(_, opts)
       -- config dap.adapters and configurations by mason-nvim-dap in mason.lua, but only 24 adapters are supported.
       -- OR install and config adapters manually (as following) (https://github.com/mfussenegger/nvim-dap/wiki/Debug-Adapter-installation)
       local dap = require("dap")
       for name, adapter in pairs(opts.adapters) do
-        dap.adapters[name] = adapter
+        if type(adapter) == "function" then
+          dap.adapters[name] = adapter()
+        else
+          dap.adapters[name] = adapter
+        end
       end
       for name, conf in pairs(opts.configurations) do
         dap.configurations[name] = conf
@@ -168,7 +170,6 @@ return {
         )
       end
 
-      local dap = require("dap")
       local dapui = require("dapui")
       dap.listeners.after.event_initialized["dapui_config"] = function()
         dapui.open({})
@@ -231,17 +232,17 @@ return {
       layouts = {
         {
           elements = {
-            { id = "scopes",      size = 0.33 },
+            { id = "scopes", size = 0.33 },
             { id = "breakpoints", size = 0.17 },
-            { id = "stacks",      size = 0.25 },
-            { id = "watches",     size = 0.25 },
+            { id = "stacks", size = 0.25 },
+            { id = "watches", size = 0.25 },
           },
           size = 0.33,
           position = "left",
         },
         {
           elements = {
-            { id = "repl",    size = 0.45 },
+            { id = "repl", size = 0.45 },
             { id = "console", size = 0.55 },
           },
           size = 0.27,
@@ -250,7 +251,7 @@ return {
       },
       floating = {
         max_height = 0.9,
-        max_width = 0.5,             -- Floats will be treated as percentage of your screen.
+        max_width = 0.5, -- Floats will be treated as percentage of your screen.
         border = vim.g.border_chars, -- Border style. Can be 'single', 'double' or 'rounded'
         mappings = {
           close = { "q", "<Esc>" },
@@ -271,7 +272,27 @@ return {
     },
     config = function(_, opts)
       require("nvim-dap-virtual-text").setup(opts)
-    end
+    end,
   },
 
+  -- an adapter for the Neovim lua language
+  -- {
+  --   "jbyuki/one-small-step-for-vimkind",
+  --   keys = {
+  --     {
+  --       "<leader>daL",
+  --       function()
+  --         require("osv").launch({ port = 8086 })
+  --       end,
+  --       desc = "Adapter Lua Server",
+  --     },
+  --     {
+  --       "<leader>dal",
+  --       function()
+  --         require("osv").run_this()
+  --       end,
+  --       desc = "Adapter Lua",
+  --     },
+  --   },
+  -- },
 }

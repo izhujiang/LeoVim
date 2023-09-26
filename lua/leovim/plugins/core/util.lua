@@ -31,42 +31,26 @@ return {
       local persistence = require("persistence")
       persistence.setup()
 
-      vim.api.nvim_create_user_command("LoadLastSession",
-        function()
-          persistence.load({ last = true })
-        end,
-        {}
-      )
+      vim.api.nvim_create_user_command("LoadLastSession", function()
+        persistence.load({ last = true })
+      end, {})
       -- restore the session for the current directory
-      vim.api.nvim_create_user_command("LoadCurrentSession",
-        function()
-          persistence.load()
-        end,
-        {}
-      )
+      vim.api.nvim_create_user_command("LoadCurrentSession", function()
+        persistence.load()
+      end, {})
       -- stop Persistence => session won't be saved on exit
-      vim.api.nvim_create_user_command("StopSession",
-        function()
-          persistence.stop()
-        end,
-        {}
-      )
+      vim.api.nvim_create_user_command("StopSession", function()
+        persistence.stop()
+      end, {})
       -- start Persistence => session will be saved on exit
-      vim.api.nvim_create_user_command("StartSession",
-        function()
-          persistence.start()
-        end,
-        {}
-      )
+      vim.api.nvim_create_user_command("StartSession", function()
+        persistence.start()
+      end, {})
       -- save current session
-      vim.api.nvim_create_user_command("SaveSession",
-        function()
-          persistence.save()
-        end,
-        {}
-      )
+      vim.api.nvim_create_user_command("SaveSession", function()
+        persistence.save()
+      end, {})
     end,
-
   },
 
   -- library (async, job) used by other plugins
@@ -80,5 +64,4 @@ return {
     "nvim-tree/nvim-web-devicons",
     -- event = "VeryLazy",
   },
-
 }

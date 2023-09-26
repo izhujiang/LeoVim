@@ -85,14 +85,10 @@ vim.keymap.set({ "x" }, "&", "<Cmd>'<,'>&&<CR><Esc>", { desc = "Execute last sub
 
 vim.keymap.set({ "n" }, "<Esc>", vim.cmd.nohlsearch, { desc = "Escape and clear hlsearch" })
 -- <leader>gu for "diff update"
-vim.keymap.set("n",
-  "<leader>gu",
-  function()
-    vim.cmd.nohlsearch()
-    vim.cmd.diffupdate()
-  end,
-  { desc = "Diff update" }
-)
+vim.keymap.set("n", "<leader>gu", function()
+  vim.cmd.nohlsearch()
+  vim.cmd.diffupdate()
+end, { desc = "Diff update" })
 
 vim.keymap.set("n", "<leader>b", vim.cmd.make, { silent = false, desc = "Make/Compile" })
 
@@ -120,14 +116,21 @@ vim.keymap.set("c", "%%", "getcmdtype() == ':' ? expand('%:p:h').'/' : '%%'", { 
 -- TODO: add others options (parse...)
 vim.keymap.set("n", "<leader>od", Util.toggle_diagnostics, { desc = "Diagnostics" })
 local conceallevel = vim.o.conceallevel > 0 and vim.o.conceallevel or 3
-vim.keymap.set("n", "<leader>oc", function() Util.toggle("conceallevel", false, { 0, conceallevel }) end,
-  { desc = "Conceal" })
+vim.keymap.set("n", "<leader>oc", function()
+  Util.toggle("conceallevel", false, { 0, conceallevel })
+end, { desc = "Conceal" })
 if vim.lsp.inlay_hint then
-  vim.keymap.set("n", "<leader>oh", function() vim.lsp.inlay_hint(0, nil) end, { desc = "Inlay Hints" })
+  vim.keymap.set("n", "<leader>oh", function()
+    vim.lsp.inlay_hint(0, nil)
+  end, { desc = "Inlay Hints" })
 end
 if vim.fn.has("nvim-0.9.0") == 1 then
-  vim.keymap.set("n", "<leader>os", function() Util.toggle("spell") end, { desc = "Spelling" })
-  vim.keymap.set("n", "<leader>ow", function() Util.toggle("wrap") end, { desc = "Wrap" })
+  vim.keymap.set("n", "<leader>os", function()
+    Util.toggle("spell")
+  end, { desc = "Spelling" })
+  vim.keymap.set("n", "<leader>ow", function()
+    Util.toggle("wrap")
+  end, { desc = "Wrap" })
   vim.keymap.set("n", "<leader>ol", function()
     Util.toggle("relativenumber", true)
     Util.toggle("number")

@@ -26,7 +26,7 @@ local function register(opts)
       { import = "leovim.plugins.core" },
       { import = "leovim.plugins.dev" },
       { import = "leovim.plugins.extras" },
-      { import = "leovim.plugins.langs" },
+      -- { import = "leovim.plugins.langs" },
       -- or lang list
       -- { import = "leovim.plugins.langs.golang" },
       -- { import = "leovim.plugins.langs.lua" },
@@ -44,7 +44,7 @@ local function register(opts)
     install = {
       -- install missing plugins on startup.
       missing = true,
-      colorscheme = { "everforest", "tokyonight", "habamax" }
+      colorscheme = { "everforest", "tokyonight", "habamax" },
     },
     ui = {
       -- size = {

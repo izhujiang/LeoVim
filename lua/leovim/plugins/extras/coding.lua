@@ -52,6 +52,7 @@ return {
     cond = function()
       return vim.loop.os_uname().machine ~= "aarch64"
     end,
+    -- build = "./dl_binaries.sh",
     build = function()
       if vim.loop.os_uname().sysname == "Windows_NT" then -- Windows installations need to be adjusted to utilize PowerShell with dl_binaries.ps1
         -- The build script needs a set execution policy (https://github.com/codota/tabnine-nvim).

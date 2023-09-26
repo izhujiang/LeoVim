@@ -22,8 +22,7 @@ end
 
 function M.fg(name)
   ---@type {foreground?:number}?
-  local hl = vim.api.nvim_get_hl and vim.api.nvim_get_hl(0, { name = name })
-      or vim.api.nvim_get_hl_by_name(name, true)
+  local hl = vim.api.nvim_get_hl and vim.api.nvim_get_hl(0, { name = name }) or vim.api.nvim_get_hl_by_name(name, true)
   local fg = hl and hl.fg or hl.foreground
   return fg and { fg = string.format("#%06x", fg) }
 end
@@ -67,8 +66,8 @@ function M.get_root()
           and vim.tbl_map(function(ws)
             return vim.uri_to_fname(ws.uri)
           end, workspace)
-          or client.config.root_dir and { client.config.root_dir }
-          or {}
+        or client.config.root_dir and { client.config.root_dir }
+        or {}
       for _, p in ipairs(paths) do
         local r = vim.loop.fs_realpath(p)
         if path:find(r, 1, true) then
@@ -254,14 +253,15 @@ end
 function M.lsp_disable(server, cond)
   local util = require("lspconfig.util")
   local def = M.lsp_get_config(server)
-  def.document_config.on_new_config = util.add_hook_before(
-    def.document_config.on_new_config,
-    function(config, root_dir)
-      if cond(root_dir, config) then
-        config.enabled = false
-      end
+  def.document_config.on_new_config = util.add_hook_before(def.document_config.on_new_config, function(config, root_dir)
+    if cond(root_dir, config) then
+      config.enabled = false
     end
-  )
+  end)
+end
+
+function M.augroup(name)
+  return vim.api.nvim_create_augroup("leovim_" .. name, { clear = true })
 end
 
 return M

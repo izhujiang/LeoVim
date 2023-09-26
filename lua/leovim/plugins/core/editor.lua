@@ -66,50 +66,138 @@ return {
       end
     end,
 
-    opts = {
-      close_if_last_window = false,
-      popup_border_style = "rounded",
-      enable_git_status = true,
-      enable_diagnostics = true,
-      -- add_blank_line_at_top = true,
-      sources = { "filesystem", "buffers", "git_status", "document_symbols" },
-      open_files_do_not_replace_types = { "terminal", "Trouble", "qf", "Outline" },
+    -- TODO: config icons from leovim.config
+    opts = function()
+      local icons = require("leovim.config").icons
+      return {
 
-      default_component_configs = {
-        container = {
-          enable_character_fade = true,
-        },
-        indent = {
-          with_expanders = true, -- if nil and file nesting is enabled, will enable expanders
-          expander_collapsed = "",
-          expander_expanded = "",
-          expander_highlight = "NeoTreeExpander",
-        },
-        icon = {
-          folder_closed = "",
-          folder_open = "",
-          folder_empty = "󰜌",
+        close_if_last_window = false,
+        popup_border_style = "rounded",
+        enable_git_status = true,
+        enable_diagnostics = true,
+        -- add_blank_line_at_top = true,
+        sources = { "filesystem", "buffers", "git_status", "document_symbols" },
+        open_files_do_not_replace_types = { "terminal", "Trouble", "qf", "Outline" },
 
-          -- The next two settings are only a fallback,
-          -- TODO: find out other icon more meaningful
-          default = " ", -- for unknown filetype
-          highlight = "NeoTreeFileIcon",
-        },
-        modified = {
-          symbol = "[+]",
-          highlight = "NeoTreeModified",
-        },
-        -- name = {
-        -- 	trailing_slash = false,
-        -- 	use_git_status_colors = true,
-        -- 	highlight = "NeoTreeFileName",
-        -- },
-        buffers = {
+        default_component_configs = {
+          container = {
+            enable_character_fade = true,
+          },
+          indent = {
+            with_expanders = true, -- if nil and file nesting is enabled, will enable expanders
+            expander_collapsed = "",
+            expander_expanded = "",
+            expander_highlight = "NeoTreeExpander",
+          },
+          icon = {
+            folder_closed = icons.folder.Closed,
+            folder_open = icons.folder.Open,
+            folder_empty = icons.folder.Empty,
+
+            -- The next two settings are only a fallback,
+            -- TODO: find out other icon more meaningful
+            default = " ", -- for unknown filetype
+            highlight = "NeoTreeFileIcon",
+          },
+          modified = {
+            symbol = "[+]",
+            highlight = "NeoTreeModified",
+          },
+          -- name = {
+          -- 	trailing_slash = false,
+          -- 	use_git_status_colors = true,
+          -- 	highlight = "NeoTreeFileName",
+          -- },
+          buffers = {
+            follow_current_file = {
+              enabled = true,
+            }, -- This will find and focus the file in the active buffer every time the current file is changed while the tree is open.
+            group_empty_dirs = false,
+            show_unloaded = true,
+            window = {
+              mappings = {
+                ["bd"] = "buffer_delete",
+                ["<bs>"] = "navigate_up",
+                ["."] = "set_root",
+              },
+            },
+          },
+          git_status = {
+            symbols = {
+              -- Change type
+              added = icons.git.LineAdded, -- or "✚", but this is redundant info if you use git_status_colors on the name
+              modified = icons.git.LineModified, -- or "", but this is redundant info if you use git_status_colors on the name
+              deleted = icons.git.LineRemoved, -- this can only be used in the git_status source
+              renamed = icons.git.FileRenamed, -- this can only be used in the git_status source
+              -- Status type
+              untracked = icons.git.FileUntracked,
+              ignored = icons.git.FileIgnored,
+              unstaged = icons.git.FileUnstaged,
+              staged = icons.git.FileStaged,
+              conflict = icons.git.Conflict,
+            },
+          },
+        }, -- end of default_component_configs
+
+        filesystem = {
+          bind_to_cwd = true,
           follow_current_file = {
             enabled = true,
-          }, -- This will find and focus the file in the active buffer every time the current file is changed while the tree is open.
+          }, -- find and focus the file in the active buffer every time the current file is changed while the tree is open.
+          use_libuv_file_watcher = true, -- use_the_OS_level_file_watchers_to_detect_changes
           group_empty_dirs = false,
-          show_unloaded = true,
+
+          hijack_netrw_behavior = "open_default", -- netrw disabled, opening a directory opens neo-tree
+          -- TODO: filter hidden items
+          filtered_items = {
+            visible = false, -- when true, they will just be displayed differently than normal items
+            hide_dotfiles = false,
+            hide_gitignored = true,
+            hide_hidden = true, -- only works on Windows for hidden files/directories
+            hide_by_name = {
+              "node_modules",
+            },
+            hide_by_pattern = { -- uses glob style patterns
+              --"*.meta",
+              --"*/src/*/tsconfig.json",
+            },
+            always_show = { -- remains visible even if other settings would normally hide it
+              ".gitignored",
+            },
+            never_show = { -- remains hidden even if visible is toggled to true, this overrides always_show
+              ".DS_Store",
+              "thumbs.db",
+              ".git",
+            },
+            never_show_by_pattern = { -- uses glob style patterns
+              --".null-ls_*",
+            },
+          },
+          window = {
+            mappings = {
+              ["."] = "set_root",
+              ["H"] = "toggle_hidden",
+              ["/"] = "fuzzy_finder",
+              ["D"] = "fuzzy_finder_directory",
+              ["#"] = "fuzzy_sorter", -- fuzzy sorting using the fzy algorithm
+              -- ["D"] = "fuzzy_sorter_directory",
+              ["f"] = "filter_on_submit",
+              ["<c-x>"] = "clear_filter",
+              ["[g"] = "prev_git_modified",
+              ["]g"] = "next_git_modified",
+            },
+            fuzzy_finder_mappings = { -- define keymaps for filter popup window in fuzzy_finder_mode
+              ["<C-j>"] = "move_cursor_down",
+              ["<C-k>"] = "move_cursor_up",
+            },
+          },
+        }, -- end of filesystem
+
+        buffers = {
+          follow_current_file = {
+            enabled = true, -- This will find and focus the file in the active buffer every
+          },
+          show_unloaded = false,
           window = {
             mappings = {
               ["bd"] = "buffer_delete",
@@ -117,136 +205,54 @@ return {
               ["."] = "set_root",
             },
           },
-        },
+        }, -- end of buffers
         git_status = {
-          symbols = {
-            -- Change type
-            added = "+", -- or "✚", but this is redundant info if you use git_status_colors on the name
-            modified = "", -- or "", but this is redundant info if you use git_status_colors on the name
-            deleted = "x", -- this can only be used in the git_status source
-            renamed = "󰁕", -- this can only be used in the git_status source
-            -- Status type
-            untracked = "?",
-            ignored = "",
-            unstaged = "󰄱",
-            staged = "",
-            conflict = "",
+          window = {
+            position = "float",
+            mappings = {
+              ["A"] = "git_add_all",
+              ["gu"] = "git_unstage_file",
+              ["ga"] = "git_add_file",
+              ["gr"] = "git_revert_file",
+              ["gc"] = "git_commit",
+              ["gp"] = "git_push",
+              ["gg"] = "git_commit_and_push",
+            },
           },
         },
-      }, -- end of default_component_configs
-
-      filesystem = {
-        bind_to_cwd = true,
-        follow_current_file = {
-          enabled = true,
-        },                             -- find and focus the file in the active buffer every time the current file is changed while the tree is open.
-        use_libuv_file_watcher = true, -- use_the_OS_level_file_watchers_to_detect_changes
-        group_empty_dirs = false,
-
-        hijack_netrw_behavior = "open_default", -- netrw disabled, opening a directory opens neo-tree
-        -- TODO: filter hidden items
-        filtered_items = {
-          visible = false, -- when true, they will just be displayed differently than normal items
-          hide_dotfiles = false,
-          hide_gitignored = true,
-          hide_hidden = true, -- only works on Windows for hidden files/directories
-          hide_by_name = {
-            "node_modules",
-          },
-          hide_by_pattern = { -- uses glob style patterns
-            --"*.meta",
-            --"*/src/*/tsconfig.json",
-          },
-          always_show = { -- remains visible even if other settings would normally hide it
-            ".gitignored",
-          },
-          never_show = { -- remains hidden even if visible is toggled to true, this overrides always_show
-            ".DS_Store",
-            "thumbs.db",
-            ".git",
-          },
-          never_show_by_pattern = { -- uses glob style patterns
-            --".null-ls_*",
+        document_symbols = {
+          kinds = {
+            File = { icon = icons.kinds.File, hl = "Tag" },
+            Namespace = { icon = icons.kinds.Namespace, hl = "Include" },
+            Package = { icon = icons.kinds.Package, hl = "Label" },
+            Class = { icon = icons.kinds.Class, hl = "Include" },
+            Property = { icon = icons.kinds.Property, hl = "@property" },
+            Enum = { icon = icons.kinds.Enum, hl = "@number" },
+            Function = { icon = icons.kinds.Function, hl = "Function" },
+            String = { icon = icons.kinds.String, hl = "String" },
+            Number = { icon = icons.kinds.Number, hl = "Number" },
+            -- Array = { icon = "󰅪", hl = "Array" },
+            Array = { icon = icons.kinds.Array, hl = "Array" },
+            Object = { icon = icons.kinds.Object, hl = "Type" },
+            Key = { icon = icons.kinds.Key, hl = "" },
+            Struct = { icon = icons.kinds.Struct, hl = "Type" },
+            Operator = { icon = icons.kinds.Operator, hl = "Operator" },
+            TypeParameter = { icon = icons.kinds.TypeParameter, hl = "Type" },
+            StaticMethod = { icon = icons.kinds.StaticMethod, hl = "Function" },
           },
         },
-        window = {
-          mappings = {
-            ["."] = "set_root",
-            ["H"] = "toggle_hidden",
-            ["/"] = "fuzzy_finder",
-            ["D"] = "fuzzy_finder_directory",
-            ["#"] = "fuzzy_sorter", -- fuzzy sorting using the fzy algorithm
-            -- ["D"] = "fuzzy_sorter_directory",
-            ["f"] = "filter_on_submit",
-            ["<c-x>"] = "clear_filter",
-            ["[g"] = "prev_git_modified",
-            ["]g"] = "next_git_modified",
-          },
-          fuzzy_finder_mappings = { -- define keymaps for filter popup window in fuzzy_finder_mode
-            ["<C-j>"] = "move_cursor_down",
-            ["<C-k>"] = "move_cursor_up",
+        source_selector = {
+          winbar = true,
+          statusline = false,
+          sources = {
+            { source = "filesystem", display_name = " " .. icons.kinds.Files .. "Files " },
+            -- { source = "buffers", display_name = "󰌗 Buffers" },
+            { source = "document_symbols", display_name = " " .. icons.kinds.Symbols .. "Symbols " },
+            { source = "git_status", display_name = " " .. icons.kinds.Git .. "Git " },
           },
         },
-      }, -- end of filesystem
-
-      buffers = {
-        follow_current_file = {
-          enabled = true, -- This will find and focus the file in the active buffer every
-        },
-        show_unloaded = false,
-        window = {
-          mappings = {
-            ["bd"] = "buffer_delete",
-            ["<bs>"] = "navigate_up",
-            ["."] = "set_root",
-          },
-        },
-      }, -- end of buffers
-      git_status = {
-        window = {
-          position = "float",
-          mappings = {
-            ["A"] = "git_add_all",
-            ["gu"] = "git_unstage_file",
-            ["ga"] = "git_add_file",
-            ["gr"] = "git_revert_file",
-            ["gc"] = "git_commit",
-            ["gp"] = "git_push",
-            ["gg"] = "git_commit_and_push",
-          },
-        },
-      },
-      document_symbols = {
-        kinds = {
-          File = { icon = "󰈙", hl = "Tag" },
-          Namespace = { icon = "󰌗", hl = "Include" },
-          Package = { icon = "󰏖", hl = "Label" },
-          Class = { icon = "󰌗", hl = "Include" },
-          Property = { icon = "󰆧", hl = "@property" },
-          Enum = { icon = "󰒻", hl = "@number" },
-          Function = { icon = "󰊕", hl = "Function" },
-          String = { icon = "󰀬", hl = "String" },
-          Number = { icon = "󰎠", hl = "Number" },
-          Array = { icon = "󰅪", hl = "Type" },
-          Object = { icon = "󰅩", hl = "Type" },
-          Key = { icon = "󰌋", hl = "" },
-          Struct = { icon = "󰌗", hl = "Type" },
-          Operator = { icon = "󰆕", hl = "Operator" },
-          TypeParameter = { icon = "󰊄", hl = "Type" },
-          StaticMethod = { icon = "󰠄 ", hl = "Function" },
-        },
-      },
-      source_selector = {
-        winbar = true,
-        statusline = false,
-        sources = {
-          { source = "filesystem", display_name = " 󰉓 Files " },
-          -- { source = "buffers", display_name = "󰌗 Buffers" },
-          { source = "document_symbols", display_name = " 󰀬 Symbols " },
-          { source = "git_status", display_name = " 󰊢 Git " },
-        },
-      },
-    },
+      }
+    end,
 
     config = function(_, opts)
       require("neo-tree").setup(opts)
@@ -350,13 +356,13 @@ return {
           buffers = {
             layout_config = {
               preview_width = 0.6,
-            }
+            },
           },
           colorscheme = {
             enable_preview = true,
             layout_config = {
               preview_width = 0.6,
-            }
+            },
           },
           current_buffer_fuzzy_find = {
             layout_config = {
@@ -366,70 +372,70 @@ return {
           diagnostics = {
             layout_config = {
               preview_width = 0.6,
-            }
+            },
           },
           find_files = {
             hidden = true,
             layout_config = {
               preview_width = 0.6,
-            }
+            },
           },
           git_files = {
             hidden = true,
             show_untracked = true,
             layout_config = {
               preview_width = 0.6,
-            }
+            },
           },
           git_branches = {
             layout_config = {
               preview_width = 0.6,
-            }
+            },
           },
           git_commit = {
             layout_config = {
               preview_width = 0.6,
-            }
+            },
           },
           git_status = {
             layout_config = {
               preview_width = 0.6,
-            }
+            },
           },
           grep_string = {
             layout_config = {
               preview_width = 0.6,
-            }
+            },
           },
           help_tags = {
             layout_config = {
               preview_width = 0.6,
-            }
+            },
           },
           live_grep = {
             layout_config = {
               preview_width = 0.6,
-            }
+            },
           },
           lsp_document_symbols = {
             layout_config = {
               preview_width = 0.6,
-            }
+            },
           },
           lsp_workspace_symbols = {
             layout_config = {
               preview_width = 0.6,
-            }
+            },
           },
           marks = {
             layout_config = {
               preview_width = 0.6,
-            }
+            },
           },
           man_pages = {
             layout_config = {
               preview_width = 0.6,
-            }
+            },
           },
           oldfiles = {
             layout_config = {
@@ -439,10 +445,10 @@ return {
         },
         extensions = {
           fzf = {
-            fuzzy = true,                   -- false will only do exact matching
+            fuzzy = true, -- false will only do exact matching
             override_generic_sorter = true, -- override the generic sorter
-            override_file_sorter = true,    -- override the file sorter
-            case_mode = "smart_case",       -- or "ignore_case" or "respect_case"
+            override_file_sorter = true, -- override the file sorter
+            case_mode = "smart_case", -- or "ignore_case" or "respect_case"
           },
         },
       }
@@ -461,36 +467,52 @@ return {
         "Property",
       }
       return {
-        { "<leader>/",  "<cmd>Telescope current_buffer_fuzzy_find<cr>",                 desc = "Fuzzy find(buf)" },
-        { "<leader>:",  "<cmd>Telescope commands<cr>",                                  desc = "Commands" },
-        { "<leader>'",  "<cmd>Telescope marks<cr>",                                     desc = "Marks" },
-        { '<leader>"',  "<cmd>Telescope registers<cr>",                                 desc = "Registers" },
-        { "<leader>fa", "<cmd>Telescope autocommands<cr>",                              desc = "Autocommands" },
-        { "<leader>fb", "<cmd>Telescope buffers<cr>",                                   desc = "Buffers" },
-        { "<leader>fB", "<cmd>Telescope git_branches<cr>",                              desc = "Checkout branch" },
-        { "<leader>fc", "<cmd>Telescope commands<cr>",                                  desc = "commands" },
-        { "<leader>fC", "<cmd>Telescope command_history<cr>",                           desc = "Command history" },
-        { "<leader>fd", Util.telescope("diagnostics", { bufnr = 0 }),                   desc = "Diagnostics(document)" },
-        { "<leader>fD", "<cmd>Telescope diagnostics<cr>",                               desc = "Diagnostics(workspace)" },
-        { "<leader>ff", Util.telescope("files"),                                        desc = "Files(root)" },
-        { "<leader>fF", Util.telescope("files", { cwd = false }),                       desc = "Files(cwd)" },
-        { "<leader>fg", "<cmd>Telescope git_status<cr>",                                desc = "Git status" },
-        { "<leader>fG", "<cmd>Telescope git_commits<cr>",                               desc = "Git commits" },
-        { "<leader>fh", "<cmd>Telescope help_tags<cr>",                                 desc = "Help pages" },
-        { "<leader>fk", "<cmd>Telescope keymaps<cr>",                                   desc = "Keybindings" },
-        { "<leader>fl", "<cmd>Telescope live_grep<cr>",                                 desc = "Live grep" },
-        { "<leader>s",  "<cmd>Telescope live_grep<cr>",                                 desc = "Live grep" },
-        { "<leader>fL", "<cmd>Telescope resume<cr>",                                    desc = "Last find" },
-        { "<leader>fm", "<cmd>Telescope man_pages<cr>",                                 desc = "Man pages" },
+        { "<leader>/", "<cmd>Telescope current_buffer_fuzzy_find<cr>", desc = "Fuzzy find(buf)" },
+        { "<leader>:", "<cmd>Telescope commands<cr>", desc = "Commands" },
+        { "<leader>'", "<cmd>Telescope marks<cr>", desc = "Marks" },
+        { '<leader>"', "<cmd>Telescope registers<cr>", desc = "Registers" },
+        { "<leader>fa", "<cmd>Telescope autocommands<cr>", desc = "Autocommands" },
+        { "<leader>fb", "<cmd>Telescope buffers<cr>", desc = "Buffers" },
+        { "<leader>fB", "<cmd>Telescope git_branches<cr>", desc = "Checkout branch" },
+        { "<leader>fc", "<cmd>Telescope commands<cr>", desc = "commands" },
+        { "<leader>fC", "<cmd>Telescope command_history<cr>", desc = "Command history" },
+        {
+          "<leader>fd",
+          Util.telescope("diagnostics", { bufnr = 0 }),
+          desc = "Diagnostics(document)",
+        },
+        {
+          "<leader>fD",
+          "<cmd>Telescope diagnostics<cr>",
+          desc = "Diagnostics(workspace)",
+        },
+        { "<leader>ff", Util.telescope("files"), desc = "Files(root)" },
+        { "<leader>fF", Util.telescope("files", { cwd = false }), desc = "Files(cwd)" },
+        { "<leader>fg", "<cmd>Telescope git_status<cr>", desc = "Git status" },
+        { "<leader>fG", "<cmd>Telescope git_commits<cr>", desc = "Git commits" },
+        { "<leader>fh", "<cmd>Telescope help_tags<cr>", desc = "Help pages" },
+        { "<leader>fk", "<cmd>Telescope keymaps<cr>", desc = "Keybindings" },
+        { "<leader>fl", "<cmd>Telescope live_grep<cr>", desc = "Live grep" },
+        { "<leader>s", "<cmd>Telescope live_grep<cr>", desc = "Live grep" },
+        { "<leader>fL", "<cmd>Telescope resume<cr>", desc = "Last find" },
+        { "<leader>fm", "<cmd>Telescope man_pages<cr>", desc = "Man pages" },
         -- { "<leader>fp", telescope.extensions.projects.projects,                         desc = "Projects" },
-        { "<leader>fp", "<cmd>Telescope projects<cr>",                                  desc = "Projects" },
-        { "<leader>fq", "<cmd>Telescope quickfix<cr>",                                  desc = "Quickfix" },
-        { "<leader>fr", "<cmd>Telescope oldfiles<cr>",                                  desc = "Recent files" },
-        { "<leader>fs", Util.telescope("lsp_document_symbols", { symbols = symbols }),  desc = "Goto symbol(document)" },
-        { "<leader>fS", Util.telescope("lsp_workspace_symbols", { symbols = symbols }), desc = "Goto symbol(workspace)" },
-        { "<leader>fw", Util.telescope("grep_string", { cwd = false }),                 desc = "Grep string" },
-        { "<leader>oo", "<cmd>Telescope vim_options<cr>",                               desc = "Vim options" },
-        { "<leader>pc", Util.telescope("colorscheme", { enable_preview = true }),       desc = "Colorscheme" },
+        { "<leader>fp", "<cmd>Telescope projects<cr>", desc = "Projects" },
+        { "<leader>fq", "<cmd>Telescope quickfix<cr>", desc = "Quickfix" },
+        { "<leader>fr", "<cmd>Telescope oldfiles<cr>", desc = "Recent files" },
+        {
+          "<leader>fs",
+          Util.telescope("lsp_document_symbols", { symbols = symbols }),
+          desc = "Goto symbol(document)",
+        },
+        {
+          "<leader>fS",
+          Util.telescope("lsp_workspace_symbols", { symbols = symbols }),
+          desc = "Goto symbol(workspace)",
+        },
+        { "<leader>fw", Util.telescope("grep_string", { cwd = false }), desc = "Grep string" },
+        { "<leader>oo", "<cmd>Telescope vim_options<cr>", desc = "Vim options" },
+        { "<leader>pc", Util.telescope("colorscheme", { enable_preview = true }), desc = "Colorscheme" },
       }
     end,
     config = function(_, opts)
@@ -510,15 +532,29 @@ return {
       modes = {
         search = {
           enabled = false, -- disable: integrate flash.nvim with your regular search using / or ?
-        }
-      }
+        },
+      },
     },
     keys = {
       -- TODO: confix with nvim-surround in operator-pending mode
       -- { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end,       desc = "Flash jump" },
       -- { "S", mode = { "n", "o", "x" }, function() require("flash").treesitter() end, desc = "Flash treesitter" },
-      { "s", mode = { "n", "x" }, function() require("flash").jump() end,       desc = "Flash jump" },
-      { "S", mode = { "n", "x" }, function() require("flash").treesitter() end, desc = "Flash treesitter" },
+      {
+        "s",
+        mode = { "n", "x" },
+        function()
+          require("flash").jump()
+        end,
+        desc = "Flash jump",
+      },
+      {
+        "S",
+        mode = { "n", "x" },
+        function()
+          require("flash").treesitter()
+        end,
+        desc = "Flash treesitter",
+      },
       -- {
       --   "r",
       --   mode = { "o", "x" },
@@ -661,11 +697,11 @@ return {
       "TroubleToggle",
     },
     keys = {
-      { "<leader>at", "<cmd>TroubleToggle<cr>",                       desc = "Trouble" },
-      { "<leader>td", "<cmd>TroubleToggle document_diagnostics<cr>",  desc = "Document diagnostics(Trouble)" },
+      { "<leader>at", "<cmd>TroubleToggle<cr>", desc = "Trouble" },
+      { "<leader>td", "<cmd>TroubleToggle document_diagnostics<cr>", desc = "Document diagnostics(Trouble)" },
       { "<leader>tD", "<cmd>TroubleToggle workspace_diagnostics<cr>", desc = "Workspace diagnostics(Trouble)" },
-      { "<leader>tr", "<cmd>TroubleToggle lsp_references<cr>",        desc = "References(Trouble)" },
-      { "<leader>tq", "<cmd>TroubleToggle quickfix<cr>",              desc = "Quickfix(Trouble)" },
+      { "<leader>tr", "<cmd>TroubleToggle lsp_references<cr>", desc = "References(Trouble)" },
+      { "<leader>tq", "<cmd>TroubleToggle quickfix<cr>", desc = "Quickfix(Trouble)" },
       {
         "[q",
         function()
@@ -760,7 +796,6 @@ return {
           return "<Ignore>"
         end, { expr = true, desc = "Previous hunk" })
 
-
         map("n", "<leader>gj", gs.next_hunk, { desc = "Next hunk" })
         map("n", "<leader>gk", gs.prev_hunk, { desc = "Previous hunk" })
 
@@ -788,12 +823,7 @@ return {
         map("n", "<leader>go", "<cmd>Telescope git_status<cr>", { desc = "Open changed file" })
         map("n", "<leader>gb", "<cmd>Telescope git_branches<cr>", { desc = "Checkout branch" })
         map("n", "<leader>gc", "<cmd>Telescope git_commits<cr>", { desc = "Checkout commit" })
-        map(
-          "n",
-          "<leader>gC",
-          "<cmd>Telescope git_bcommits<cr>",
-          { desc = "Checkout commit (for current file)" }
-        )
+        map("n", "<leader>gC", "<cmd>Telescope git_bcommits<cr>", { desc = "Checkout commit (for current file)" })
 
         map("n", "<leader>oD", gs.toggle_deleted, { desc = "GitSigns deleted" })
         map("n", "<leader>oL", gs.toggle_current_line_blame, { desc = "GitSigns blameline" })
@@ -935,7 +965,7 @@ return {
     },
     config = function()
       require("todo-comments").setup()
-    end
+    end,
   },
 
   -- which-key
@@ -994,7 +1024,7 @@ return {
           "help",
           "quickfix",
           "terminal",
-          "prompt"
+          "prompt",
         },
         filetypes = require("leovim.config").non_essential_filetypes,
       },
