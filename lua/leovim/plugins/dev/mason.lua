@@ -50,28 +50,32 @@ return {
       -- 2) mason-lspconfig.nvim            -- require("mason-lspconfig").setup()
       -- 3) Setup servers via lspconfig     -- or via handlers, require("lspconfig")[server_name].setup(make_server_opts({}))
 
+      local ensure_installed = {
+        "astro",
+        "bashls",
+        "cmake",
+        "cssls",
+        "dockerls",
+        "gopls",
+        "html",
+        "jsonls",
+        "lua_ls",
+        "marksman",
+        "pyright",
+        "ruff_lsp",
+        "rust_analyzer",
+        "tailwindcss",
+        "taplo",
+        "tsserver",
+        "yamlls",
+      }
+
+      if vim.loop.os_uname().machine ~= "aarch64" then
+        vim.list_extend(ensure_installed, { "denols", "clangd" })
+      end
+
       require("mason-lspconfig").setup({
-        ensure_installed = {
-          "astro",
-          "bashls",
-          "clangd",
-          "cmake",
-          "cssls",
-          "denols",
-          "dockerls",
-          "gopls",
-          "html",
-          "jsonls",
-          "lua_ls",
-          "marksman",
-          "pyright",
-          "ruff_lsp",
-          "rust_analyzer",
-          "tailwindcss",
-          "taplo",
-          "tsserver",
-          "yamlls",
-        },
+        ensure_installed = ensure_installed,
         automatic_installation = false, -- All servers set up via lspconfig are automatically installed.
 
         -- {handlers} are the functions to be called when that server is ready to be setup.
@@ -88,28 +92,32 @@ return {
       "jose-elias-alvarez/null-ls.nvim",
     },
     config = function()
+      local ensure_installed = {
+        -- "actionlint", -- GitHub Actions workflow file
+        "cmakelang",
+        "commitlint",
+        "editorconfig-checker",
+        "eslint_d",
+        "flake8",
+        "gofumpt",
+        "goimports",
+        "golangci-lint",
+        "gomodifytags",
+        "hadolint",
+        "impl",
+        "jq",
+        "misspell",
+        "shellcheck",
+        "shfmt",
+        "stylua",
+      }
+      if vim.loop.os_uname().machine ~= "aarch64" then
+        vim.list_extend(ensure_installed, { "selene" })
+      end
+
       require("mason-null-ls").setup({
-        ensure_installed = {
-          -- "actionlint", -- GitHub Actions workflow file
-          "cmakelang",
-          "commitlint",
-          "editorconfig-checker",
-          "eslint_d",
-          "flake8",
-          "gofumpt",
-          "goimports",
-          "golangci-lint",
-          "gomodifytags",
-          "hadolint",
-          "impl",
-          "jq",
-          "misspell",
-          "selene",
-          "shellcheck",
-          "shfmt",
-          "stylua",
-        },
         automatic_installation = false, -- disable automatic, due to mason-null-ls missing tools like makecheck in null-ls list
+        ensure_installed = ensure_installed,
         -- automatic_installation = { exclude = { "rust_analyzer", "solargraph" } }
       })
     end,

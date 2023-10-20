@@ -214,7 +214,7 @@ return {
       -- responses and notifications from LSP servers.
       vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = "rounded" })
       vim.lsp.handlers["textDocument/signatureHelp"] =
-          vim.lsp.with(vim.lsp.handlers.signature_help, { border = "rounded" })
+        vim.lsp.with(vim.lsp.handlers.signature_help, { border = "rounded" })
 
       -- setup diagnostics
       local signs = require("leovim.config").icons.diagnostics
@@ -252,7 +252,7 @@ return {
       local diagnostics = null_ls.builtins.diagnostics
       local code_actions = null_ls.builtins.code_actions
       local methods = null_ls.methods
-      return {
+      local null_opts = {
         -- debug = true,
         -- TODO: config project root
         -- root_dir(function) Determines the root of the null-ls server.
@@ -278,7 +278,7 @@ return {
           -- If not found, search for .editorconfig file, otherwise fall back to the default configuration.
           formatting.stylua, -- lua file
 
-          formatting.jq,     -- lightweight and flexible JSON processor
+          formatting.jq, -- lightweight and flexible JSON processor
           formatting.shfmt,
 
           formatting.cmake_format,
@@ -320,12 +320,6 @@ return {
             method = methods.DIAGNOSTICS_ON_SAVE,
           }),
 
-          diagnostics.selene.with({
-            condition = function(utils) -- indicating whether null-ls should register the source.
-              return utils.root_has_file({ "selene.toml" })
-            end,
-          }),
-
           -- diagnostics.checkmake.with({
           --   method = methods.DIAGNOSTICS_ON_SAVE,
           -- }),
@@ -349,6 +343,24 @@ return {
           code_actions.shellcheck, -- shell script code actions
         },
       }
+
+      if vim.loop.os_uname().machine ~= "aarch64" then
+        null_opts = vim.tbl_deep_extend(
+          "force",
+          null_opts,
+          {
+            sources = {
+              diagnostics.selene.with({
+                condition = function(utils) -- indicating whether null-ls should register the source.
+                  return utils.root_has_file({ "selene.toml" })
+                end,
+              }),
+            },
+          }
+        )
+      end
+
+      return null_opts
     end,
   },
 
