@@ -258,11 +258,15 @@ return {
       or nil,
     dependencies = {
       { "rafamadriz/friendly-snippets" },
+      -- { "molleweide/LuaSnip-snippets.nvim" },
     },
     config = function()
-      require("luasnip.loaders.from_lua").lazy_load()
+      -- local luasnip = require("luasnip")
+      -- require("luasnip.loaders.from_lua").lazy_load()
       require("luasnip.loaders.from_vscode").lazy_load()
-      require("luasnip.loaders.from_snipmate").lazy_load()
+      -- require("luasnip.loaders.from_snipmate").lazy_load()
+      -- be sure to load this first since it overwrites the snippets table.
+      -- luasnip.snippets = require("luasnip_snippets").load_snippets()
     end,
   },
 

@@ -255,13 +255,21 @@ local lsp_handlers = {
         { "<leader>cR", "<cmd>TypescriptRenameFile<CR>", desc = "Rename File" },
       },
       settings = {
-        typescript = {
-          format = {
-            indentSize = vim.o.shiftwidth,
-            convertTabsToSpaces = vim.o.expandtab,
-            tabSize = vim.o.tabstop,
-          },
-        },
+        -- don't convert tab/space, using editorconfig instead
+        -- javascript = {
+        --   format = {
+        --     indentSize = vim.o.shiftwidth,
+        --     convertTabsToSpaces = vim.o.expandtab,
+        --     tabSize = vim.o.tabstop,
+        --   },
+        -- },
+        -- typescript = {
+        --   format = {
+        --     indentSize = vim.o.shiftwidth,
+        --     convertTabsToSpaces = vim.o.expandtab,
+        --     tabSize = vim.o.tabstop,
+        --   },
+        -- },
         completions = {
           completeFunctionCalls = true,
         },
@@ -323,6 +331,20 @@ local lsp_handlers = {
       },
     })
     require("lspconfig").tailwindcss.setup(opts)
+  end,
+
+  cssls = function()
+    local opts = make_server_opts({
+      settings = {
+        css = {
+          validate = true,
+          lint = {
+            unknownAtRules = "ignore", -- disable warning: unknown at rule @tailwind
+          },
+        },
+      },
+    })
+    require("lspconfig").cssls.setup(opts)
   end,
 }
 

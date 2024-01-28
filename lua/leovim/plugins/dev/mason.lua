@@ -75,7 +75,27 @@ return {
       end
 
       require("mason-lspconfig").setup({
-        ensure_installed = ensure_installed,
+        ensure_installed = {
+          "astro",
+          "bashls",
+          "clangd",
+          "cmake",
+          -- "cssls",
+          "denols",
+          "dockerls",
+          "gopls",
+          "html",
+          "jsonls",
+          "lua_ls",
+          "marksman",
+          "pyright",
+          "ruff_lsp",
+          "rust_analyzer",
+          "tailwindcss",
+          "taplo",
+          "tsserver",
+          "yamlls",
+        },
         automatic_installation = false, -- All servers set up via lspconfig are automatically installed.
 
         -- {handlers} are the functions to be called when that server is ready to be setup.
