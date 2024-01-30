@@ -6,20 +6,20 @@ return {
     version = false, -- last release is way too old
     event = { "InsertEnter", "CmdlineEnter" },
     dependencies = {
-      { "hrsh7th/cmp-nvim-lsp" }, -- source: nvim-lsp
-      { "hrsh7th/cmp-buffer" }, -- source: buffer
-      { "hrsh7th/cmp-path" }, -- source: path
-      { "hrsh7th/cmp-cmdline" }, -- nvim-cmp source for vim's cmdline
-      { "saadparwaiz1/cmp_luasnip" }, -- source: luasnip
-      { "hrsh7th/cmp-nvim-lua" }, -- source: complete neovim's Lua runtime API such vim.lsp.*
+      { "hrsh7th/cmp-nvim-lsp" },                -- source: nvim-lsp
+      { "hrsh7th/cmp-buffer" },                  -- source: buffer
+      { "hrsh7th/cmp-path" },                    -- source: path
+      { "hrsh7th/cmp-cmdline" },                 -- nvim-cmp source for vim's cmdline
+      { "saadparwaiz1/cmp_luasnip" },            -- source: luasnip
+      { "hrsh7th/cmp-nvim-lua" },                -- source: complete neovim's Lua runtime API such vim.lsp.*
       { "hrsh7th/cmp-nvim-lsp-signature-help" }, -- source: function signatures
-      { "L3MON4D3/LuaSnip" }, -- Snippet Engine for Neovim
-      { -- source: Tabnine
-        "tzachar/cmp-tabnine",
-        cond = function()
-          return vim.loop.os_uname().machine ~= "aarch64"
-        end,
-      },
+      { "L3MON4D3/LuaSnip" },                    -- Snippet Engine for Neovim
+      -- { -- source: Tabnine
+      --   "tzachar/cmp-tabnine",
+      --   cond = function()
+      --     return vim.loop.os_uname().machine ~= "aarch64"
+      --   end,
+      -- },
     },
     opts = function()
       local has_words_before = function()
@@ -123,14 +123,14 @@ return {
             if icons_kinds[item.kind] then
               -- item.kind = icons[item.kind] .. item.kind
               item.kind = string.format("%s %s", icons_kinds[item.kind], item.kind)
-            else
-              local icons_misc = require("leovim.config").icons.misc
-              if entry.source.name == "cmp_tabnine" then
-                item.kind = string.format("%s %s", icons_misc.Robot, item.kind)
-              end
-              if entry.source.name == "emoji" then
-                item.kind = string.format("%s %s", icons_misc.Smiley, item.kind)
-              end
+              -- else
+              -- local icons_misc = require("leovim.config").icons.misc
+              -- if entry.source.name == "cmp_tabnine" then
+              --   item.kind = string.format("%s %s", icons_misc.Robot, item.kind)
+              -- end
+              -- if entry.source.name == "emoji" then
+              --   item.kind = string.format("%s %s", icons_misc.Smiley, item.kind)
+              -- end
             end
             item.menu = ({
               nvim_lsp = "[LSP]",
@@ -144,7 +144,8 @@ return {
               path = "[Path]",
               nvim_lsp_signature_help = "[Signature]",
               cmdline = "[Vim Command]",
-              cmp_tabnine = "[Tabnine]",
+              codeium = "[Codeium]",
+              -- cmp_tabnine = "[Tabnine]",
             })[entry.source.name]
 
             return item
@@ -153,8 +154,9 @@ return {
         sources = cmp.config.sources(
           { -- group 1
             { name = "nvim_lsp", priority = 900, keyword_length = 1 },
-            { name = "luasnip", priority_ = 700 },
-            { name = "cmp_tabnine", priority = 500 },
+            { name = "luasnip",  priority_ = 700 },
+            { name = "codeium",  priority = 500 },
+            -- { name = "cmp_tabnine", priority = 500 },
             { name = "nvim_lua" },
           },
           { -- group 2
@@ -165,11 +167,11 @@ return {
             { name = "nvim_lsp_signature_help", keyword_length = 2 },
           }
 
-          -- { name = "copilot",                group_index = 1 },
-          -- https://smarttech101.com/nvim-lsp-autocompletion-mapping-snippets-fuzzy-search/
-          -- 📓 Note 1: The above settings make sure that buffer source is visible in the completion menu only when the nvim_lsp and ultisnips sources are not available.
-          -- Similarly, nvim_lsp_signature_help will be visible only when the nvim_lsp, ultisnips, and buffer are not available. The same goes for source path.
-          -- 📓 Note 2: Having nvim_lsp and ultisnips in a single bracket will allow them to be mixed in the listing otherwise, all the autocompletion menu’s place is taken over by nvim_lsp.
+        -- { name = "copilot",                group_index = 1 },
+        -- https://smarttech101.com/nvim-lsp-autocompletion-mapping-snippets-fuzzy-search/
+        -- 📓 Note 1: The above settings make sure that buffer source is visible in the completion menu only when the nvim_lsp and ultisnips sources are not available.
+        -- Similarly, nvim_lsp_signature_help will be visible only when the nvim_lsp, ultisnips, and buffer are not available. The same goes for source path.
+        -- 📓 Note 2: Having nvim_lsp and ultisnips in a single bracket will allow them to be mixed in the listing otherwise, all the autocompletion menu’s place is taken over by nvim_lsp.
         ),
         confirm_opts = {
           behavior = cmp.ConfirmBehavior.Replace,
@@ -219,7 +221,7 @@ return {
         }),
 
         sources = cmp.config.sources({
-          { name = "path", keyword_length = 1 },
+          { name = "path",    keyword_length = 1 },
           { name = "cmdline", keyword_length = 1 },
         }),
         confirm_opts = {
@@ -255,7 +257,7 @@ return {
     "L3MON4D3/LuaSnip",
     build = (not jit.os:find("Windows"))
         and "echo 'NOTE: jsregexp is optional, so not a big deal if it fails to build'; make install_jsregexp"
-      or nil,
+        or nil,
     dependencies = {
       { "rafamadriz/friendly-snippets" },
       -- { "molleweide/LuaSnip-snippets.nvim" },
@@ -271,44 +273,44 @@ return {
   },
 
   -- TabNine plugin for hrsh7th/nvim-cmp
-  {
-    "tzachar/cmp-tabnine",
-    build = "./install.sh",
-    opts = {
-      max_lines = 1000,
-      max_num_results = 20,
-      sort = true,
-      run_on_every_keystroke = true,
-      snippet_placeholder = "..",
-      ignored_file_types = {
-        -- default is not to ignore
-        -- uncomment to ignore in lua:
-        -- lua = true
-      },
-      show_prediction_strength = false,
-    },
-    config = function(_, opts)
-      local tabnine = require("cmp_tabnine.config")
-      tabnine:setup(opts)
-    end,
-  },
+  -- {
+  --   "tzachar/cmp-tabnine",
+  --   build = "./install.sh",
+  --   opts = {
+  --     max_lines = 1000,
+  --     max_num_results = 20,
+  --     sort = true,
+  --     run_on_every_keystroke = true,
+  --     snippet_placeholder = "..",
+  --     ignored_file_types = {
+  --       -- default is not to ignore
+  --       -- uncomment to ignore in lua:
+  --       -- lua = true
+  --     },
+  --     show_prediction_strength = false,
+  --   },
+  --   config = function(_, opts)
+  --     local tabnine = require("cmp_tabnine.config")
+  --     tabnine:setup(opts)
+  --   end,
+  -- },
 
   {
     "windwp/nvim-autopairs",
     event = "InsertEnter",
     opts = {
       disable_filetype = { "TelescopePrompt", "spectre_panel", "vim" },
-      disable_in_macro = true, -- disable when recording or executing a macro
+      disable_in_macro = true,       -- disable when recording or executing a macro
       disable_in_visualblock = true, -- disable when insert after visual block mode
       disable_in_replace_mode = true,
       ignored_next_char = string.gsub([[ [%w%%%'%[%"%.] ]], "%s+", ""),
       enable_moveright = true,
-      enable_afterquote = true, -- add bracket pairs after quote
+      enable_afterquote = true,          -- add bracket pairs after quote
       enable_check_bracket_line = false, --- check bracket in same line
       enable_bracket_in_quote = true,
-      enable_abbr = false, -- trigger abbreviation
-      break_undo = true, -- switch for basic rule break undo sequence
-      check_ts = true, -- check treesitter
+      enable_abbr = false,               -- trigger abbreviation
+      break_undo = true,                 -- switch for basic rule break undo sequence
+      check_ts = true,                   -- check treesitter
       ts_config = {
         lua = { "string", "source" },
         javascript = { "string", "template_string" },
@@ -316,8 +318,8 @@ return {
       },
 
       map_cr = true,
-      map_bs = true, -- map the <BS> key
-      map_c_h = true, -- Map the <C-h> key to delete a pair
+      map_bs = true,   -- map the <BS> key
+      map_c_h = true,  -- Map the <C-h> key to delete a pair
       map_c_w = false, -- map <c-w> to delete a pair if possible
 
       fast_wrap = {

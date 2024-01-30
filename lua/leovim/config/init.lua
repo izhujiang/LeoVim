@@ -97,6 +97,7 @@ local defaults = {
       Unit = "",
       Value = "󰎠",
       Variable = "",
+      Codeium = "",
     },
     misc = {
       Robot = "󰚩",
