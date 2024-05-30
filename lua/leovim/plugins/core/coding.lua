@@ -73,8 +73,12 @@ return {
             elseif luasnip.jumpable(1) then
               luasnip.jump(1)
             elseif has_words_before() then
+              -- print("has words before")
+              -- trigger completion manually using tab, seems to be a bug "cmp memu does not popup"
               -- cmp.complete()
+
               fallback()
+              -- cmp.confirm({ behavior = ConfirmBehavior.Replace, select = true })
             else
               fallback()
             end
@@ -95,8 +99,8 @@ return {
               if cmp.visible() then
                 -- local confirm_opts = { behavior = ConfirmBehavior.Replace, select = false }
                 local confirm_opts = { behavior = ConfirmBehavior.Replace, select = true }
-                local entry = cmp.get_selected_entry()
-                -- local is_copilot = entry and entry.source.name == "copilot"
+                -- local entry = cmp.get_selected_entry()
+                -- local is_copilot = ntry and entry.source.name == "copilot"
                 -- if is_copilot then
                 --   confirm_opts.behavior = ConfirmBehavior.Replace
                 --   confirm_opts.select = true
@@ -154,8 +158,8 @@ return {
         sources = cmp.config.sources(
           { -- group 1
             { name = "nvim_lsp", priority = 900, keyword_length = 1 },
-            { name = "luasnip",  priority_ = 700 },
-            { name = "codeium",  priority = 500 },
+            { name = "luasnip",  priority_ = 500 },
+            { name = "codeium",  priority = 700 },
             -- { name = "cmp_tabnine", priority = 500 },
             { name = "nvim_lua" },
           },
@@ -294,6 +298,37 @@ return {
   --     tabnine:setup(opts)
   --   end,
   -- },
+  --
+  -- Free, ultrafast Copilot alternative for Vim and Neovim
+  {
+    'Exafunction/codeium.vim',
+    event = 'BufEnter',
+    -- config = function()
+    --
+    -- Action	Function	Default Binding
+    -- Clear current suggestion	codeium#Clear()	<C-]>
+    -- Next suggestion	codeium#CycleCompletions(1)	<M-]>
+    -- Previous suggestion	codeium#CycleCompletions(-1)	<M-[>
+    -- Insert suggestion	codeium#Accept()	<Tab>
+    -- Manually trigger suggestion	codeium#Complete()	<M-Bslash>
+    --
+    --   -- Change '<C-g>' here to any keycode you like.
+    --   vim.keymap.set('i', '<C-g>', function()
+    --     return vim.fn['codeium#Accept']()
+    --   end, { expr = true, silent = true })
+    --   vim.keymap.set('i', '<c-;>', function()
+    --       return vim.fn['codeium#CycleCompletions'](1)
+    --     end,
+    --     { expr = true, silent = true })
+    --   vim.keymap.set('i', '<c-,>', function()
+    --       return vim.fn['codeium#CycleCompletions'](-1)
+    --     end,
+    --     { expr = true, silent = true })
+    --   vim.keymap.set('i', '<c-x>', function()
+    --     return vim.fn['codeium#Clear']()
+    --   end, { expr = true, silent = true })
+    -- end
+  },
 
   {
     "windwp/nvim-autopairs",
@@ -390,5 +425,18 @@ return {
         end
       end,
     },
+
+    -- config = function(_, _)
+    -- require('ts_context_commentstring').setup {
+    -- enable_autocmd = true,
+    -- languages = {
+    -- typescript = '// %s',
+    -- },
+    -- commentary_integration = { },
+    -- config = {},
+    -- }
+
+    -- vim.g.skip_ts_context_commentstring_module = true
+    -- end,
   },
 }

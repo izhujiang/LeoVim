@@ -107,30 +107,30 @@ return {
         enable = true,
       },
       -- config nvim-ts-context-commentstring plugin
-      context_commentstring = {
-        enable = true,
-        enable_autocmd = false,
-        config = {
-          -- Languages that have a single comment style
-          go = "// %s",
-          c = "// %s",
-          cpp = "// %s",
-          java = "// %s",
-          lua = "-- %s",
-          python = "# %s",
-          sh = "# %s",
-          ruby = "# %s",
-          rust = "// %s",
-          vim = '" %s',
-          typescript = "// %s",
-          css = "/* %s */",
-          scss = "/* %s */",
-          html = "<!-- %s -->",
-          svelte = "<!-- %s -->",
-          vue = "<!-- %s -->",
-          json = "",
-        },
-      },
+      -- context_commentstring = {
+      --   enable = true,
+      --   enable_autocmd = false,
+      --   config = {
+      --     -- Languages that have a single comment style
+      --     go = "// %s",
+      --     c = "// %s",
+      --     cpp = "// %s",
+      --     java = "// %s",
+      --     lua = "-- %s",
+      --     python = "# %s",
+      --     sh = "# %s",
+      --     ruby = "# %s",
+      --     rust = "// %s",
+      --     vim = '" %s',
+      --     typescript = "// %s",
+      --     css = "/* %s */",
+      --     scss = "/* %s */",
+      --     html = "<!-- %s -->",
+      --     svelte = "<!-- %s -->",
+      --     vue = "<!-- %s -->",
+      --     json = "",
+      --   },
+      -- },
       autotag = {
         enable = false, -- autotag will be enabled by nvim-ts-autotag automatically
       },
@@ -150,7 +150,7 @@ return {
           },
           selection_modes = {
             ["@parameter.outer"] = "v", -- charwise
-            ["@function.outer"] = "V", -- linewise
+            ["@function.outer"] = "V",  -- linewise
             ["@class.outer"] = "<c-v>", -- blockwise
           },
           include_surrounding_whitespace = false,
@@ -212,7 +212,7 @@ return {
 
       rainbow = {
         enable = false,
-        extended_mode = true, -- Highlight also non-parentheses delimiters, boolean or table: lang -> boolean
+        extended_mode = true,  -- Highlight also non-parentheses delimiters, boolean or table: lang -> boolean
         max_file_lines = 1000, -- Do not enable for files with more than 1000 lines, int
       },
     },
