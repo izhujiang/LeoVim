@@ -1,46 +1,41 @@
+-- the colorscheme should be available when starting Neovim
 return {
-  -- the colorscheme should be available when starting Neovim
+  {
+    "ellisonleao/gruvbox.nvim",
+    enabled = false,
+    lazy = false,
+    priority = 2000,
+    config = true,
+  },
   -- tokyonight, A clean, dark Neovim theme written in Lua, with support for lsp, treesitter and lots of plugins.
   {
     "folke/tokyonight.nvim",
-    -- NOTE: enable it when wanted
     enabled = false,
     -- lazy = true,
-    event = "VeryLazy",
     priority = 1000, -- make sure to load this before all the other start plugins
     opts = { style = "moon" },
-    config = function()
-      -- load and set colorscheme
-      -- vim.cmd([[colorscheme tokyonight]])
-    end,
   },
   -- Everforest is a green based color scheme; it's designed to be warm and soft in order to protect developers' eyes.
   {
+    -- Everforest is a green based color scheme; it's designed to be warm and soft in order to protect developers' eyes.
     "sainnhe/everforest",
-    -- "sainnhe/sonokai",
-    -- lazy = true,
-    event = "VeryLazy",
+    lazy = false,    -- make sure we load this during startup if it is your main colorscheme
     priority = 1000, -- make sure to load this before all the other start plugins
 
-    -- dependencies = {
-    --   { "nvim-lualine/lualine.nvim" },
-    -- },
-
-    config = function()
+    init = function()
+      -- config everforest init function, before ":colorscheme everforest"
       vim.g.everforest_background = "soft"
+      vim.g.everforest_enable_italic = 1
+      -- vim.g.everforest_disable_italic_comment = 1
+      -- vim.g.everforest_transparent_background = 2
+      -- vim.g.everforest_dim_inactive_windows = 1
+      vim.g.everforest_show_eob = 0
+      vim.g.everforest_diagnostic_text_highlight = 1
+      vim.g.everforest_diagnostic_line_highlight = 1
+      -- vim.g.everforest_diagnostic_virtual_text = 'colored'
+      -- vim.g.everforest_disable_terminal_colors = 1
+      -- vim.g.everforest_lightline_disable_bold = 1
       vim.g.everforest_better_performance = 1
-
-      -- vim.cmd([[colorscheme everforest]])
-      -- local status_ok, _ = pcall(vim.cmd.colorscheme, "everforest")
-      -- if not status_ok then
-      --   return
-      -- end
-
-      -- require("lualine").setup({
-      --   options = {
-      --     theme = "everforest",
-      --   },
-      -- })
     end,
   },
 
@@ -50,56 +45,19 @@ return {
   {
     "catppuccin/nvim",
     name = "catppuccin",
-    -- NOTE: enable it when wanted
-    enabled = false,
-    event = "VeryLazy",
+    lazy = false,
+    priority = 1000, -- make sure to load this before all the other start plugins
     opts = {
+      default_integrations = true,
       integrations = {
-        alpha = true,
-        cmp = true,
-        dap = {
-          enabled = true,
-          enable_ui = true, -- enable nvim-dap-ui
-        },
-        gitsigns = true,
         illuminate = true,
-        indent_blankline = { enabled = true },
-        leap = false,
         lsp_trouble = true,
-        markdown = true,
         mason = true,
-        mini = true,
-        native_lsp = {
-          enabled = true,
-          virtual_text = {
-            errors = { "italic" },
-            hints = { "italic" },
-            warnings = { "italic" },
-            information = { "italic" },
-          },
-          underlines = {
-            errors = { "undercurl" },
-            hints = { "undercurl" },
-            warnings = { "undercurl" },
-            information = { "undercurl" },
-          },
-          inlay_hints = {
-            background = true,
-          },
-        },
         navic = { enabled = true },
         neotest = true,
         nvimtree = true,
         noice = true,
         notify = true,
-        neotree = true,
-        semantic_tokens = true,
-        telescope = {
-          enabled = true,
-          -- style = "nvchad"
-        },
-        treesitter = true,
-        treesitter_context = true,
         which_key = true,
       },
     },

@@ -1,30 +1,11 @@
-local augroup = require("leovim.util").augroup
-
--- Check if we need to reload the file when it changed
-vim.api.nvim_create_autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
-  group = augroup("checktime"),
-  command = "checktime",
-})
-
--- Highlight on yank
-vim.api.nvim_create_autocmd("TextYankPost", {
-  group = augroup("highlight_yank"),
-  callback = function()
-    vim.highlight.on_yank()
-  end,
-})
-
--- resize splits if window got resized
-vim.api.nvim_create_autocmd({ "VimResized" }, {
-  group = augroup("resize_splits"),
-  callback = function()
-    vim.cmd("tabdo wincmd =")
-  end,
-})
+local augroup_buffer = vim.api.nvim_create_augroup("leovim_buffer", { clear = true })
+local augroup_window = vim.api.nvim_create_augroup("leovim_window", { clear = true })
+local augroup_ft = vim.api.nvim_create_augroup("leovim_ft", { clear = true })
+local augroup_edit = vim.api.nvim_create_augroup("leovim_edit", { clear = true })
 
 -- go to last loc when opening a buffer
 vim.api.nvim_create_autocmd("BufReadPost", {
-  group = augroup("last_loc"),
+  group = augroup_buffer,
   callback = function()
     local exclude = { "gitcommit" }
     local buf = vim.api.nvim_get_current_buf()
@@ -39,11 +20,38 @@ vim.api.nvim_create_autocmd("BufReadPost", {
     end
   end,
 })
+-- TODO: call functions to format before saving (like ale does)
+-- Auto create dir when saving a file, in case some intermediate directory does not exist
+vim.api.nvim_create_autocmd({ "BufWritePre" }, {
+  group = augroup_buffer,
+  callback = function(event)
+    if event.match:match("^%w%w+://") then
+      return
+    end
+    local file = vim.loop.fs_realpath(event.match) or event.match
+    vim.fn.mkdir(vim.fn.fnamemodify(file, ":p:h"), "p")
+  end,
+})
+
+vim.api.nvim_create_autocmd({ "TermOpen", "WinEnter" }, {
+  group = augroup_buffer,
+  pattern = "term://*",
+  callback = function()
+    if vim.bo.buftype == "terminal" then
+      vim.cmd("startinsert")
+    end
+  end,
+})
+-- Check if we need to reload the file when it changed
+vim.api.nvim_create_autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
+  group = augroup_buffer,
+  command = "checktime",
+})
 
 -- close some filetypes with <q>
 -- NOTE: wonderful, register filetypes to quit with <q>
 vim.api.nvim_create_autocmd("FileType", {
-  group = augroup("close_with_q"),
+  group = augroup_ft,
   pattern = {
     "PlenaryTestPopup",
     "help",
@@ -67,44 +75,53 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
--- wrap and check for spell in text filetypes
 vim.api.nvim_create_autocmd("FileType", {
-  group = augroup("wrap_spell"),
-  pattern = { "gitcommit", "markdown" },
+  group = augroup_ft,
+  pattern = { "gitcommit", "gitrebase", "gitconfig" },
+  command = "set bufhidden=delete"
+})
+
+-- more plain file types
+vim.api.nvim_create_autocmd("FileType", {
+  group = augroup_ft,
+  pattern = { "gitcommit", "markdown", "text", "plaintex", "typst" },
   callback = function()
     vim.opt_local.wrap = true
     vim.opt_local.spell = true
   end,
 })
 
--- Auto create dir when saving a file, in case some intermediate directory does not exist
-vim.api.nvim_create_autocmd({ "BufWritePre" }, {
-  group = augroup("auto_create_dir"),
-  callback = function(event)
-    if event.match:match("^%w%w+://") then
-      return
-    end
-    local file = vim.loop.fs_realpath(event.match) or event.match
-    vim.fn.mkdir(vim.fn.fnamemodify(file, ":p:h"), "p")
+vim.api.nvim_create_autocmd({ "FileType" }, {
+  group = augroup_ft,
+  pattern = { "json", "jsonc", "json5" },
+  callback = function()
+    vim.opt_local.conceallevel = 0
   end,
 })
 
+-- resize splits if window got resized, maybe not good idea
+vim.api.nvim_create_autocmd({ "VimResized" }, {
+  group = augroup_window,
+  callback = function()
+    vim.cmd("tabdo wincmd =")
+  end,
+})
 -- close_if_last_window: close all non-normal windows when the last normal window is closed
 -- When using `:quit`, `:wq` or `:qall`, before deciding whether it closes the current window or quits Vim.
 -- For `:wq` the buffer is written before QuitPre is triggered.
 -- Can be used to close any non-essential window (quickfix, neo-tree, fugitive, spectre ...) if the current window is the last ordinary window.
 vim.api.nvim_create_autocmd({ "QuitPre" }, {
-  group = augroup("close_if_last_window"),
+  group = augroup_window,
   callback = function()
-    local non_essential_filetypes = require("leovim.config").non_essential_filetypes
+    local non_essential_filetypes = require("leovim.config.defaults").non_essential_filetypes
 
     local win_id = vim.api.nvim_get_current_win()
     local tabid = vim.api.nvim_get_current_tabpage()
     local wins = vim.api.nvim_tabpage_list_wins(tabid)
 
     local is_essential_win = function(win)
-      local buf = vim.api.nvim_win_get_buf(win)
-      local ft = vim.api.nvim_buf_get_option(buf, "filetype")
+      local bufnr = vim.api.nvim_win_get_buf(win)
+      local ft = vim.api.nvim_get_option_value("filetype", { buf = bufnr })
       return not vim.tbl_contains(non_essential_filetypes, ft)
     end
 
@@ -119,5 +136,13 @@ vim.api.nvim_create_autocmd({ "QuitPre" }, {
         end
       end
     end
+  end,
+})
+
+-- Highlight on yank
+vim.api.nvim_create_autocmd("TextYankPost", {
+  group = augroup_edit,
+  callback = function()
+    vim.highlight.on_yank()
   end,
 })

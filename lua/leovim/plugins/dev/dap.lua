@@ -7,6 +7,7 @@ return {
   -- 	4) Inspecting the state via the built-in REPL: :lua require'dap'.repl.open() or using the widget UI (:help dap-widgets)
   {
     "mfussenegger/nvim-dap",
+    -- enabled = false,
     dependencies = {
       { "rcarriga/nvim-dap-ui" },
       { "theHamsta/nvim-dap-virtual-text" },
@@ -18,125 +19,135 @@ return {
       return {
         {
           "<F9>",
-          function()
-            require("dap").toggle_breakpoint()
-          end,
-          desc = "Toggle Breakpoint",
-        },
-        {
-          "<leader>db",
-          function()
-            require("dap").set_breakpoint(vim.fn.input("Breakpoint condition: "))
-          end,
-          desc = "Breakpoint Condition",
+          function() require("dap").toggle_breakpoint() end,
+          desc = "Breakpoint"
         },
         {
           -- TODO: add <C-F5> start without debugging,  <C-S-F5> Restart debugging
           "<F5>",
-          function()
-            require("dap").continue()
-          end,
-          desc = "Start Debugging / Continue",
+          function() require("dap").continue() end,
+          desc = "Start Debugging / Continue"
         },
         {
           -- NOTE: Disable <S-F5> in iterm2 (setting -> profiles -> keys -> key mappings)
           -- TODO: <S-F5> doesn't work
           -- "<S-F5>",
           "<F4>",
-          function()
-            require("dap").terminate()
-          end,
-          desc = "Terminate",
+          function() require("dap").terminate() end,
+          desc = "Terminate"
         },
         {
           "<C-S-F5>",
-          function()
-            require("dap").run_last()
-          end,
-          desc = "Run Last",
-        },
-        {
-          "<leader>dc",
-          function()
-            require("dap").run_to_cursor()
-          end,
-          desc = "Runto Cursor",
-        },
-        {
-          "<leader>dg",
-          function()
-            require("dap").goto_()
-          end,
-          desc = "Goto line (no execute)",
-        },
-        {
-          "<leader>dj",
-          function()
-            require("dap").down()
-          end,
-          desc = "Go down",
-        },
-        {
-          "<leader>dk",
-          function()
-            require("dap").up()
-          end,
-          desc = "Go up",
+          function() require("dap").run_last() end,
+          desc = "Run Last"
         },
         {
           "<F11>",
-          function()
-            require("dap").step_into()
-          end,
-          desc = "Step Into",
+          function() require("dap").step_into() end,
+          desc = "Step Into"
         },
         {
           "<S-F11>",
-          function()
-            require("dap").step_out()
-          end,
-          desc = "Step Out",
+          function() require("dap").step_out() end,
+          desc = "Step Out"
         },
         {
           "<F10>",
-          function()
-            require("dap").step_over()
-          end,
-          desc = "Step Over",
+          function() require("dap").step_over() end,
+          desc = "Step Over"
+        },
+
+        {
+          "<leader>db",
+          function() require("dap").toggle_breakpoint() end,
+          desc = "Breakpoint"
         },
         {
-          "<leader>dp",
-          function()
-            require("dap").pause()
-          end,
-          desc = "Pause",
-        },
-        {
-          "<leader>dr",
-          function()
-            require("dap").repl.toggle()
-          end,
-          desc = "Toggle REPL",
+          "<leader>dB",
+          function() require("dap").set_breakpoint(vim.fn.input("Breakpoint condition: ")) end,
+          desc = "Breakpoint Condition"
         },
         {
           "<leader>ds",
-          function()
-            require("dap").session()
-          end,
-          desc = "Session",
+          function() require("dap").continue() end,
+          desc = "Start"
+        },
+        {
+          "<leader>dc",
+          function() require("dap").continue() end,
+          desc = "Continue"
+        },
+        {
+          "<leader>dC",
+          function() require("dap").run_to_cursor() end,
+          desc = "Run to Cursor"
+        },
+        {
+          "<leader>di",
+          function() require("dap").step_into() end,
+          desc = "Step Into"
+        },
+        {
+          "<leader>dI",
+          function() require("dap").step_out() end,
+          desc = "Step Out"
+        },
+        {
+          "<leader>do",
+          function() require("dap").step_over() end,
+          desc = "Step Over"
+        },
+        {
+          "<leader>dO",
+          function() require("dap").step_back() end,
+          desc = "Step Back"
+        },
+        {
+          "<leader>dp",
+          function() require("dap").pause() end,
+          desc = "Pause"
+        },
+        {
+          "<leader>dt",
+          function() require("dap").close() end,
+          desc = "Close"
+        },
+
+        {
+          "<leader>dr",
+          function() require("dap").repl.toggle() end,
+          desc = "Toggle REPL"
+        },
+
+        {
+          "<leader>du",
+          function() require("dapui").toggle() end,
+          "Toggle DapUI"
+        },
+        {
+          "<leader>dU",
+          function() require("dapui").toggle({ reset = true }) end,
+          "Reset DapUI"
         },
         {
           "<leader>dw",
-          function()
-            require("dap.ui.widgets").hover()
-          end,
-          desc = "Widgets",
+          function() require("dap.ui.widgets").hover() end,
+          desc = "Widgets"
         },
+        { "<leader>de",
+          function() require("dapui").eval() end,
+          "Eval"
+        },
+        { "<leader>dE",
+          function() require("dapui").eval(vim.fn.input('[Expression] > ')) end,
+          "Eval"
+        },
+
       }
     end,
     opts = {
-      adapters = require("leovim.plugins.dev.settings.dap.adapters"),
-      configurations = require("leovim.plugins.dev.settings.dap.configurations"),
+      adapters = require("leovim.plugins.dev.dap.adapters"),
+      configurations = require("leovim.plugins.dev.dap.configurations"),
       -- adapters = {},
       -- configurations = {},
     },
@@ -155,7 +166,7 @@ return {
         dap.configurations[name] = conf
       end
 
-      local icons = require("leovim.config").icons
+      local icons = require("leovim.config.defaults").icons
       vim.api.nvim_set_hl(0, "DapStoppedLine", { default = true, link = "Visual" })
 
       -- vim.fn.sign_define(
@@ -190,14 +201,23 @@ return {
     -- The UI of nvim-dap is by default minimal and noninvasive, but it provides
     -- widget primitives that can be used to build and customize a UI.
     "rcarriga/nvim-dap-ui",
+    -- enabled = false,
+    -- dependencies = {"mfussenegger/nvim-dap", "nvim-neotest/nvim-nio"},
+    dependencies = { "nvim-neotest/nvim-nio" },
     keys = function()
       return {
         {
-          "<leader>ad",
+          "<leader>du",
           function()
             require("dapui").toggle({})
           end,
           desc = "DapUI",
+        },
+        { "<leader>dU",
+          function()
+            require 'dapui'.toggle({ reset = true })
+          end,
+          "DapUI(reset)"
         },
         {
           "<leader>de",
@@ -232,17 +252,17 @@ return {
       layouts = {
         {
           elements = {
-            { id = "scopes", size = 0.33 },
+            { id = "scopes",      size = 0.33 },
             { id = "breakpoints", size = 0.17 },
-            { id = "stacks", size = 0.25 },
-            { id = "watches", size = 0.25 },
+            { id = "stacks",      size = 0.25 },
+            { id = "watches",     size = 0.25 },
           },
           size = 0.33,
           position = "left",
         },
         {
           elements = {
-            { id = "repl", size = 0.45 },
+            { id = "repl",    size = 0.45 },
             { id = "console", size = 0.55 },
           },
           size = 0.27,
@@ -251,7 +271,7 @@ return {
       },
       floating = {
         max_height = 0.9,
-        max_width = 0.5, -- Floats will be treated as percentage of your screen.
+        max_width = 0.5,             -- Floats will be treated as percentage of your screen.
         border = vim.g.border_chars, -- Border style. Can be 'single', 'double' or 'rounded'
         mappings = {
           close = { "q", "<Esc>" },
@@ -267,12 +287,13 @@ return {
   -- virtual text support to nvim-dap
   {
     "theHamsta/nvim-dap-virtual-text",
+    enabled = false,
     opts = {
       commented = true,
     },
-    config = function(_, opts)
-      require("nvim-dap-virtual-text").setup(opts)
-    end,
+    -- config = function(_, opts)
+    --   require("nvim-dap-virtual-text").setup(opts)
+    -- end,
   },
 
   -- an adapter for the Neovim lua language

@@ -1,31 +1,32 @@
-local function register(opts)
+local function register_plugins(opts)
   opts.user_plugins = opts.user_plugins or "user.plugins"
 
+  -- Bootstrap lazy.nvim
   local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-  if not vim.loop.fs_stat(lazypath) then
-    -- bootstrap lazy.nvim
-    vim.fn.system({
-      "git",
-      "clone",
-      "--filter=blob:none",
-      "https://github.com/folke/lazy.nvim.git",
-      "--branch=stable",
-      lazypath,
-    })
+  if not (vim.uv or vim.loop).fs_stat(lazypath) then
+    local lazyrepo = "https://github.com/folke/lazy.nvim.git"
+    local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
+    if vim.v.shell_error ~= 0 then
+      vim.api.nvim_echo({
+        { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
+        { out,                            "WarningMsg" },
+        { "\nPress any key to exit..." },
+      }, true, {})
+      vim.fn.getchar()
+    end
   end
-  vim.opt.rtp:prepend(vim.env.LAZY or lazypath)
+  vim.opt.rtp:prepend(lazypath)
 
-  require("leovim.config").setup({ colorscheme = "everforest" })
-  -- require("leovim.config").setup()
-
-  -- setup lazy.nvim
-  -- When import specs, override them by simply adding a spec for the same plugin to your local specs, adding any keys you want to override / merge.
-  -- opts, dependencies, cmd, event, ft and keys are always merged with the parent spec. Any other property will override the property from the parent spec.
+  -- When import specs, override them by simply adding a spec for the same plugin to your local specs,
+  --    -- opts, dependencies, cmd, event, ft and keys are always merged with the parent spec.
+  --    -- any other property will override the property from the parent spec.
   require("lazy").setup({
     spec = {
       { import = "leovim.plugins.core" },
       { import = "leovim.plugins.dev" },
-      { import = "leovim.plugins.extras" },
+      -- { import = "leovim.plugins.test" },
+      -- { import = "leovim.plugins.extras" },
+
       -- { import = "leovim.plugins.langs" },
       -- or lang list
       -- { import = "leovim.plugins.langs.golang" },
@@ -35,22 +36,18 @@ local function register(opts)
       { import = opts.user_plugins },
     },
     defaults = {
+      -- set this to `true` to have all your plugins lazy-loaded by default.
       lazy = true,
-      -- It's recommended to leave version=false for now, since a lot the plugin that support versioning,
-      -- have outdated releases, which may break your Neovim install.
-      -- version = false, -- always use the latest git commit
-      version = "*", -- try installing the latest stable version for plugins that support semver
+      -- the latest stable version for plugins that support semver
+      version = "*",
     },
     install = {
       -- install missing plugins on startup.
       missing = true,
-      colorscheme = { "everforest", "tokyonight", "habamax" },
+      -- colorscheme that will be used when installing plugins.
+      colorscheme = { "habamax" },
     },
     ui = {
-      -- size = {
-      -- 	width = 1,
-      -- 	height = 1,
-      -- },
       border = "single",
     },
     -- dev = {
@@ -66,7 +63,6 @@ local function register(opts)
     },                    -- automatically check for plugin updates
     performance = {
       rtp = {
-        -- disable some rtp plugins
         disabled_plugins = {
           "gzip",
           -- "matchit",
@@ -80,10 +76,45 @@ local function register(opts)
       },
     },
   })
-  -- TODO: it's better to colorscheme asynchronously, not here
-  -- must colorscheme after bufferline.nvim is loaded
-  vim.cmd.colorscheme("everforest")
 end
 
 -- nvim entry point
-register({ user_plugins = "user.plugins" })
+-- setup core nvim config
+require("leovim.config").setup()
+
+-- enable lsp's debug mode
+-- vim.lsp.set_log_level("debug")
+
+-- local only_neovim = vim.fn.has("nvim") == 1
+local only_neovim = false
+-- TODO: check nvim version (>= 0.10) and lua version (luaJIT)
+
+if only_neovim then
+  vim.cmd.colorscheme("habamax")
+else
+  register_plugins({ user_plugins = "user.plugins" })
+  vim.cmd.colorscheme("everforest")
+  -- vim.cmd.colorscheme("catppuccin")
+  -- vim.cmd.colorscheme("tokyonight")
+end
+-- TODO: it's better to colorscheme asynchronously, not here
+-- must colorscheme after bufferline.nvim is loaded
+
+-- lazy.nvim does NOT use Neovim's builtin plugin manager 'packages' and even
+-- disables plugin loading completely (vim.go.loadplugins = false). It takes
+-- over the complete startup sequence for more flexibility and better
+-- performance.
+--
+-- In practice this means that step 10 of Neovim Initialization is done by Lazy:
+--    -- All the plugins' init() functions are executed
+--    -- All plugins with lazy=false are loaded. This includes sourcing /plugin
+--    and /ftdetect files. (/after will not be sourced yet)
+--    -- All files from /plugin and /ftdetect directories in your rtp are
+--    sourced (excluding /after)
+--    -- All /after/plugin files are sourced (this includes /after from plugins)
+--
+-- Files from runtime directories are always sourced in alphabetical order.
+-- https://lazy.folke.io/usage#%EF%B8%8F-startup-sequence
+
+-- Optimize performance
+-- https://lazy.folke.io/usage/profiling

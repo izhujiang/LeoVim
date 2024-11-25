@@ -1,1 +1,3 @@
-std = "lua51-lvim"
+std = "luajit"
+[lints]
+mixed_table = "allow"

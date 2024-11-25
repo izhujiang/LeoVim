@@ -39,67 +39,51 @@ return {
     },
   },
 
-  -- Free, ultrafast Copilot alternative for Vim and Neovim
-  -- {
-  --   'Exafunction/codeium.vim',
-  --   event = 'BufEnter'
-  -- },
+
+  -- codeium for nvim-cmp source
   {
-    "Exafunction/codeium.nvim", -- authenticate with Codeium by running :Codeium Auth, copying the token from your browser
+    "nvim-cmp",
     dependencies = {
-      "nvim-lua/plenary.nvim",
-      "hrsh7th/nvim-cmp",
+      { "Exafunction/codeium.nvim" }, -- source: codeium
     },
-    event = 'BufEnter',
-    config = function()
-      require("codeium").setup({
+    opts = function(_, opts)
+      table.insert(opts.sources, 1, {
+        name = "codeium",
+        priority = 700,
+        group_index = 1,
       })
-    end
+    end,
   },
 
-  -- Tabnine client for Neovim from official
-  -- usage:
-  -- :TabnineStatus - to print Tabnine status
-  -- :TabnineDisable - to disable Tabnine
-  -- :TabnineEnable - to enable Tabnine
-  -- :TabnineToggle - to toggle enable/disable
-  -- :TabnineChat - to launch Tabnine chat
-  -- {
-  --   "codota/tabnine-nvim",
-  --   -- enabled = false,
-  --   cond = function()
-  --     return vim.loop.os_uname().machine ~= "aarch64"
-  --   end,
-  --   -- build = "./dl_binaries.sh",
-  --   build = function()
-  --     if vim.loop.os_uname().sysname == "Windows_NT" then -- Windows installations need to be adjusted to utilize PowerShell with dl_binaries.ps1
-  --       -- The build script needs a set execution policy (https://github.com/codota/tabnine-nvim).
-  --       -- Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-  --       return "pwsh.exe -file .\\dl_binaries.ps1"
-  --     else
-  --       return "./dl_binaries.sh" -- for Unix (Linux, MacOS)
-  --     end
-  --   end,
-  --   event = { "InsertEnter" },
+  -- Free, ultrafast Copilot alternative for Vim and Neovim
+  {
+    "Exafunction/codeium.nvim",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+    },
+    build = ":Codeium Auth",
+    event = { "InsertEnter" },
+    -- init = function()
+    -- disable the automatic triggering of completions
+    -- vim.g.codeium_manual = 1
 
-  --   opts = {
-  --     disable_auto_comment = false,
-  --     accept_keymap = "<C-y>", -- don't use <Tab> or <CR> as accept_keymap
-  --     dismiss_keymap = "<C-]>",
-  --     debounce_ms = 800,
-  --     suggestion_color = { gui = "#F00000", cterm = 244 },
-  --     exclude_filetypes = { "TelescopePrompt" },
-  --     log_file_path = nil, -- absolute path to Tabnine log file
-  --     -- log_file_path = "~/tabnine.log", -- absolute path to Tabnine log file
-  --   },
-  --   -- solve confix with nvim-cmp's maps <Tab> to navigating through pop menu items (https://github.com/codota/tabnine-nvim#tab-and-nvim-cmp).
-  --   -- This conflicts with Tabnine <Tab> for inline completion. To get this sorted you can either:
-  --   -- 		- Bind Tabnine inline completion to a different key using accept_keymap
-  --   -- 		- Bind cmp.select_next_item() & cmp.select_prev_item() to different keys, e.g: <C-k> & <C-j>.
-  --   config = function(_, opts)
-  --     require("tabnine").setup(opts)
-  --   end,
-  -- },
+    -- Codeium's default keybindings can be disabled by setting
+    -- vim.g.codeium_disable_bindings = 1
+
+    -- disable default <Tab> binding
+    -- vim.g.codeium_no_map_tab = 1
+
+    -- disable codeium for all filetypes
+    -- codeium_filetypes_disabled_by_default = 1
+    -- vim.g.codeium_filetypes = {
+    -- bash = false,
+    -- typescript = false,
+    -- disable automatic text rendering of suggestions
+    -- vim.g.codeium_render = false
+    -- }
+    -- end,
+    cmd = { "Codeium" },
+  },
 
   -- better yank/paste
   {

@@ -3,17 +3,7 @@ local Util = require("lazy.core.util")
 local M = {}
 
 M.root_patterns = { ".git", "lua" }
-
----@param on_attach fun(client, buffer)
-function M.on_attach(on_attach)
-  vim.api.nvim_create_autocmd("LspAttach", {
-    callback = function(args)
-      local buffer = args.buf
-      local client = vim.lsp.get_client_by_id(args.data.client_id)
-      on_attach(client, buffer)
-    end,
-  })
-end
+M.cmp = require("leovim.plugins.util.cmp")
 
 ---@param plugin string
 function M.has(plugin)
@@ -92,7 +82,7 @@ function M.get_root()
 end
 
 -- this will return a function that calls telescope.
--- cwd will default to leovim.util.get_root
+-- cwd will default to leovim.plugins.util.get_root
 -- for `files`, git_files or find_files will be chosen depending on .git
 function M.telescope(builtin, opts)
   local params = { builtin = builtin, opts = opts }

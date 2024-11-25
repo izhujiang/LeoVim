@@ -14,60 +14,40 @@ return {
       -- local neotest = require("neotest")
       return {
         {
-          "<leader>tt",
+          "<leader>tf",
           function()
             require("neotest").run.run(vim.fn.expand("%"))
           end,
-          desc = "Test current file",
+          desc = "File(Test)",
         },
         {
-          "<leader>tT",
+          "<leader>tF",
           function()
             require("neotest").run.run(vim.loop.cwd())
           end,
-          desc = "Test all files(cwd)",
+          desc = "All Files(Test)",
         },
         {
-          "<leader>tf",
+          "<leader>tt",
           function()
             require("neotest").run.run()
           end,
-          desc = "Run the nearest test",
+          desc = "Run Test",
         },
+        -- T for terminate
         {
-          "<leader>dt",
-          function()
-            require("neotest").run.run({ strategy = "dap" })
-          end,
-          desc = "Debug the nearest test",
-        },
-        {
-          "<leader>ts",
+          "<leader>tT",
           function()
             require("neotest").run.stop()
           end,
-          desc = "Stop test",
+          desc = "Stop Test",
         },
         {
           "<leader>ta",
           function()
             require("neotest").run.attach()
           end,
-          desc = "Attach to the nearest test",
-        },
-        {
-          "<leader>tS",
-          function()
-            require("neotest").summary.open()
-          end,
-          desc = "Test Summary",
-        },
-        {
-          "<leader>aT",
-          function()
-            require("neotest").summary.toggle()
-          end,
-          desc = "Test Summary",
+          desc = "Attach Test",
         },
         {
           "<leader>to",
@@ -77,11 +57,33 @@ return {
           desc = "Output(Test)",
         },
         {
-          "<leader>ao",
+          "<leader>tO",
           function()
             require("neotest").output_panel.toggle()
           end,
           desc = "Test Output Panel",
+        },
+        {
+          "<leader>ts",
+          function()
+            require("neotest").summary.open({ enter = true, auto_close = true })
+          end,
+          desc = "Test Summary",
+        },
+        {
+          "<leader>tS",
+          function()
+            require("neotest").summary.toggle()
+          end,
+          desc = "Test Summary",
+        },
+        -- i for identify or debug
+        {
+          "<leader>ti",
+          function()
+            require("neotest").run.run({ strategy = "dap" })
+          end,
+          desc = "Debug Test",
         },
       }
     end,
@@ -91,8 +93,8 @@ return {
           -- args = { "-tags=integration" }
         },
         ["neotest-python"] = {
-        --   -- runner = "pytest",
-        --   -- python = ".venv/bin/python",
+          --   -- runner = "pytest",
+          --   -- python = ".venv/bin/python",
         },
       },
       status = { virtual_text = true },
