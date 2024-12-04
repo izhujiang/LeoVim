@@ -9,7 +9,7 @@ local function register_plugins(opts)
     if vim.v.shell_error ~= 0 then
       vim.api.nvim_echo({
         { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
-        { out,                            "WarningMsg" },
+        { out, "WarningMsg" },
         { "\nPress any key to exit..." },
       }, true, {})
       vim.fn.getchar()
@@ -21,6 +21,8 @@ local function register_plugins(opts)
   --    -- opts, dependencies, cmd, event, ft and keys are always merged with the parent spec.
   --    -- any other property will override the property from the parent spec.
   require("lazy").setup({
+    -- TODO: update & upgrade (add, replace and delele) plugins
+    -- https: //www.lazyvim.org/news
     spec = {
       { import = "leovim.plugins.core" },
       { import = "leovim.plugins.dev" },
@@ -60,7 +62,7 @@ local function register_plugins(opts)
     checker = {
       enabled = false,
       frequency = 604800, -- check for updates every week 60*60*24*7
-    },                    -- automatically check for plugin updates
+    }, -- automatically check for plugin updates
     performance = {
       rtp = {
         disabled_plugins = {
@@ -78,6 +80,7 @@ local function register_plugins(opts)
   })
 end
 
+vim.lsp.set_log_level("debug")
 -- nvim entry point
 -- setup core nvim config
 require("leovim.config").setup()

@@ -27,6 +27,12 @@ return {
 
     opts = {
       on_attach = "default",
+      sync_root_with_cwd = true,
+      respect_buf_cwd = true,
+      update_focused_file = {
+        enable = true,
+        update_root = true,
+      },
       -- sort = { sorter = "case_sensitive", },
       -- view = { width = 30, },
       -- renderer = { group_empty = true, },
@@ -56,11 +62,12 @@ return {
       --   },
       -- },
     },
-
   },
 
   -- fuzzy finder: a highly extendable fuzzy finder over lists.
   -- Built on the latest awesome features from neovim core.
+
+  -- TODO: fzf-lua as a replacement for telescope.nvim
   {
     "nvim-telescope/telescope.nvim",
     -- event = "VeryLazy",
@@ -68,13 +75,6 @@ return {
       "nvim-lua/plenary.nvim",
       "nvim-tree/nvim-web-devicons",
       "nvim-treesitter/nvim-treesitter",
-      -- {
-      -- telescope-ui-select, sets vim.ui.select to telescope, which means
-      -- that neovim core stuff can fill the telescope picker.
-      -- Example would be :lua vim.lsp.buf.code_action().
-      -- TODO: move telescope-ui-select to core/ui, then load and config it.
-      -- "nvim-telescope/telescope-ui-select.nvim"
-      -- },
     },
     cmd = "Telescope",
     opts = function()
@@ -154,76 +154,76 @@ return {
         },
         extensions = {
           fzf = {
-            fuzzy = true,                   -- false will only do exact matching
+            fuzzy = true, -- false will only do exact matching
             override_generic_sorter = true, -- override the generic sorter
-            override_file_sorter = true,    -- override the file sorter
-            case_mode = "smart_case",       -- or "ignore_case" or "respect_case"
+            override_file_sorter = true, -- override the file sorter
+            case_mode = "smart_case", -- or "ignore_case" or "respect_case"
           },
           -- ["ui-select"] = {
           --   require("telescope.themes").get_dropdown({})
-          -- }
+          -- },
         },
       }
     end,
     keys = {
-      { "<leader>s",   "<cmd>Telescope current_buffer_fuzzy_find<cr>",     desc = "Fuzzy Find(Buffer)" },
-      { "<C-p>",       "<cmd>Telescope find_files<cr>",                    desc = "Files" }, -- shortcut for find_files
-      { "<leader>f:",  "<cmd>Telescope command_history<cr>",               desc = "Command History" },
-      { "<leader>f/",  "<cmd>Telescope search_history<cr>",                desc = "Command History" },
-      { "<leader>f'",  "<cmd>Telescope marks<cr>",                         desc = "Marks" },
-      { '<leader>f"',  "<cmd>Telescope registers<cr>",                     desc = "Registers" },
-      { "<leader>fa",  "<cmd>Telescope autocommands<cr>",                  desc = "Autocommands" },
-      { "<leader>fb",  "<cmd>Telescope buffers<cr>",                       desc = "Buffers" },
-      { "<leader>fc",  "<cmd>Telescope commands<cr>",                      desc = "Commands" },
-      { "<leader>fC",  "<cmd>Telescope colorscheme<cr>",                   desc = "Colorscheme" },
+      { "<leader>s", "<cmd>Telescope current_buffer_fuzzy_find<cr>", desc = "Fuzzy Find(Buffer)" },
+      { "<C-p>", "<cmd>Telescope find_files<cr>", desc = "Files" }, -- shortcut for find_files
+      { "<leader>f:", "<cmd>Telescope command_history<cr>", desc = "Command History" },
+      { "<leader>f/", "<cmd>Telescope search_history<cr>", desc = "Command History" },
+      { "<leader>f'", "<cmd>Telescope marks<cr>", desc = "Marks" },
+      { '<leader>f"', "<cmd>Telescope registers<cr>", desc = "Registers" },
+      { "<leader>fa", "<cmd>Telescope autocommands<cr>", desc = "Autocommands" },
+      { "<leader>fb", "<cmd>Telescope buffers<cr>", desc = "Buffers" },
+      { "<leader>fc", "<cmd>Telescope commands<cr>", desc = "Commands" },
+      { "<leader>fC", "<cmd>Telescope colorscheme<cr>", desc = "Colorscheme" },
       -- diagnostics
-      { "<leader>fd",  "<cmd>Telescope diagnostics bufnr=0<cr>",           desc = "Diagnostics(Buffer)" },
-      { "<leader>fD",  "<cmd>Telescope diagnostics<cr>",                   desc = "Diagnostics(Workspace)" },
+      { "<leader>fd", "<cmd>Telescope diagnostics bufnr=0<cr>", desc = "Diagnostics(Buffer)" },
+      { "<leader>fD", "<cmd>Telescope diagnostics<cr>", desc = "Diagnostics(Workspace)" },
       -- 'e' for expression
       -- Search for a string in your current working directory and get results live as you type,
-      { "<leader>fe",  "<cmd>Telescope live_grep<cr>",                     desc = "Live Grep" },
-      { "<leader>ff",  "<cmd>Telescope find_files<cr>",                    desc = "Files" },
+      { "<leader>fe", "<cmd>Telescope live_grep<cr>", desc = "Live Grep" },
+      { "<leader>ff", "<cmd>Telescope find_files<cr>", desc = "Files" },
       -- git
-      { "<leader>fgb", "<cmd>Telescope git_branches<cr>",                  desc = "Git Branches" },
-      { "<leader>fgc", "<cmd>Telescope git_commits<cr>",                   desc = "Git Commits" },
-      { "<leader>fgC", "<cmd>Telescope git_bcommits<cr>",                  desc = "Git Commits(Buffer)" },
-      { "<leader>fgf", "<cmd>Telescope git_files<cr>",                     desc = "Git Files" },
-      { "<leader>fgs", "<cmd>Telescope git_status<cr>",                    desc = "Git Status" },
-      { "<leader>fgS", "<cmd>Telescope git_stash<cr>",                     desc = "Git stash" },
-      { "<leader>fh",  "<cmd>Telescope help_tags<cr>",                     desc = "Help Pages" },
-      { "<leader>fH",  "<cmd>Telescope highlights<cr>",                    desc = "Highlight Groups" },
-      { "<leader>fj",  "<cmd>Telescope jumplist<cr>",                      desc = "Jumplist" },
-      { "<leader>fk",  "<cmd>Telescope keymaps<cr>",                       desc = "Keybindings" },
+      { "<leader>fgb", "<cmd>Telescope git_branches<cr>", desc = "Git Branches" },
+      { "<leader>fgc", "<cmd>Telescope git_commits<cr>", desc = "Git Commits" },
+      { "<leader>fgC", "<cmd>Telescope git_bcommits<cr>", desc = "Git Commits(Buffer)" },
+      { "<leader>fgf", "<cmd>Telescope git_files<cr>", desc = "Git Files" },
+      { "<leader>fgs", "<cmd>Telescope git_status<cr>", desc = "Git Status" },
+      { "<leader>fgS", "<cmd>Telescope git_stash<cr>", desc = "Git stash" },
+      { "<leader>fh", "<cmd>Telescope help_tags<cr>", desc = "Help Pages" },
+      { "<leader>fH", "<cmd>Telescope highlights<cr>", desc = "Highlight Groups" },
+      { "<leader>fj", "<cmd>Telescope jumplist<cr>", desc = "Jumplist" },
+      { "<leader>fk", "<cmd>Telescope keymaps<cr>", desc = "Keybindings" },
       -- lsp group
-      { "<leader>flc", "<cmd>Telescope lsp_incoming_calls<cr>",            desc = "Incoming Calls" },
-      { "<leader>flC", "<cmd>Telescope lsp_outgoing_calls<cr>",            desc = "Outgoing Calls" },
-      { "<leader>fld", "<cmd>Telescope lsp_definitions<cr>",               desc = "Definitions" },
-      { "<leader>fle", "<cmd>Telescope diagnostics<cr>",                   desc = "Diagnostics" },
-      { "<leader>fli", "<cmd>Telescope lsp_implementations<cr>",           desc = "Implementations" },
-      { "<leader>flr", "<cmd>Telescope lsp_references<cr>",                desc = "References" },
-      { "<leader>fls", "<cmd>Telescope lsp_document_symbols<cr>",          desc = "Symbols(Document)" },
-      { "<leader>flS", "<cmd>Telescope lsp_workspace_symbols<cr>",         desc = "Symbols(Workspace)" },
-      { "<leader>flt", "<cmd>Telescope lsp_type_definitions<cr>",          desc = "Type Definitions" },
+      { "<leader>flc", "<cmd>Telescope lsp_incoming_calls<cr>", desc = "Incoming Calls" },
+      { "<leader>flC", "<cmd>Telescope lsp_outgoing_calls<cr>", desc = "Outgoing Calls" },
+      { "<leader>fld", "<cmd>Telescope lsp_definitions<cr>", desc = "Definitions" },
+      { "<leader>fle", "<cmd>Telescope diagnostics<cr>", desc = "Diagnostics" },
+      { "<leader>fli", "<cmd>Telescope lsp_implementations<cr>", desc = "Implementations" },
+      { "<leader>flr", "<cmd>Telescope lsp_references<cr>", desc = "References" },
+      { "<leader>fls", "<cmd>Telescope lsp_document_symbols<cr>", desc = "Symbols(Document)" },
+      { "<leader>flS", "<cmd>Telescope lsp_workspace_symbols<cr>", desc = "Symbols(Workspace)" },
+      { "<leader>flt", "<cmd>Telescope lsp_type_definitions<cr>", desc = "Type Definitions" },
       { "<leader>flw", "<cmd>Telescope lsp_dynamic_workspace_symbols<cr>", desc = "Symbols(Dynamic)" },
-      { "<leader>fm",  "<cmd>Telescope marks<cr>",                         desc = "Marks" },
-      { "<leader>fM",  "<cmd>Telescope man_pages<cr>",                     desc = "Man pages" },
-      { "<leader>fn",  "<cmd>Telescope notify<cr>",                        desc = "Notifications" },
-      { "<leader>fo",  "<cmd>Telescope vim_options<cr>",                   desc = "Options" },
-      { "<leader>fq",  "<cmd>Telescope quickfix<cr>",                      desc = "Quickfix" },
-      { "<leader>fQ",  "<cmd>Telescope loclist<cr>",                       desc = "Loclist" },
-      { "<leader>fr",  "<cmd>Telescope oldfiles<cr>",                      desc = "Recent Files" },
-      { "<leader>fs",  "<cmd>Telescope spell_suggest<cr>",                 desc = "Spelling Suggestion" },
+      { "<leader>fm", "<cmd>Telescope marks<cr>", desc = "Marks" },
+      { "<leader>fM", "<cmd>Telescope man_pages<cr>", desc = "Man pages" },
+      { "<leader>fn", "<cmd>Telescope notify<cr>", desc = "Notifications" },
+      { "<leader>fo", "<cmd>Telescope vim_options<cr>", desc = "Options" },
+      { "<leader>fq", "<cmd>Telescope quickfix<cr>", desc = "Quickfix" },
+      { "<leader>fQ", "<cmd>Telescope loclist<cr>", desc = "Loclist" },
+      { "<leader>fr", "<cmd>Telescope oldfiles<cr>", desc = "Recent Files" },
+      { "<leader>fs", "<cmd>Telescope spell_suggest<cr>", desc = "Spelling Suggestion" },
       -- For Intra-File Navigation: Yes, Tree-sitter can replace tags within a single file.
       -- Its real-time parsing is very useful for jumping to definitions, functions, or classes within a file.
-      { "<leader>ft",  "<cmd>Telescope treesitter<cr>",                    desc = "Treesitter" },
+      { "<leader>ft", "<cmd>Telescope treesitter<cr>", desc = "Treesitter" },
       -- { "<leader>ft",  "<cmd>Telescope current_buffer_tags,           desc = "Tags (buffer)" },
       -- Cross-file navigation: Use tags or a language server for fast, project-wide symbol indexing and jumping to definitions
-      { "<leader>fT",  "<cmd>Telescope tags<cr>",                          desc = "Tags(CWD)" },
+      { "<leader>fT", "<cmd>Telescope tags<cr>", desc = "Tags(CWD)" },
       -- Searches for the string under your cursor or selection in your current working directory
-      { "<leader>fw",  "<cmd>Telescope grep_string<cr>",                   desc = "Grep String" },
-      { "<leader>fx",  "<cmd>Telescope current_buffer_fuzzy_find<cr>",     "Search" },
-      { "<leader>fz",  "<cmd>Telescope resume<cr>",                        desc = "Last Find" },
-      { "<leader>fZ",  "<cmd>Telescope pickers<cr>",                       desc = "Last Picker" },
+      { "<leader>fw", "<cmd>Telescope grep_string<cr>", desc = "Grep String" },
+      { "<leader>fx", "<cmd>Telescope current_buffer_fuzzy_find<cr>", "Search" },
+      { "<leader>fz", "<cmd>Telescope resume<cr>", desc = "Last Find" },
+      { "<leader>fZ", "<cmd>Telescope pickers<cr>", desc = "Last Picker" },
     },
     config = function(_, opts)
       local telescope = require("telescope")
@@ -238,20 +238,26 @@ return {
   {
     -- FZF sorter for telescope,
     -- fzf-native is a c port of fzf, means that the fzf syntax is supported.
-    'nvim-telescope/telescope-fzf-native.nvim',
-    build = 'make', -- use gcc or clang and make (another option, cmake)
+    "nvim-telescope/telescope-fzf-native.nvim",
+    build = "make", -- use gcc or clang and make (another option, cmake)
   },
   {
     "ahmedkhalf/project.nvim",
-    dependencies = {
-      "nvim-telescope/telescope.nvim",
-    },
+    event = "VeryLazy", -- project.nvim load project history list asynchronously, make it ready before call :Telescope projects command
     keys = {
       { "<leader>fp", "<cmd>Telescope projects<cr>", desc = "Projects" },
     },
-    config = function()
+    opts = {
+      -- detection_methods = { "lsp", "pattern" }, -- NOTE: lsp detection will
+      -- get annoying with multiple langs in one project
+      detection_methods = { "pattern" },
+      patterns = { ".git", "Makefile", "package.json", "go.mod" },
+    },
+    config = function(_, opts)
+      require("project_nvim").setup(opts)
+
       require("telescope").load_extension("projects")
-    end
+    end,
   },
 
   -- trouble.nvim (like tree), enhanced Quickfix, better diagnostics list and others

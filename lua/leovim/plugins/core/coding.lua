@@ -1,19 +1,22 @@
 return {
+  -- blink.cmp as a replacement for nvim-cmp
+  -- Performant, batteries-included completion plugin for Neovim
+  -- https://github.com/saghen/blink.cmp
   {
     "hrsh7th/nvim-cmp",
     version = false, -- last release is way too old
     event = { "InsertEnter", "CmdlineEnter" },
     dependencies = {
-      { "hrsh7th/cmp-buffer" },                                -- source: buffer words
-      { "hrsh7th/cmp-path" },                                  -- source: file path
-      { "hrsh7th/cmp-nvim-lsp" },                              -- source: neovim builtin LSP client
-      { "hrsh7th/cmp-nvim-lua" },                              -- source: neovim's Lua runtime API such vim.lsp.*
-      { "hrsh7th/cmp-nvim-lsp-signature-help" },               -- source: function signatures
-      { "saadparwaiz1/cmp_luasnip" },                          -- source: luasnip
-      { "L3MON4D3/LuaSnip" },                                  -- Snippet Engine for Neovim
-      { "hrsh7th/cmp-cmdline" },                               -- source: cmdline
-      { "petertriho/cmp-git",                 config = true }, -- source: git
-      { "Exafunction/codeium.nvim",           config = true }, -- source: codeium
+      { "hrsh7th/cmp-buffer" }, -- source: buffer words
+      { "hrsh7th/cmp-path" }, -- source: file path
+      { "hrsh7th/cmp-nvim-lsp" }, -- source: neovim builtin LSP client
+      { "hrsh7th/cmp-nvim-lua" }, -- source: neovim's Lua runtime API such vim.lsp.*
+      { "hrsh7th/cmp-nvim-lsp-signature-help" }, -- source: function signatures
+      { "saadparwaiz1/cmp_luasnip" }, -- source: luasnip
+      { "L3MON4D3/LuaSnip" }, -- Snippet Engine for Neovim
+      { "hrsh7th/cmp-cmdline" }, -- source: cmdline
+      { "petertriho/cmp-git", config = true }, -- source: git
+      { "Exafunction/codeium.nvim", config = true }, -- source: codeium
     },
     opts = function(_, opts)
       -- local has_words_before = function()
@@ -88,18 +91,18 @@ return {
         -- Similarly, nvim_lsp_signature_help will be visible only when the nvim_lsp, ultisnips, and buffer are not available. The same goes for source path.
         -- 📓 Note 2: Having nvim_lsp and ultisnips in a single bracket will allow them to be mixed in the listing otherwise, all the autocompletion menu’s place is taken over by nvim_lsp.
         sources = {
-          { name = "nvim_lsp",                group_index = 1, priority = 900, keyword_length = 1 },
-          { name = "luasnip",                 group_index = 1, priority_ = 500 },
+          { name = "nvim_lsp", group_index = 1, priority = 900, keyword_length = 1 },
+          { name = "luasnip", group_index = 1, priority_ = 500 },
           -- { name = "copilot", group_index = 1, priority = 800 },
-          { name = "codeium",                 group_index = 1, priority = 700 },
-          { name = "nvim_lua",                group_index = 1 },
+          { name = "codeium", group_index = 1, priority = 700 },
+          { name = "nvim_lua", group_index = 1 },
 
-          { name = "buffer",                  group_index = 2 },
-          { name = "path",                    group_index = 2 },
+          { name = "buffer", group_index = 2 },
+          { name = "path", group_index = 2 },
 
           { name = "nvim_lsp_signature_help", group_index = 3 },
 
-          { name = "git",                     group_index = 4 },
+          { name = "git", group_index = 4 },
         },
 
         confirm_opts = {

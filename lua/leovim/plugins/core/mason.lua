@@ -4,75 +4,79 @@ return {
     -- Easily install and manage (external editor toolkits) such as LSP servers, DAP servers, linters, and formatters.
     -- g? for more informatioin in Mason UI
     "williamboman/mason.nvim",
-    -- lazy = false, -- load at nvim startup to ensure the language servers to be found, which insert vim.stdpath("data")/mason/bin into $PATH dynamically.
+    -- lazy = false,
+    -- ensure to find language servers, insert vim.stdpath("data")/mason/bin into $PATH dynamically.
+    -- event = "VimEnter",
     cmd = "Mason",
     keys = {
       { "<leader>zm", "<cmd>Mason<cr>", desc = "Mason" },
     },
     build = ":MasonUpdate",
-    opts = {
-      ui = {
-        check_outdated_packages_on_open = false,
-        border = "none",
-        icons = {
-          package_installed = "✓",
-          package_pending = "➜",
-          package_uninstalled = "✗",
+    opts = function()
+      local lang_servers = {
+        -- "bash-language-server",
+        -- "cmake-language-server", -- python 3.12 yes, python 3.13 not supported
+        -- "css-lsp",
+        -- "dockerfile-language-server",
+        "gopls",
+        -- "html-lsp",
+        -- "json-lsp",
+        "marksman",
+        "pyright", -- Microsoft
+        "ruff-lsp",
+        -- "tailwindcss-language-server",
+        -- "taplo",
+        "typescript-language-server",
+        -- "yaml-language-server",
+
+        -- null-ls (linters, formatters)
+        -- "cmakelang",
+        "commitlint",
+        -- "editorconfig-checker",
+        "gofumpt",
+        "goimports",
+        "golangci-lint",
+        "gomodifytags",
+        "impl",
+        "jq",
+        "misspell",
+        "shellcheck",
+        "shfmt",
+
+        -- dap
+        -- "debugpy",
+        "delve",
+        -- "js-debug-adapter",
+      }
+
+      if vim.uv.fs_stat("/etc/alpine-release") == nil then
+        vim.list_extend(
+          lang_servers,
+          { "clangd", "deno", "lua-language-server", "rust-analyzer", "selene", "stylua", "codelldb" }
+        )
+      end
+
+      return {
+        ui = {
+          check_outdated_packages_on_open = false,
+          border = "none",
+          icons = {
+            package_installed = "✓",
+            package_pending = "➜",
+            package_uninstalled = "✗",
+          },
         },
-      },
-      log_level = vim.log.levels.INFO,
-      max_concurrent_installers = 4,
+        log_level = vim.log.levels.INFO,
+        max_concurrent_installers = 4,
 
-      pip = {
-        upgrade_pip = true,
-      },
-      packages = {
-        ensure_installed = {
-          -- lsp servers
-          "astro-language-server",
-          "bash-language-server",
-          "clangd",
-          "cmake-language-server",
-          "css-lsp",
-          "deno",
-          "dockerfile-language-server",
-          "gopls",
-          "html-lsp",
-          "json-lsp",
-          "lua-language-server",
-          "marksman",
-          "pyright",
-          "ruff-lsp",
-          "rust-analyzer",
-          "tailwindcss-language-server",
-          "taplo",
-          "typescript-language-server",
-          "yaml-language-server",
-
-          -- null-ls (linters, formatters)
-          "cmakelang",
-          "commitlint",
-          "editorconfig-checker",
-          "gofumpt",
-          "goimports",
-          "golangci-lint",
-          "gomodifytags",
-          "impl",
-          "jq",
-          "misspell",
-          "selene",
-          "shellcheck",
-          "shfmt",
-          "stylua",
-
-          -- dap
-          "debugpy",
-          "delve",
-          "codelldb",
-          "js-debug-adapter",
+        pip = {
+          upgrade_pip = true,
         },
-      },
-    },
+        packages = {
+          ensure_installed = lang_servers,
+        },
+      }
+    end,
 
     config = function(_, opts)
       require("mason").setup(opts)

@@ -80,27 +80,6 @@ local function setup_keybinds(client, bufnr)
     vim.keymap.set("i", "<C-s>", vim.lsp.buf.signature_help, opts({ desc = "Signature_help(LSP)" }))
   end
 
-  -- Format
-  vim.keymap.set("n", "gQ",
-    function()
-      local client_count = #vim.lsp.get_clients({ buffer = bufnr })
-      if client_count == 1 then
-        -- if lsp server (including null-ls) support format, apply it.
-        vim.lsp.buf.format({ async = true, bufnr = bufnr })
-      elseif client_count >= 2 then
-        -- apply null-ls to format
-        vim.lsp.buf.format({
-          async = true,
-          bufnr = bufnr,
-          filter = function(c) -- apply null-ls client to apply format
-            -- vim.print("gopls: autoformatting", c.id, c.name)
-            return c.name == "null-ls"
-          end,
-        })
-      end
-    end,
-    opts({ desc = "Format(null-ls)" }))
-
   -- refractor and Code actions
   if version_not_011 then
     vim.keymap.set("n", "grn", vim.lsp.buf.rename, opts({ desc = "Rename(LSP)" }))
@@ -136,47 +115,87 @@ end
 
 local function setup_autocmds(opts)
   local user_lsp_group = vim.api.nvim_create_augroup("UserLspConfig", {})
-
-  vim.api.nvim_create_autocmd("BufWritePre", {
-    group = user_lsp_group,
-    callback = function(ev)
-      local bufnr = ev.buffer
-      local client_count = #vim.lsp.get_clients({ buffer = bufnr })
-      -- vim.print("gopls: BufWritePre callback is called, and have " .. client_count .. " clients")
-      if client_count == 1 then
-        -- if lsp server (including null-ls) support format, then apply it.
-        vim.lsp.buf.format({ async = false, bufnr = bufnr })
-      elseif client_count >= 2 then
-        -- if lsp server (not including null-ls) support format, then apply it.
-        vim.lsp.buf.format({
-          async = false,
-          bufnr = bufnr,
-          filter = function(c) -- apply non null-ls client to apply format
-            -- vim.print("gopls: autoformatting", c.id, c.name)
-            return c.name ~= "null-ls"
-          end,
-        })
-        -- TODO: format async or not depending on the performance of machine,
-        -- sounds that write twice
-        -- vim.lsp.buf.format({ async = true })
-      end
-    end
-  })
-
   -- setup LspAttach event handler
   vim.api.nvim_create_autocmd("LspAttach", {
     group = user_lsp_group,
     callback = function(args)
       local client = vim.lsp.get_client_by_id(args.data.client_id)
       local bufnr = args.buf
+
+      -- TODO: Check if keybinds are already set for this buffer
       setup_keybinds(client, bufnr)
       vim.bo.formatexpr = "v:lua.vim.lsp.formatexpr()"
       vim.lsp.inlay_hint.enable(opts.inlay_hint.enabled, { bufnr = bufnr })
 
-      -- Format buffer when saving
-      -- Only a few language servers (lua-language-server) provide formatting but others (bash-language-server) don’t.
-      -- use null-ls which kind of merges formatters with language servers. https://smarttech101.com/nvim-lsp-set-up-null-ls-for-beginners/
-    end
+      -- TODO: add more skip_formatting_servers to skip builtin lsp servers's
+      -- formatting feature and use null-ls instead.
+      -- TODO: gopls does not automatically organize imports as part of its default formatting behavior
+      -- wait for gopls future version, it's ok to organize imports manually
+      -- now for the sake of perform
+      local skip_formatting_servers = { "gopls", "lua_ls", "bashls" }
+      -- local skip_formatting_servers = {}
+      if vim.tbl_contains(skip_formatting_servers, client.name) then
+        -- disable formatting to prefer null-ls
+        client.server_capabilities.documentFormattingProvider = false
+        -- client.server_capabilities.documentRangeFormattingProvider = false
+      end
+    end,
+  })
+
+  -- Format buffer when saving
+  -- Only a few language servers (lua-language-server) provide formatting but others (bash-language-server) don’t.
+  vim.api.nvim_create_autocmd("BufWritePre", {
+    group = user_lsp_group,
+    callback = function(args)
+      local clients = vim.lsp.get_clients({ bufnr = args.buf })
+      local lsp_clients = vim.tbl_filter(function(c)
+        return c.supports_method("textDocument/formatting")
+        -- and c.name ~= "null-ls"
+        -- and not vim.tbl_contains(skip_formatting_servers, c.name)
+      end, clients)
+
+      if #lsp_clients == 0 then
+        vim.notify_once("No LSP Server or null-ls sources setup for formatting.", vim.log.levels.WARN)
+      else
+        if #lsp_clients > 1 then
+          vim.notify_once(
+            "Multiple LSP Servers or null-ls sources setup for formatting. Only use " .. lsp_clients[1].name,
+            vim.log.levels.WARN
+          )
+        end
+        -- vim.print("formatting with: ", lsp_clients[1].name)
+        vim.lsp.buf.format({
+          async = false,
+          bufnr = args.buf,
+          filter = function(c)
+            return c.id == lsp_clients[1].id
+          end,
+        })
+      end
+    end,
+  })
+
+  -- function M.format_filter(client)
+  --   local filetype = vim.bo.filetype
+  --   local n = require "null-ls"
+  --   local s = require "null-ls.sources"
+  --   local method = n.methods.FORMATTING
+  --   local available_formatters = s.get_available(filetype, method)
+
+  --   if #available_formatters > 0 then
+  --     return client.name == "null-ls"
+  --   elseif client.supports_method "textDocument/formatting" then
+  --     return true
+  --   else
+  --     return false
+  --   end
+  -- end
+
+  vim.api.nvim_create_autocmd("BufWritePre", {
+    group = user_lsp_group,
+    callback = function()
+      vim.lsp.codelens.refresh()
+    end,
   })
 end
 
