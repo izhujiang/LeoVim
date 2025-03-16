@@ -49,7 +49,6 @@ vim.api.nvim_create_autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
 })
 
 -- close some filetypes with <q>
--- NOTE: wonderful, register filetypes to quit with <q>
 vim.api.nvim_create_autocmd("FileType", {
   group = augroup_ft,
   pattern = {
@@ -78,7 +77,7 @@ vim.api.nvim_create_autocmd("FileType", {
 vim.api.nvim_create_autocmd("FileType", {
   group = augroup_ft,
   pattern = { "gitcommit", "gitrebase", "gitconfig" },
-  command = "set bufhidden=delete"
+  command = "set bufhidden=delete",
 })
 
 -- more plain file types

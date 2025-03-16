@@ -56,38 +56,41 @@ local function setup_keybinds(client, bufnr)
   local version_not_011 = vim.fn.has("nvim-0.11") == 0
   -- diagnostic
   if version_not_010 then
-    vim.keymap.set("n", "]d", vim.diagnostic.goto_next, opts({ desc = "Next Diagnostic(LSP)" }))
-    vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, opts({ desc = "Previous Diagnostic(LPS)" }))
-    vim.keymap.set("n", "<C-W>d", vim.diagnostic.open_float, opts({ desc = "Diagnostic(LSP)" }))
+    vim.keymap.set("n", "]d", vim.diagnostic.goto_next, opts({ desc = "diagnostic(LSP)" }))
+    vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, opts({ desc = "diagnostic(LPS)" }))
+    vim.keymap.set("n", "<C-w>d", vim.diagnostic.open_float, opts({ desc = "show diagnostic(LSP)" }))
   end
 
-  vim.keymap.set("n", "grd", vim.diagnostic.open_float, opts({ desc = "Diagnostic(LSP)" }))
-  vim.keymap.set("n", "grq", vim.diagnostic.setqflist, opts({ desc = "Diagnostics Quickfix(LSP)" }))
-  vim.keymap.set("n", "grl", vim.diagnostic.setloclist, opts({ desc = "Diagnostics Loclist(LSP)" }))
+  vim.keymap.set("n", "grd", vim.diagnostic.open_float, opts({ desc = "show diagnostic(LSP)" }))
+  vim.keymap.set("n", "grq", vim.diagnostic.setqflist, opts({ desc = "quickfix(LSP)" }))
+  vim.keymap.set("n", "grl", vim.diagnostic.setloclist, opts({ desc = "loclist(LSP)" }))
 
-  -- Definition<C-]>, Declaration, Reference and Hover
+  -- Declaration, Reference and Hover
   if version_not_010 then
-    vim.keymap.set("n", "K", vim.lsp.buf.hover, opts({ desc = "Hover(LSP)" }))
+    vim.keymap.set("n", "K", vim.lsp.buf.hover, opts({ desc = "hover(LSP)" }))
   end
-  vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts({ desc = "Definition(LSP)" }))
-  vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts({ desc = "Declaration(LSP)" }))
+  -- built-in definition: <C-]>
+  vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts({ desc = "goto definition(LSP)" }))
+  vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts({ desc = "goto declaration(LSP)" }))
 
   if version_not_011 then
-    vim.keymap.set("n", "gO", vim.lsp.buf.document_symbol, opts({ desc = "Document_symbol(LSP)" }))
-    vim.keymap.set("n", "grr", vim.lsp.buf.references, opts({ desc = "References(LSP)" }))
-    vim.keymap.set("n", "gri", vim.lsp.buf.implementation, opts({ desc = "Implementation(LSP)" }))
+    vim.keymap.set("n", "gO", vim.lsp.buf.document_symbol, opts({ desc = "goto document_symbol(LSP)" }))
+    vim.keymap.set("n", "grr", vim.lsp.buf.references, opts({ desc = "goto references(LSP)" }))
+    vim.keymap.set("n", "gri", vim.lsp.buf.implementation, opts({ desc = "goto implementation(LSP)" }))
     -- Signature help, information about the parameters of your function/method in a floating window.
-    vim.keymap.set("i", "<C-s>", vim.lsp.buf.signature_help, opts({ desc = "Signature_help(LSP)" }))
+    -- blink or nvim-cmp popup signature_help automatically in Insert mode
+    vim.keymap.set("i", "<C-s>", vim.lsp.buf.signature_help, opts({ desc = "show signature_help(LSP)" }))
+    vim.keymap.set("n", "grh", vim.lsp.buf.signature_help, opts({ desc = "show signature_help(LSP)" }))
   end
 
   -- refractor and Code actions
   if version_not_011 then
-    vim.keymap.set("n", "grn", vim.lsp.buf.rename, opts({ desc = "Rename(LSP)" }))
+    vim.keymap.set("n", "grn", vim.lsp.buf.rename, opts({ desc = "rename(LSP)" }))
     -- Code actions are available suggestions to fix errors and warnings.
-    vim.keymap.set({ "n", "v" }, "gra", vim.lsp.buf.code_action, opts({ desc = "Code Action(LSP)" }))
+    vim.keymap.set({ "n", "v" }, "gra", vim.lsp.buf.code_action, opts({ desc = "code action(LSP)" }))
   end
   -- TODO: setup codelens
-  vim.keymap.set("n", "grc", vim.lsp.codelens.run, opts({ desc = "CodeLens Action(LSP)" }))
+  vim.keymap.set("n", "grc", vim.lsp.codelens.run, opts({ desc = "codelens Action(LSP)" }))
 end
 
 -- setup diagnostics
@@ -127,13 +130,10 @@ local function setup_autocmds(opts)
       vim.bo.formatexpr = "v:lua.vim.lsp.formatexpr()"
       vim.lsp.inlay_hint.enable(opts.inlay_hint.enabled, { bufnr = bufnr })
 
-      -- TODO: add more skip_formatting_servers to skip builtin lsp servers's
-      -- formatting feature and use null-ls instead.
+      -- TODO: add more skip_formatting_servers to skip builtin lsp servers's formatting feature and use null-ls instead.
       -- TODO: gopls does not automatically organize imports as part of its default formatting behavior
-      -- wait for gopls future version, it's ok to organize imports manually
-      -- now for the sake of perform
-      local skip_formatting_servers = { "gopls", "lua_ls", "bashls" }
-      -- local skip_formatting_servers = {}
+      -- wait for gopls future version, it's ok to organize imports manually now for the sake of perform
+      local skip_formatting_servers = { "gopls", "lua_ls" }
       if vim.tbl_contains(skip_formatting_servers, client.name) then
         -- disable formatting to prefer null-ls
         client.server_capabilities.documentFormattingProvider = false
@@ -142,16 +142,15 @@ local function setup_autocmds(opts)
     end,
   })
 
+  -- TODO: override builtin keybind gw for format as well
   -- Format buffer when saving
-  -- Only a few language servers (lua-language-server) provide formatting but others (bash-language-server) don’t.
+  -- Only a few language servers (lua-language-server ...) provide formatting
   vim.api.nvim_create_autocmd("BufWritePre", {
     group = user_lsp_group,
     callback = function(args)
       local clients = vim.lsp.get_clients({ bufnr = args.buf })
       local lsp_clients = vim.tbl_filter(function(c)
         return c.supports_method("textDocument/formatting")
-        -- and c.name ~= "null-ls"
-        -- and not vim.tbl_contains(skip_formatting_servers, c.name)
       end, clients)
 
       if #lsp_clients == 0 then
@@ -163,6 +162,7 @@ local function setup_autocmds(opts)
             vim.log.levels.WARN
           )
         end
+
         -- vim.print("formatting with: ", lsp_clients[1].name)
         vim.lsp.buf.format({
           async = false,

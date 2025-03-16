@@ -19,7 +19,7 @@ return {
   {
     -- Everforest is a green based color scheme; it's designed to be warm and soft in order to protect developers' eyes.
     "sainnhe/everforest",
-    lazy = false,    -- make sure we load this during startup if it is your main colorscheme
+    lazy = false, -- make sure we load this during startup if it is your main colorscheme
     priority = 1000, -- make sure to load this before all the other start plugins
 
     init = function()
@@ -46,17 +46,19 @@ return {
     "catppuccin/nvim",
     name = "catppuccin",
     lazy = false,
+    version = false, -- latest development version
     priority = 1000, -- make sure to load this before all the other start plugins
     opts = {
       default_integrations = true,
       integrations = {
+        blink_cmp = true,
         illuminate = true,
         lsp_trouble = true,
         mason = true,
         navic = { enabled = true },
         neotest = true,
         nvimtree = true,
-        noice = true,
+        noice = false,
         notify = true,
         which_key = true,
       },

@@ -1,15 +1,31 @@
 local function make_user_default_capabilities(user_capabilities)
   -- The nvim-cmp almost supports LSP's capabilities so You should
   -- advertise it to LSP servers..
-  local has_cmp, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
-  local capabilities = vim.tbl_deep_extend(
-    "force",
-    vim.lsp.protocol.make_client_capabilities(),
-    has_cmp and cmp_nvim_lsp.default_capabilities() or {}
-  )
+
+  local has_cmp, cmp_nvim_lsp
+  local capabilities
+  if vim.g.completion == "blink" then
+    has_cmp, cmp_nvim_lsp = pcall(require, "blink.cmp")
+    capabilities = vim.tbl_deep_extend(
+      "force",
+      vim.lsp.protocol.make_client_capabilities(),
+      has_cmp and cmp_nvim_lsp.get_lsp_capabilities() or {}
+    )
+  elseif vim.g.completion == "nvim-cmp" then
+    has_cmp, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
+    capabilities = vim.tbl_deep_extend(
+      "force",
+      vim.lsp.protocol.make_client_capabilities(),
+      has_cmp and cmp_nvim_lsp.default_capabilities() or {}
+    )
+  else
+    capabilities = vim.lsp.protocol.make_client_capabilities()
+  end
+
   -- !!! DON'T enable cmp_nvim_lsp snippetSupport, already got cmp_luasnip or
   -- other snippet engines' support
-  capabilities.textDocument.completion.completionItem.snippetSupport = false
+  -- Some LSP servers support auto-snippets for functions, so they insert arguments inside brackets.
+  capabilities.textDocument.completion.completionItem.snippetSupport = true
 
   capabilities = vim.tbl_deep_extend("force", capabilities, user_capabilities or {})
   return capabilities
@@ -291,6 +307,7 @@ local M = {
           method = methods.DIAGNOSTICS_ON_SAVE,
         }), -- Markdown style and syntax checker.
 
+        -- FIXME: implementing utils
         diagnostics.selene.with({
           condition = function(utils)
             return utils.root_has_file({ "selene.toml" })

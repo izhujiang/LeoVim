@@ -9,24 +9,33 @@ return {
     },
     event = { "BufReadPost", "BufNewFile" },
     keys = {
-      { "<leader>zL", "<cmd>LspInfo<cr>", desc = "LSP Info" },
-      { "<leader>le", vim.diagnostic.open_float, desc = "Diagnostic(LSP)" },
-      { "<leader>lq", vim.diagnostic.setqflist, desc = "Diagnostic Quickfix(LSP)" },
-      { "<leader>lQ", vim.diagnostic.setloclist, desc = "Diagnostic Loclist(LSP)" },
-      { "<leader>ld", vim.lsp.buf.definition, desc = "Definition(LSP)" },
-      { "<leader>lD", vim.lsp.buf.declaration, desc = "Declaration(LSP)" },
-      { "<leader>lr", vim.lsp.buf.references, desc = "References(LSP)" },
-      { "<leader>li", vim.lsp.buf.implementation, desc = "Implementation(LSP)" },
-      { "<leader>ls", vim.lsp.buf.document_symbol, desc = "Document_symbol(LSP)" },
-      { "<leader>lh", vim.lsp.buf.signature_help, desc = "Signature_help(LSP)" },
-      { "<leader>la", vim.lsp.buf.code_action, desc = "Code Action(LSP)" },
-      { "<leader>lc", vim.lsp.codelens.run, desc = "CodeLens Action(LSP)" },
-      { "<leader>ln", vim.lsp.buf.rename, desc = "Rename(LSP)" },
-      { "<leader>lf", vim.lsp.buf.format, desc = "Format(LSP)" },
+      { "<leader>zil", "<cmd>LspInfo<cr>", desc = "LSP" },
+      { "<leader>le", vim.diagnostic.open_float, desc = "show diagnostic" },
+      { "<leader>lq", vim.diagnostic.setqflist, desc = "diagnostic quickfix" },
+      { "<leader>lQ", vim.diagnostic.setloclist, desc = "diagnostic loclist" },
+      { "<leader>ld", vim.lsp.buf.definition, desc = "goto definition" },
+      { "<leader>lD", vim.lsp.buf.declaration, desc = "goto declaration" },
+      { "<leader>lr", vim.lsp.buf.references, desc = "goto references" },
+      { "<leader>li", vim.lsp.buf.implementation, desc = "goto implementation" },
+      { "<leader>ls", vim.lsp.buf.document_symbol, desc = "document symbol" },
+      { "<leader>lh", vim.lsp.buf.signature_help, desc = "signature help" },
+      { "<leader>la", vim.lsp.buf.code_action, desc = "code action" },
+      { "<leader>lc", vim.lsp.codelens.run, desc = "codelens action" },
+      { "<leader>ln", vim.lsp.buf.rename, desc = "rename" },
+      { "<leader>lf", vim.lsp.buf.format, desc = "format" },
     },
+    opts = {
+      diagnostics = {
+        underline = true,
+        update_in_insert = false,
+        severity_sort = true,
+        virtual_text = false,
+      },
+    },
+
     config = function(_, opts)
       local lspconfig = require("lspconfig")
-      local lsp_server = require("leovim.plugins.core.lsp.server")
+      local lsp_server = require("leovim.plugins.dev.lsp.server")
 
       -- TODO: config server dynamically.
       local servers = { "lua_ls", "gopls", "clangd", "pyright", "rust_analyzer", "bashls", "cmake" }
@@ -37,7 +46,7 @@ return {
         -- hook_setup_after()
       end
 
-      local lsp_client = require("leovim.plugins.core.lsp.client")
+      local lsp_client = require("leovim.plugins.dev.lsp.client")
       lsp_client.setup(opts)
     end,
   },
@@ -48,13 +57,13 @@ return {
     -- enabled = false,
     event = { "BufReadPost", "BufNewFile" },
     keys = {
-      { "<leader>zn", "<cmd>NullLsInfo<cr>", desc = "null_ls Info" },
+      { "<leader>zin", "<cmd>NullLsInfo<cr>", desc = "null_ls" },
     },
     dependencies = {
       "nvim-lua/plenary.nvim",
     },
     opts = function()
-      return require("leovim.plugins.core.lsp.server")["null-ls"]()
+      return require("leovim.plugins.dev.lsp.server")["null-ls"]()
     end,
   },
 

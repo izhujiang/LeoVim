@@ -1,9 +1,10 @@
 return {
   -- blink.cmp as a replacement for nvim-cmp
-  -- Performant, batteries-included completion plugin for Neovim
+  -- Performant, batteries-included -- use nvim-cmp as default0,completion plugin for Neovim
   -- https://github.com/saghen/blink.cmp
   {
     "hrsh7th/nvim-cmp",
+    enabled = vim.g.completion == "nvim-cmp",
     version = false, -- last release is way too old
     event = { "InsertEnter", "CmdlineEnter" },
     dependencies = {
@@ -13,10 +14,11 @@ return {
       { "hrsh7th/cmp-nvim-lua" }, -- source: neovim's Lua runtime API such vim.lsp.*
       { "hrsh7th/cmp-nvim-lsp-signature-help" }, -- source: function signatures
       { "saadparwaiz1/cmp_luasnip" }, -- source: luasnip
-      { "L3MON4D3/LuaSnip" }, -- Snippet Engine for Neovim
       { "hrsh7th/cmp-cmdline" }, -- source: cmdline
       { "petertriho/cmp-git", config = true }, -- source: git
-      { "Exafunction/codeium.nvim", config = true }, -- source: codeium
+
+      -- { "Exafunction/codeium.nvim" }, -- source: codeium
+      { "L3MON4D3/LuaSnip" }, -- Snippet Engine for Neovim
     },
     opts = function(_, opts)
       -- local has_words_before = function()
@@ -27,12 +29,12 @@ return {
       local cmp = require("cmp")
       local defaults = require("cmp.config.default")()
       local luasnip = require("luasnip")
-      local auto_select = false
+      local auto_select = true
 
       return vim.tbl_deep_extend("keep", {
         auto_brackets = {}, -- configure any filetype to auto add brackets
         completion = {
-          keyword_length = 1,
+          keyword_length = 2,
           completeopt = "menuone" .. (auto_select and "" or ",noselect"),
         },
         preselect = auto_select and cmp.PreselectMode.Item or cmp.PreselectMode.None,
@@ -45,25 +47,39 @@ return {
         mapping = cmp.mapping.preset.insert({
           ["<C-b>"] = cmp.mapping.scroll_docs(-4),
           ["<C-f>"] = cmp.mapping.scroll_docs(4),
-          -- TODO: try acting as vscode
+
+          -- try acting as vscode
           ["<Tab>"] = cmp.mapping(function(fallback)
-            if luasnip.expand_or_locally_jumpable() then
+            if cmp.visible() then
+              -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items..
+              cmp.confirm({ select = true })
+              -- or select next_item
+              -- cmp.select_next_item()
+            elseif luasnip.expand_or_locally_jumpable() then
               luasnip.expand_or_jump()
             else
-              if cmp.visible() then
-                cmp.select_next_item()
-              else
-                fallback()
-              end
+              fallback()
             end
           end, { "i", "s" }),
           ["<S-Tab>"] = cmp.mapping(function(fallback)
             if luasnip.jumpable(-1) then
               luasnip.jump(-1)
-            elseif cmp.visible() then
-              cmp.select_prev_item()
+            -- or select prev_item
+            -- elseif cmp.visible() then
+            --   cmp.select_prev_item()
             else
               fallback()
+            end
+          end, { "i", "s" }),
+
+          -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+          ["<CR>"] = cmp.mapping.confirm({ select = true }),
+
+          ["<C-S-k>"] = cmp.mapping(function()
+            if cmp.visible_docs() then
+              cmp.close_docs()
+            else
+              cmp.open_docs()
             end
           end, { "i", "s" }),
         }),
@@ -78,8 +94,12 @@ return {
             local icons_kinds = require("leovim.config.defaults").icons.kinds
             local auto_cmp_menus = require("leovim.config.defaults").autocompletion.menu
             if icons_kinds[item.kind] then
-              item.kind = string.format("%s%s", icons_kinds[item.kind], item.kind)
+              -- item.kind = string.format("%s%s", icons_kinds[item.kind], item.kind)
+              item.kind = icons_kinds[item.kind]
             end
+            -- if entry.source.name == "nvim_lsp" and item.kind == "Function" then
+            --   item.abbr = item.abbr .. "()"
+            -- end
             item.menu = auto_cmp_menus[entry.source.name]
             return item
           end,
@@ -94,7 +114,7 @@ return {
           { name = "nvim_lsp", group_index = 1, priority = 900, keyword_length = 1 },
           { name = "luasnip", group_index = 1, priority_ = 500 },
           -- { name = "copilot", group_index = 1, priority = 800 },
-          { name = "codeium", group_index = 1, priority = 700 },
+          -- { name = "codeium", group_index = 1, priority = 700 },
           { name = "nvim_lua", group_index = 1 },
 
           { name = "buffer", group_index = 2 },
@@ -106,7 +126,7 @@ return {
         },
 
         confirm_opts = {
-          behavior = cmp.ConfirmBehavior.Replace,
+          behavior = "replace", -- cmp.ConfirmBehavior.Replace,
           select = true,
         },
         window = {
@@ -134,7 +154,23 @@ return {
       })
 
       cmp.setup.cmdline(":", {
-        mapping = cmp.mapping.preset.cmdline(),
+        completion = {
+          keyword_length = 2,
+          completeopt = "menuone",
+        },
+        preselect = cmp.PreselectMode.Item,
+        mapping = cmp.mapping.preset.cmdline({
+          ["<CR>"] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+              cmp.confirm({ select = true })
+              -- execute the command
+              vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<CR>", true, true, true), "n", true)
+            else
+              fallback()
+            end
+          end, { "c" }),
+        }),
+
         sources = cmp.config.sources({
           { name = "path" },
           {
@@ -146,6 +182,11 @@ return {
         }),
       })
       cmp.setup.cmdline("/", {
+        completion = {
+          keyword_length = 2,
+          completeopt = "menuone,noselect",
+        },
+        preselect = cmp.PreselectMode.Item,
         mapping = cmp.mapping.preset.cmdline(),
         sources = {
           { name = "buffer" },
@@ -153,12 +194,18 @@ return {
       })
 
       vim.api.nvim_set_hl(0, "CmpGhostText", { link = "Comment", default = true })
+
+      -- NOT working: Auto-hide documentation when the completion menu is visible
+      -- cmp.event:on("menu_opened", function()
+      --   cmp.close_docs()
+      -- end)
     end,
   },
 
   -- snippets engine
   {
     "L3MON4D3/LuaSnip",
+    enabled = vim.g.completion == "nvim-cmp",
     build = "make install_jsregexp",
     dependencies = {
       { "rafamadriz/friendly-snippets" },
@@ -173,92 +220,5 @@ return {
       require("luasnip.loaders.from_vscode").lazy_load()
       -- require("luasnip.loaders.from_snipmate").lazy_load()
     end,
-  },
-
-  --A super powerful autopair plugin for Neovim that supports multiple
-  --characters.
-  -- usage:
-  --      just type open pair like: {|
-  --      fast_wrap open pair and words (|foo bar, <M-e>, <M-e>$ <M-e>q[hH]
-  {
-    "windwp/nvim-autopairs",
-    event = "InsertEnter",
-    opts = {
-      disable_filetype = { "TelescopePrompt", "spectre_panel", "vim" },
-      -- disable_in_macro = true,           -- disable when recording or executing a macro
-      disable_in_visualblock = true, -- disable when insert after visual block mode
-      -- disable_in_replace_mode = true,
-      -- ignored_next_char = string.gsub([[ [%w%%%'%[%"%.] ]], "%s+", ""),
-      -- enable_moveright = true,
-      -- enable_afterquote = true,          -- add bracket pairs after quote
-      -- enable_check_bracket_line = true, --- check bracket in same line
-      -- enable_bracket_in_quote = true,
-      -- enable_abbr = false,               -- trigger abbreviation
-      -- break_undo = true,                 -- switch for basic rule break undo sequence
-      check_ts = true, -- check treesitter
-      ts_config = {
-        lua = { "string", "source" },
-        javascript = { "string", "template_string" },
-        java = false,
-      },
-
-      -- map_cr = true,
-      -- map_bs = true,   -- map the <BS> key
-      map_c_h = true, -- Map the <C-h> key to delete a pair
-      map_c_w = true, -- map <c-w> to delete a pair if possible
-
-      fast_wrap = {
-        -- map = "<M-e>",
-        -- chars = { "{", "[", "(", '"', "'" },
-        pattern = string.gsub([[ [%'%"%)%>%]%)%}%,] ]], "%s+", ""),
-        -- end_key = "$",
-        before_key = "h",
-        after_key = "l",
-        cursor_pos_before = false,
-        -- keys = "qwertyuiopzxcvbnmasdfghjkl",
-        -- check_comma = true,
-        -- highlight = "Search",
-        -- highlight_grey = "Comment",
-      },
-    },
-    config = function(_, opts)
-      local autopairs = require("nvim-autopairs")
-      autopairs.setup(opts)
-
-      -- insert `(` after select function or method item when accepting completion pressing <C-y>
-      local cmp_autopairs = require("nvim-autopairs.completion.cmp")
-      local cmp = require("cmp")
-      cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
-    end,
-  },
-
-  -- Nvim-Surround (Manipulating SurrOundings)
-  -- usage:
-  -- 	y[sS]{motion}{char} or yss[SS]{char}, char: " ' { [ ( t }  Examples: ys$"
-  -- 	cs{s1}{s2}
-  -- 	ds{s1}
-  -- 	Use a single character as an alias for several text-object,
-  -- 	  q for nearest quote(', ", or `),
-  -- 	  t for tag,
-  -- 	  b for bracket,
-  -- 	  f for function
-  {
-    "kylechui/nvim-surround",
-    event = { "BufReadPost", "BufNewFile" },
-    -- opts = {
-    -- keymaps = {
-    --   insert = "<C-g>s",
-    --   insert_line = "<C-g>s",
-    --   normal = "ys",
-    --   normal_cur = "yss",
-    --   normal_line = "yS",
-    --   normal_cur_line = "ySS",
-    --   visual = "S",
-    --   visual_line = "gS",
-    --   delete = "ds",
-    --   change = "cs",
-    -- },
-    -- },
-    config = true,
   },
 }

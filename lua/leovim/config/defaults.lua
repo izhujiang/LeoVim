@@ -57,7 +57,8 @@ local M = {
       Color = " ",
       Constant = " ",
       Constructor = " ",
-      Copilot = " ",
+      Codeium = " ",
+      Copilot = " ",
       Enum = " ",
       EnumMember = " ",
       Event = " ",
@@ -90,7 +91,6 @@ local M = {
       Unit = " ",
       Value = "󰎠 ",
       Variable = " ",
-      Codeium = " ",
     },
     misc = {
       -- Package = "",
@@ -110,7 +110,7 @@ local M = {
       FindText = " ",
       RestoreSession = " ",
       Lazy = "󰒲 ",
-      Quit = " "
+      Quit = " ",
     },
   },
   non_essential_filetypes = {
@@ -127,8 +127,7 @@ local M = {
     "trouble",
   },
   autocompletion = {
-    menu =
-    {
+    menu = {
       nvim_lsp = "[LSP]",
       spell = "[Spellings]",
       zsh = "[Zsh]",
@@ -141,8 +140,9 @@ local M = {
       nvim_lsp_signature_help = "[Signature]",
       cmdline = "[Vim Command]",
       codeium = "[Codeium]",
-    }
-  }
+      copilot = "[Copilot]",
+    },
+  },
 }
 
 return M

@@ -25,14 +25,10 @@ local function register_plugins(opts)
     -- https: //www.lazyvim.org/news
     spec = {
       { import = "leovim.plugins.core" },
+      { import = "leovim.plugins.ui" },
       { import = "leovim.plugins.dev" },
-      -- { import = "leovim.plugins.test" },
-      -- { import = "leovim.plugins.extras" },
-
+      { import = "leovim.plugins.extra" },
       -- { import = "leovim.plugins.langs" },
-      -- or lang list
-      -- { import = "leovim.plugins.langs.golang" },
-      -- { import = "leovim.plugins.langs.lua" },
 
       -- import any extras modules here
       { import = opts.user_plugins },

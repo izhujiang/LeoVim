@@ -1,0 +1,11 @@
+-- extensions of vim.ui
+-- .. notify
+-- .. input
+-- .. select
+-- .. winbar
+-- .. statusline
+-- .. tagpage(bufferline)
+-- .. messages
+-- .. cmdline
+-- .. popupmenu
+return {}

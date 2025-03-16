@@ -1,6 +1,6 @@
 ---@type LeoVimConfig
 local M = {
-  lazy_version = ">=9.1.0"
+  lazy_version = ">=9.1.0",
 }
 
 ---@type LeoVimConfig
@@ -13,17 +13,8 @@ function M.setup(opts)
   opts = vim.tbl_deep_extend("force", defaults, opts or {})
 
   require("leovim.config.options")
-  require("leovim.config.keybindings")
+  require("leovim.config.keymaps")
   require("leovim.config.autocmds")
-
-  -- TODO:speedup loading plugings before colorscheme
-  -- vim.schedule(function()
-  --   if type(opts.colorscheme) == "function" then
-  --     opts.colorscheme()
-  --   else
-  --     vim.cmd.colorscheme(opts.colorscheme)
-  --   end
-  -- end)
 end
 
 setmetatable(M, {
