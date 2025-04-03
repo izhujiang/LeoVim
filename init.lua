@@ -23,9 +23,8 @@ local function register_plugins(opts)
   require("lazy").setup({
     -- update & upgrade (add, replace and delele) plugins, ref https: //www.lazyvim.org/news
     spec = {
-      { import = "leovim.plugins.core" },
-      { import = "leovim.plugins.dev" },
-      { import = "leovim.plugins.extra" },
+      { import = "leovim.plugins" },
+      -- { import = "leovim.plugins.extra" },
       -- { import = "leovim.plugins.langs" },
 
       -- import any extras modules here

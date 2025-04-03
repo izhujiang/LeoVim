@@ -18,11 +18,10 @@ vim.g.loaded_ruby_provider = 0
 -- Fix markdown indentation settings
 vim.g.markdown_recommended_style = 0
 
+vim.g.colorscheme = "everforest"
 vim.g.explorer = "neo-tree" -- "neo-tree" | "nvim-tree"
 vim.g.completion = "blink" -- "blink" | "nvim-cmp"
-
--- vim.g.ai_provider = "copilot" -- "claude" | "openai" | "azure" | "gemini" | "cohere" | "copilot" | "codeium" | string
-vim.g.ai_provider = "copilot" -- "claude" | "openai" | "azure" | "gemini" | "cohere" | "copilot" | "codeium" | string
+vim.g.ai_provider = "codeium" -- "claude" | "openai" | "azure" | "gemini" | "cohere" | "copilot" | "codeium" | string
 vim.g.ai_ui = "avante" -- "avante" | "copilotchat" (only valid for copilot)
 
 -- vim.opt.shell has been set if $SHELL exists during the process (step 1) of initialization start
