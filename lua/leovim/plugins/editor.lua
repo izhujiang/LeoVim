@@ -6,8 +6,8 @@ return {
     lazy = false,
     -- Snacks is a global variable defined in snacks.nvim, use it directly
     keys = require("leovim.builtin.snacks").keys or {},
-    opts = require("leovim.builtin.snacks").opts or {},
     init = require("leovim.builtin.snacks").init,
+    opts = require("leovim.builtin.snacks").opts or {},
   },
   {
     -- fuzzy finder: a highly extendable fuzzy finder over lists.
@@ -28,11 +28,11 @@ return {
     cmd = { "FzfLua" },
     keys = require("leovim.builtin.fzf").keys or {},
     opts = require("leovim.builtin.fzf").opts or {},
-    -- config = function(_, opts)
-    -- local fzf = require("fzf-lua")
-    -- fzf.setup(opts)
-    -- fzf.register_ui_select()
-    -- end,
+    config = function(_, opts)
+      local fzf = require("fzf-lua")
+      fzf.setup(opts)
+      fzf.register_ui_select()
+    end,
   },
 
   -- explorer
@@ -59,7 +59,6 @@ return {
     -- File Explorer (a feature-rich, customizable, and modern experience), manage the file system and other tree like structures.
     -- usage:
     --  :Neotree filesystem reveal right
-    -- TODO: colorscheme should been applied before neo-tree setup.
     "nvim-neo-tree/neo-tree.nvim",
     enabled = vim.g.explorer == "neo-tree", -- "neo-tree" or "nvim-tree"
     dependencies = {
@@ -73,8 +72,8 @@ return {
     deactivate = function()
       vim.cmd([[Neotree close]])
     end,
-    opts = require("leovim.builtin.nvim-neo-tree").opts or {},
     init = require("leovim.builtin.nvim-neo-tree").init,
+    opts = require("leovim.builtin.nvim-neo-tree").opts or {},
 
     config = function(_, opts)
       require("neo-tree").setup(opts)
@@ -200,7 +199,7 @@ return {
       "echasnovski/mini.icons",
     },
     keys = require("leovim.builtin.which-key").keys or {},
-    opts = require("leovim.builtin.which-key").opts or {},
     init = require("leovim.builtin.which-key").init,
+    opts = require("leovim.builtin.which-key").opts or {},
   },
 }

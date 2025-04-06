@@ -6,6 +6,7 @@ return {
         "<leader>tt",
         function()
           require("neotest").run.run()
+          -- require("neotest").output_panel.open({ enter = false, auto_close = true })
         end,
         desc = "Test nearest",
       },
@@ -13,6 +14,7 @@ return {
         "<leader>tr",
         function()
           require("neotest").run.run_last()
+          -- require("neotest").output_panel.open({ enter = false, auto_close = true })
         end,
         desc = "Test last(recent)",
       },
@@ -20,6 +22,8 @@ return {
         "<leader>tf",
         function()
           require("neotest").run.run(vim.fn.expand("%"))
+          -- require("neotest").output_panel.open({ enter = false, auto_close = true })
+          require("neotest").summary.open({ enter = false, auto_close = true })
         end,
         desc = "Test file(%)",
       },
@@ -28,14 +32,18 @@ return {
         "<leader>tF",
         function()
           require("neotest").run.run(vim.fn.getcwd())
+          -- require("neotest").output_panel.open({ enter = false, auto_close = true })
+          require("neotest").summary.open({ enter = false, auto_close = true })
         end,
         desc = "Test directory(%)",
       },
       {
-        -- Test suite
-        "<leader>tS",
+        -- Test suite(all)
+        "<leader>ta",
         function()
           require("neotest").run.run(require("leovim.utils").get_root())
+          -- require("neotest").output.open({ enter = false, auto_close = true })
+          require("neotest").summary.open({ enter = false, auto_close = true })
         end,
         desc = "Test suite",
       },
@@ -51,12 +59,11 @@ return {
         desc = "Test race",
       },
       {
-        -- halt/stop
-        "<leader>th",
+        "<leader>tS",
         function()
           require("neotest").run.stop()
         end,
-        desc = "Halt/stop test",
+        desc = "Stop test",
       },
       {
         "<leader>tA",
@@ -68,66 +75,49 @@ return {
       {
         "<leader>to",
         function()
-          require("neotest").output.open({ enter = true, auto_close = true })
-        end,
-        desc = "Output test",
-      },
-      {
-        "<leader><leader>o",
-        function()
           require("neotest").output_panel.toggle()
         end,
-        desc = "Toggle test output_panel",
+        desc = "Toggle output_panel",
       },
       {
         "<leader>ts",
         function()
-          require("neotest").summary.open({ enter = true, auto_close = true })
-        end,
-        desc = "Test summary",
-      },
-      {
-        "<leader><leader>S",
-        function()
           require("neotest").summary.toggle()
         end,
-        desc = "Toggle test summary",
+        desc = "Toggle summary",
       },
       {
+        -- Debug the nearest function test (requires nvim-dap and adapter support)
+        -- use <leader>tr to run last debug test as well
         "<leader>td",
         function()
+          -- To insure dap is loaded
+          -- local loaded = require("lazy.core.loader").loaded["dap"]
+          -- set breakpoints first, and then run debug test
           require("neotest").run.run({ strategy = "dap" })
         end,
-        desc = "Test debug",
+        desc = "Debug nearest test",
       },
       {
         "<leader>tw",
         function()
-          require("neotest").watch.watch(vim.fn.expand("%"))
-        end,
-        desc = "Test watch %",
-      },
-      {
-        "<leader><leader>w",
-        function()
           require("neotest").watch.toggle(vim.fn.expand("%"))
         end,
-        desc = "Toogle test watch(%)",
+        desc = "Start/Stop watch %",
       },
       {
-        -- TODO: if neotest has not run, call vim.cmd.tnext (for tags) indead
-        "]t",
+        "]e",
         function()
           require("neotest").jump.next({ status = "failed" })
         end,
-        desc = "test",
+        desc = "Next test(failed/error)",
       },
       {
-        "[t",
+        "[e",
         function()
           require("neotest").jump.prev({ status = "failed" })
         end,
-        desc = "test",
+        desc = "Previous test(failed/error)",
       },
     }
   end,
@@ -136,20 +126,6 @@ return {
     local has_plugin = require("leovim.utils").has_plugin
 
     return {
-      adapters = {
-        ["neotest-go"] = {
-          experimental = {
-            test_table = true,
-          },
-          -- provide more arguments to `go test` command if necessary
-          -- args = { "-count=1", "-timeout=60s" },
-          -- args = { "-tags=integration" }
-        },
-        ["neotest-python"] = {
-          --   -- runner = "pytest",
-          --   -- python = ".venv/bin/python",
-        },
-      },
       status = { virtual_text = true },
       output = { open_on_run = true },
 

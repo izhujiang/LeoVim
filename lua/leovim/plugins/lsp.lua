@@ -4,9 +4,9 @@ return {
     -- Easily install and manage (external editor toolkits) such as LSP servers, DAP servers, linters, and formatters.
     -- g? for more informatioin in Mason UI
     "williamboman/mason.nvim",
-    -- lazy = false,
     -- ensure to find language servers, insert vim.stdpath("data")/mason/bin into $PATH dynamically.
-    -- event = "VimEnter",
+    -- so that vim.lsp.enable() can activate lsp servers
+    lazy = false,
     build = ":MasonUpdate",
     cmd = "Mason",
     keys = require("leovim.builtin.nvim-mason").keys or {},
@@ -21,7 +21,6 @@ return {
 
       local function resolve_package(package_name)
         local Optional = require("mason-core.optional")
-        -- local server_mapping = require "mason-lspconfig.mappings.server"
 
         return Optional.of_nilable(package_name):map(function(pkg_name)
           local ok, pkg = pcall(registry.get_package, pkg_name)
@@ -75,49 +74,17 @@ return {
           ensure_installed()
         end
       end
-      -- TODO: handle automatic_installation in case missing packages
-    end,
-  },
-  {
-    -- Quickstart configs for Nvim LSP
-    -- nvim-lspconfig providing basic, default Nvim LSP client configurations for various LSP servers.
-    "neovim/nvim-lspconfig",
-    version = false, -- last release is way too old, version must > v0.1.6
-    dependencies = {
-      "williamboman/mason.nvim", -- ensure lsp servers has been installed. and mason/bin directory added to $PATH
-    },
-    event = { "BufReadPost", "BufNewFile" },
-    keys = require("leovim.builtin.nvim-lspconfig").keys or {},
-    opts = require("leovim.builtin.nvim-lspconfig").opts or {},
-
-    config = function(_, opts)
-      local lspconfig = require("lspconfig")
-      local lsp_server = require("leovim.builtin.lsp.server")
-
-      -- TODO: config server dynamically.
-      local servers = { "lua_ls", "gopls", "clangd", "pyright", "rust_analyzer", "bashls", "cmake" }
-      for _, server_name in ipairs(servers) do
-        -- hook_setup_before()
-        local lsp_server_conf = lsp_server.make_config(server_name, {})
-        lspconfig[server_name].setup(lsp_server_conf)
-        -- hook_setup_after()
-      end
-
-      local lsp_client = require("leovim.builtin.lsp.client")
-      lsp_client.setup(opts)
     end,
   },
 
-  -- Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua.
   {
     "nvimtools/none-ls.nvim",
-    -- enabled = false,
     event = { "BufReadPost", "BufNewFile" },
     dependencies = {
       "nvim-lua/plenary.nvim",
     },
     keys = require("leovim.builtin.none-ls").keys or {},
-    opts = require("leovim.builtin.none-ls").opts or {},
+    opts = require("leovim.builtin.none-ls").opts or {}, -- once opts is set, default config function will cause none-ls.setup(opts) automatically.
   },
 
   -- The Refactoring library based off the Refactoring book by Martin Fowler
@@ -131,6 +98,7 @@ return {
       "nvim-lua/plenary.nvim",
       "nvim-treesitter/nvim-treesitter",
     },
+    cmd = { "Refactor" },
     opts = {},
   },
 }

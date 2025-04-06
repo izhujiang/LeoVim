@@ -71,8 +71,22 @@ local M = {
         formatting = {
           fields = { "abbr", "kind", "menu" },
           format = function(entry, item)
-            local icons_kinds = require("leovim.config.defaults").icons.kinds
-            local auto_cmp_menus = require("leovim.config.defaults").autocompletion.menu
+            local icons_kinds = require("leovim.builtin.icons").kinds
+            local auto_cmp_menus = {
+              nvim_lsp = "[LSP]",
+              spell = "[Spellings]",
+              zsh = "[Zsh]",
+              buffer = "[Buffer]",
+              ultisnips = "[Snip]",
+              luasnip = "[Snip]",
+              treesitter = "[Treesitter]",
+              nvim_lua = "[Lua]",
+              path = "[Path]",
+              nvim_lsp_signature_help = "[Signature]",
+              cmdline = "[Vim Command]",
+              codeium = "[Codeium]",
+              copilot = "[Copilot]",
+            }
             if icons_kinds[item.kind] then
               -- item.kind = string.format("%s%s", icons_kinds[item.kind], item.kind)
               item.kind = icons_kinds[item.kind]

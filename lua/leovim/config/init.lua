@@ -5,16 +5,16 @@ local M = {
 
 ---@type LeoVimConfig
 local options
-local defaults = require("leovim.config.defaults")
 
 -- setup: load "options, keymaps, and autocmds" and schedule colorscheme
 ---@param opts? LeoVimConfig
 function M.setup(opts)
-  opts = vim.tbl_deep_extend("force", defaults, opts or {})
+  opts = vim.tbl_deep_extend("force", {}, opts or {})
 
   require("leovim.config.options")
   require("leovim.config.keymaps")
   require("leovim.config.autocmds")
+  require("leovim.config.lsp")
 end
 
 setmetatable(M, {

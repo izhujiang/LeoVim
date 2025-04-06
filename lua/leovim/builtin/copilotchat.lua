@@ -3,7 +3,7 @@ return {
   keys = {
     -- window management
     {
-      "<leader><leader>a",
+      "<leader>aa",
       function()
         return require("CopilotChat").toggle()
       end,
@@ -11,7 +11,7 @@ return {
       mode = { "n", "v" },
     },
     {
-      "<leader>aa",
+      "<leader>ac",
       function()
         return require("CopilotChat").toggle()
       end,

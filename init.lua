@@ -24,9 +24,6 @@ local function register_plugins(opts)
     -- update & upgrade (add, replace and delele) plugins, ref https: //www.lazyvim.org/news
     spec = {
       { import = "leovim.plugins" },
-      -- { import = "leovim.plugins.extra" },
-      -- { import = "leovim.plugins.langs" },
-
       -- import any extras modules here
       { import = opts.user_plugins },
     },
@@ -73,8 +70,6 @@ local function register_plugins(opts)
   })
 end
 
--- enable lsp's debug mode
-vim.lsp.set_log_level(vim.log.levels.ERROR)
 -- Profiling Neovim Startup
 if vim.env.PROF then
   -- path of plugin manager
@@ -83,14 +78,12 @@ if vim.env.PROF then
   require("snacks.profiler").startup({
     startup = {
       event = "VimEnter", -- stop profiler on this event. Defaults to `VimEnter`
-      -- event = "UIEnter",
-      -- event = "VeryLazy",
     },
   })
 end
 
-if not vim.fn.has("nvim-0.10") then
-  vim.notify("nvim-0.10 or newer is required", vim.log.levels.WARN)
+if not vim.fn.has("nvim-0.11") then
+  vim.notify("nvim-0.11 or newer is required", vim.log.levels.WARN)
 end
 if not jit then
   vim.notify("luaJIT is required", vim.log.levels.WARN)
@@ -107,11 +100,7 @@ if only_neovim then
   vim.cmd.colorscheme("habamax")
 else
   register_plugins({ user_plugins = "user.plugins" })
-  vim.cmd.colorscheme("everforest")
-  -- vim.cmd.colorscheme("catppuccin")
 end
--- TODO: it's better to colorscheme asynchronously, not here
--- must colorscheme after bufferline.nvim is loaded
 
 -- lazy.nvim does NOT use Neovim's builtin plugin manager 'packages' and even
 -- disables plugin loading completely (vim.go.loadplugins = false). It takes

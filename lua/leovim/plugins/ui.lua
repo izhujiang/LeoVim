@@ -14,13 +14,13 @@ return {
     -- A fancy, configurable, notification manager for NeoVim
     "rcarriga/nvim-notify",
     event = { "VeryLazy" },
+    init = require("leovim.builtin.nvim-notify").init,
     opts = require("leovim.builtin.nvim-notify").opts or {},
     config = function(_, opts)
       local notify = require("notify")
       notify.setup(opts)
       vim.notify = notify
     end,
-    init = require("leovim.builtin.nvim-notify").init,
   },
   {
     -- Statusline, A blazing fast and easy to configure neovim statusline plugin
@@ -29,8 +29,8 @@ return {
     dependencies = {
       "nvim-tree/nvim-web-devicons",
     },
-    opts = require("leovim.builtin.lualine").opts or {},
     init = require("leovim.builtin.lualine").init,
+    opts = require("leovim.builtin.lualine").opts or {},
   },
   {
     -- nvim-navic, A simple statusline/winbar component that uses LSP to show your current code context.
@@ -38,11 +38,22 @@ return {
     --  is_available(bufnr)
     --  get_location(opts, bufnr)
     "SmiteshP/nvim-navic",
-    opts = require("leovim.builtin.nvim-navic").opts or {},
-    init = require("leovim.builtin.nvim-navic").init,
+    opts = {
+      lsp = {
+        auto_attach = true,
+      },
+      -- highlight = false,
+      depth_limit = 5,
+      -- lazy_update_context = true,
+      icons = require("leovim.builtin.icons").kinds,
+    },
+    init = function()
+      vim.g.navic_silence = true
+      vim.opt.showtabline = 2
+    end,
   },
 
-  -- tabpages
+  -- tabpages (bufferline.nvim, scope.nvim)
   {
     -- A snazzy buffer line for Neovim
 

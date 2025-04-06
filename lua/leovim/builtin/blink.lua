@@ -1,20 +1,20 @@
 local M = {
   opts = {
+    -- Insert mdoe keymaps
     keymap = {
       -- 'default' for mappings similar to built-in completion
       -- 'super-tab' for mappings similar to vscode (tab to accept, arrow keys to navigate)
       -- 'enter' for mappings similar to 'super-tab' but with 'enter' to accept
+      --
+      -- show: Shows the completion menu
+      -- show_documentation: Shows the documentation for the currently selected item
+      -- show_signature: Shows the signature help window
       preset = "super-tab",
 
       ["<Up>"] = {},
       ["<Down>"] = {},
-      ["<C-space>"] = {}, -- disable <C-space> to show_documentation
-      -- ["<C-k>"] = {}, -- disable <C-k> to show_signature
-      -- ["<C-,>"] = { "show_signature", "hide_signature", "fallback" },
-
-      -- <C-k> show_signature defined in "super-tab" preset
+      -- ["<C-space>"] = { "show", "show_documentation", "hide_documentation" },
       -- ["<C-k>"] = { "show_signature", "hide_signature", "fallback" },
-      ["<C-S-k>"] = { "show", "show_documentation", "hide_documentation" },
 
       -- ? decide later
       ["<C-y>"] = { "select_and_accept", "fallback" },
@@ -56,7 +56,7 @@ local M = {
       },
 
       -- Display a preview of the selected item on the current line
-      ghost_text = { enabled = true },
+      ghost_text = { enabled = false },
 
       -- 'prefix' will fuzzy match on the text before the cursor
       -- 'full' will fuzzy match on the text before *and* after the cursor
@@ -183,53 +183,6 @@ local M = {
         },
       },
       keymap = {
-        -- -- helper_functions: replace nvim built-in <C-n/p> function in cmdline mode
-        -- local select_next_or_first = function(cmp)
-        --   if cmp.is_visible() then
-        --     -- return cmp.select_and_accept()
-        --     -- or select_next like nvim built-in behave but from cmp menu list
-        --     return cmp.select_next()
-        --   else
-        --     return cmp.show({ initial_selected_item_idx = 1 })
-        --   end
-        -- end
-        --
-        -- local select_prev_or_last = function(cmp)
-        --   if cmp.is_visible() then
-        --     -- return cmp.select_and_accept()
-        --     -- or select next like nvim built-in behave
-        --     return cmp.select_prev()
-        --   else
-        --     -- show and select last item
-        --     return cmp.show() and vim.defer_fn(cmp.select_prev, 20)
-        --   end
-        -- end
-        --
-
-        --   preset = "default",
-        --   -- no documentation and signature
-        --   ["<C-space>"] = {},
-        --   ["<C-b>"] = {},
-        --   ["<C-f>"] = {},
-        --   ["<C-k>"] = {},
-        --
-        --   ["<C-n>"] = { select_next_or_first, "fallback" },
-        --   ["<C-p>"] = { select_prev_or_last, "fallback" },
-        --
-        --   ["<Down>"] = { "select_next", "fallback" },
-        --   ["<Up>"] = { "select_prev", "fallback" },
-        --
-        --   -- <tab> for select and accept
-        --   ["<Tab>"] = { select_next_or_first, "fallback" },
-        --   ["<S-Tab>"] = { select_prev_or_last, "fallback" },
-        --
-        --   -- <CR> is not responsive to completion, and only for executing command.
-        --   -- use <tab> or <c-y> to complete
-        --   -- <CR> exceute current command immediately.
-        --
-        --   -- or <CR> selecte(complete), accept and execute command
-        --   --   -- sets <CR> to accept the item and run the command(:) immediately
-        --   --   -- use `select_accept_and_enter` to accept the item or the first item if none are selected
         ["<CR>"] = {
           function(cmp)
             local type = vim.fn.getcmdtype()
@@ -298,7 +251,7 @@ elseif vim.g.ai_provider == "copilot" then
         copilot = {
           name = "copilot",
           module = "blink-cmp-copilot",
-          -- score_offset = 100,
+          -- score_offset = 100, -- Boost/penalize the score of the items
           async = true,
         },
       },

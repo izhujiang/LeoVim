@@ -61,7 +61,7 @@ return {
     version = "*",
     -- OR build from source,
     -- build = "cargo build --release",
-
+    event = { "BufReadPost", "BufNewFile" },
     dependencies = {
       {
         "Kaiser-Yang/blink-cmp-git",
@@ -112,7 +112,7 @@ return {
     "hrsh7th/nvim-cmp",
     enabled = vim.g.completion == "nvim-cmp",
     version = false, -- last release is way too old
-    event = { "InsertEnter", "CmdlineEnter" },
+    event = { "BufReadPost", "BufNewFile", "CmdlineEnter" },
     dependencies = {
       { "hrsh7th/cmp-buffer" }, -- source: buffer words
       { "hrsh7th/cmp-path" }, -- source: file path

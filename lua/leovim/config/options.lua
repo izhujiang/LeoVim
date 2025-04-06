@@ -3,7 +3,7 @@
 --      - navigate around and change the value of an option under the cursor.
 
 vim.g.mapleader = ","
-vim.g.maplocalleader = "<Space>"
+vim.g.maplocalleader = "-"
 
 -- disable builtin plugins under $VIMRUNTIME/plugin and $VIMRUNTIME/macros
 vim.g.loaded_netrw = 1
@@ -15,20 +15,49 @@ vim.g.loaded_ruby_provider = 0
 -- vim.g.loaded_python3_provider = 0
 -- vim.g.loaded_node_provider = 0
 
+-- log_level for lsp, vim.notify() and others
+-- vim.g.log_level = vim.log.levels.ERROR
+vim.g.log_level = vim.log.levels.WARN
+
 -- Fix markdown indentation settings
 vim.g.markdown_recommended_style = 0
+-- To appropriately highlight codefences returned from denols
+vim.g.markdown_fenced_languages = { "ts=typescript" }
 
 vim.g.colorscheme = "everforest"
 vim.g.explorer = "neo-tree" -- "neo-tree" | "nvim-tree"
 vim.g.completion = "blink" -- "blink" | "nvim-cmp"
-vim.g.ai_provider = "codeium" -- "claude" | "openai" | "azure" | "gemini" | "cohere" | "copilot" | "codeium" | string
+vim.g.ai_provider = "copilot" -- "claude" | "openai" | "azure" | "gemini" | "cohere" | "copilot" | "codeium" | string
+-- vim.g.ai_provider = "codeium" -- "claude" | "openai" | "azure" | "gemini" | "cohere" | "copilot" | "codeium" | string
 vim.g.ai_ui = "avante" -- "avante" | "copilotchat" (only valid for copilot)
 
+vim.g.non_essential_filetypes = {
+  "dashboard",
+  "help",
+  "gitcommit",
+  "NvimTree",
+  "neo-tree",
+  "neotest-output-panel",
+  "neotest-summary",
+  "qf",
+  "toggleterm",
+  "trouble",
+  "Avante",
+  "AvanteSelectedFiles",
+  "AvanteInput",
+  "dapui_watches",
+  "dapui_stacks",
+  "dapui_breakpoints",
+  "dapui_scopes",
+  "dapui_console",
+  "dap-repl",
+}
+
 -- vim.opt.shell has been set if $SHELL exists during the process (step 1) of initialization start
-if vim.env.SHELL == "" then
-  -- for unix/linux
-  vim.opt.shell = "/bin/sh"
-end
+-- if vim.env.SHELL == "" then
+--   -- for unix/linux
+--   vim.opt.shell = "/bin/sh"
+-- end
 
 -- Running "git commit" in :terminal, reuse current nvim (via nvr), avoid nested nvim
 vim.env.GIT_EDITOR = "nvr -cc split --remote-wait +'set bufhidden=wipe'"
@@ -39,7 +68,8 @@ vim.opt.cmdheight = 1 -- more space in the neovim command line for displaying me
 vim.opt.complete:append("i")
 vim.opt.completeopt = { "menuone" } -- DON'T show up extra information in popup window, a bit distracting. DON'T use longest, which only insert the longest common text of the matches.
 vim.opt.dictionary:prepend({ "/usr/share/dict/words" })
--- vim.opt.conceallevel = 0 -- so that `` is visible in markdown files, 3 -- Concealed text is completely hidden.
+vim.opt.concealcursor = "nc" -- conceal only in normal and command-line mode
+vim.opt.conceallevel = 2 -- so that `` is visible in markdown files, 3 -- Concealed text is completely hidden.
 vim.opt.confirm = true -- Confirm to save changes before exiting modified buffer
 vim.opt.cursorline = true -- highlight the current line
 -- vim.opt.fillchars = { horiz = "-", vert = "|", foldopen = "", foldclose = "", fold = "-", diff = "-", eob = "~" }

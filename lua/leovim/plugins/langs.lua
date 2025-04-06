@@ -1,33 +1,52 @@
 return {
   -- Clangd's off-spec features for neovim's LSP client
+  -- usage:
+  -- -- :ClangdSwitchSourceHeader
+  -- -- :ClangdAST
+  -- -- :ClangdSymbolInfo
+  -- -- :ClangdTypeHierarchy
+  -- -- :ClangdMemoryUsage
   "p00f/clangd_extensions.nvim",
-  enabled = false,
   ft = { "c", "cpp" },
+  cmd = {
+    "ClangdSwitchSource",
+    "ClangdAST",
+    "ClangdSymbolInfo",
+    "ClangdTypeHierarch",
+    "ClangdMemoryUsage",
+  },
   opts = {
-    extensions = {
-      inlay_hints = {
-        inline = false,
+    inlay_hints = {
+      inline = false,
+    },
+    ast = {
+      --These require codicons (https://github.com/microsoft/vscode-codicons)
+      role_icons = {
+        type = "",
+        declaration = "",
+        expression = "",
+        specifier = "",
+        statement = "",
+        ["template argument"] = "",
       },
-      ast = {
-        --These require codicons (https://github.com/microsoft/vscode-codicons)
-        role_icons = {
-          type = "",
-          declaration = "",
-          expression = "",
-          specifier = "",
-          statement = "",
-          ["template argument"] = "",
-        },
-        kind_icons = {
-          Compound = "",
-          Recovery = "",
-          TranslationUnit = "",
-          PackExpansion = "",
-          TemplateTypeParm = "",
-          TemplateTemplateParm = "",
-          TemplateParamObject = "",
-        },
+      kind_icons = {
+        Compound = "",
+        Recovery = "",
+        TranslationUnit = "",
+        PackExpansion = "",
+        TemplateTypeParm = "",
+        TemplateTemplateParm = "",
+        TemplateParamObject = "",
       },
+      highlights = {
+        detail = "Comment",
+      },
+    },
+    memory_usage = {
+      border = "rounded",
+    },
+    symbol_info = {
+      border = "rounded",
     },
   },
   -- TODO: setup nvim-cmp for clangd_extensions

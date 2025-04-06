@@ -1,7 +1,7 @@
 return {
   opts = function(_, opts)
-    local icons = require("leovim.config.defaults").icons
-    local exclude_filetypes = require("leovim.config.defaults").non_essential_filetypes
+    local icons = require("leovim.builtin.icons")
+    local exclude_filetypes = vim.g.non_essential_filetypes
 
     local function trim(s)
       return s:match("^%s*(.-)%s*$")
@@ -70,10 +70,10 @@ return {
           {
             "diagnostics",
             symbols = {
-              error = icons.diagnostics.Error.symbol,
-              warn = icons.diagnostics.Warn.symbol,
-              info = icons.diagnostics.Info.symbol,
-              hint = icons.diagnostics.Hint.symbol,
+              error = icons.diagnostics.Error,
+              warn = icons.diagnostics.Warn,
+              info = icons.diagnostics.Info,
+              hint = icons.diagnostics.Hint,
             },
           },
           {
@@ -145,9 +145,4 @@ return {
       -- extensions = { "nvim-tree", "lazy" },
     }, opts or {})
   end,
-
-  -- init = function()
-  -- -- disable builtin statusline before setup lualine
-  -- vim.opt.statusline = ""
-  -- end,
 }

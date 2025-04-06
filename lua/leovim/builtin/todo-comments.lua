@@ -15,7 +15,7 @@ return {
       desc = "Previous todo",
     },
     {
-      "<leader>k-",
+      "<leader>x-",
       "<cmd>TodoTrouble<cr>",
       desc = "Trboule todo",
     },

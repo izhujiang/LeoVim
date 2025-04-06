@@ -12,7 +12,7 @@ return {
     -- semantic version
     -- TODO: <C-a> <C-x> not working appropriately
     "monaqa/dial.nvim",
-    enbaled = false,
+    enabled = false,
     event = { "BufReadPost", "BufNewFile" },
     opts = function()
       local augend = require("dial.augend")

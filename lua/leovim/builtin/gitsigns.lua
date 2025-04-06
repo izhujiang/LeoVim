@@ -1,5 +1,4 @@
 return {
-  -- TODO: use keys
   opts = {
     on_attach = function(bufnr)
       local gs = require("gitsigns")

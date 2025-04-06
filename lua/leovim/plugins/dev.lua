@@ -14,6 +14,8 @@ return {
     cmd = {
       "Trouble",
     },
+    keys = require("leovim.builtin.nvim-trouble").keys or {},
+    opts = require("leovim.builtin.nvim-trouble").opts or {},
     config = function(_, opts)
       require("trouble").setup(opts)
 
@@ -32,15 +34,32 @@ return {
       "nvim-treesitter/nvim-treesitter",
       { "nvim-neotest/nvim-nio" },
       { "antoinemadec/FixCursorHold.nvim" },
-
-      { "nvim-neotest/neotest-go" },
+      -- { "nvim-neotest/neotest-plenary" }, -- Neotest adapter for plenary.nvim busted tests.
+      -- { "nvim-neotest/neotest-vim-test" }, -- Neotest adapter for vim-test. Supports running any test runner that is supported by vim-test. Any existing vim-test configuration should work out of the box.
+      { "fredrikaverpil/neotest-golang", version = "*" }, -- Installation
       { "nvim-neotest/neotest-python" },
-      -- "nvim-neotest/neotest-vim-test",
-      -- "markemmons/neotest-deno"
     },
     keys = require("leovim.builtin.nvim-neotest").keys or {},
     opts = require("leovim.builtin.nvim-neotest").opts or {},
     config = function(_, opts)
+      opts = vim.tbl_deep_extend("keep", opts, {
+        adapters = {
+          -- require("neotest-plenary"), -- Default globbing for all other projects
+          -- require("neotest-vim-test")({
+          --   ignore_file_types = { "python", "vim", "lua" },
+          -- }),
+          require("neotest-golang")({
+            -- Specify custom configuration,
+            -- runner = "go"
+            -- go_test_args ={ "-v", "-race", "-count=1" },
+            -- go_list_args = { "-tags=integration" },
+            -- ... https://fredrikaverpil.github.io/neotest-golang/config
+          }),
+
+          require("neotest-python"),
+        },
+      })
+
       local neotest_ns = vim.api.nvim_create_namespace("neotest")
       vim.diagnostic.config({
         virtual_text = {
@@ -51,32 +70,6 @@ return {
           end,
         },
       }, neotest_ns)
-
-      if opts.adapters then
-        local adapters = {}
-        for name, config in pairs(opts.adapters or {}) do
-          if type(name) == "number" then
-            if type(config) == "string" then
-              config = require(config)
-            end
-            adapters[#adapters + 1] = config
-          elseif config ~= false then
-            local adapter = require(name)
-            if type(config) == "table" and not vim.tbl_isempty(config) then
-              local meta = getmetatable(adapter)
-              if adapter.setup then
-                adapter.setup(config)
-              elseif meta and meta.__call then
-                adapter(config)
-              else
-                error("Adapter " .. name .. " does not support setup")
-              end
-            end
-            adapters[#adapters + 1] = adapter
-          end
-        end
-        opts.adapters = adapters
-      end
 
       require("neotest").setup(opts)
     end,
@@ -91,7 +84,6 @@ return {
     -- 	3) Stepping through code via :lua require'dap'.step_over() and :lua require'dap'.step_into().
     -- 	4) Inspecting the state via the built-in REPL: :lua require'dap'.repl.open() or using the widget UI (:help dap-widgets)
     "mfussenegger/nvim-dap",
-    -- enabled = false,
     dependencies = {
       { "theHamsta/nvim-dap-virtual-text" },
       -- { "jbyuki/one-small-step-for-vimkind" },
@@ -101,46 +93,70 @@ return {
     opts = require("leovim.builtin.nvim-dap").opts or {},
 
     config = function(_, opts)
-      local icons = require("leovim.config.defaults").icons
-      vim.api.nvim_set_hl(0, "DapStoppedLine", { default = true, link = "Visual" })
-
-      for name, sign in pairs(icons.dap) do
-        sign = type(sign) == "table" and sign or { sign }
-        vim.fn.sign_define(
-          "Dap" .. name,
-          { text = sign[1], texthl = sign[2] or "DiagnosticInfo", linehl = sign[3], numhl = sign[3] }
-        )
+      local icons = require("leovim.builtin.icons")
+      for _, hl in ipairs({
+        "DapBreakpoint",
+        "DapBreakpointCondition",
+        "DapBreakpointRejected",
+        "DapStopped",
+        "DapLogPoint",
+        "DapExpanded",
+        "DapCollapsed",
+        "DapCircular",
+      }) do
+        vim.fn.sign_define(hl, {
+          text = icons.dap[hl],
+          texthl = "DapBreakpointSymbol",
+          linehl = "DapBreakpoint",
+          numhl = "DapBreakpoint",
+        })
       end
 
       -- load and setup dap adapters via nvim-dap extension
-      local load_module = require("leovim.utils").load_module
-      load_module("dap-go")
-      load_module("dap-python")
+      -- local load_module = require("leovim.utils").load_module
+      -- load_module("dap-go")
+      -- load_module("dap-python")
 
-      -- config adapters manually (as following)
+      -- config custom adapters manually as following
       local dap = require("dap")
       vim.tbl_deep_extend("keep", dap.adapters, opts.adapters)
       vim.tbl_deep_extend("keep", dap.configurations, opts.configurations)
 
       -- load and setup dapui
-      load_module("dapui")
+      -- load_module("dapui")
+
+      dap.listeners.after.event_initialized["dapui_config"] = function()
+        local dapui = require("dapui")
+        dapui.open({})
+      end
+      dap.listeners.before.event_terminated["dapui_config"] = function()
+        local dapui = require("dapui")
+        dapui.close({})
+      end
+      dap.listeners.before.event_exited["dapui_config"] = function()
+        local dapui = require("dapui")
+        dapui.close({})
+      end
     end,
   },
-  -- nvim-dap extensions for config adapters and configurations
-  -- loaded by nvim-dap config
   {
+    -- An extension for nvim-dap providing configurations
+    -- for launching go debugger (delve) and debugging individual tests
     "leoluz/nvim-dap-go",
     dependencies = {
       "mfussenegger/nvim-dap",
     },
-    keys = require("leovim.builtin.nvim-dap-go").keys or {},
+    ft = { "go" },
     opts = require("leovim.builtin.nvim-dap-go").opts or {},
   },
   {
+    -- An extension for nvim-dap, providing default configurations for python and methods
+    -- to debug individual test methods or classes.
     "mfussenegger/nvim-dap-python",
     dependencies = {
       "mfussenegger/nvim-dap",
     },
+    ft = { "python" },
     config = function()
       -- python3 -m debugpy --version must work in the shell
       require("dap-python").setup("python3")
@@ -163,21 +179,21 @@ return {
     },
     keys = require("leovim.builtin.nvim-dap-ui").keys or {},
     opts = require("leovim.builtin.nvim-dap-ui").opts or {},
-    config = function(_, opts)
-      local dapui = require("dapui")
-      local dap = require("dap")
-      dapui.setup(opts)
-
-      dap.listeners.after.event_initialized["dapui_config"] = function()
-        dapui.open({})
-      end
-      dap.listeners.before.event_terminated["dapui_config"] = function()
-        dapui.close({})
-      end
-      dap.listeners.before.event_exited["dapui_config"] = function()
-        dapui.close({})
-      end
-    end,
+    -- config = function(_, opts)
+    --   local dap = require("dap")
+    --   local dapui = require("dapui")
+    --
+    --   dapui.setup(opts)
+    --   dap.listeners.after.event_initialized["dapui_config"] = function()
+    --     dapui.open({})
+    --   end
+    --   dap.listeners.before.event_terminated["dapui_config"] = function()
+    --     dapui.close({})
+    --   end
+    --   dap.listeners.before.event_exited["dapui_config"] = function()
+    --     dapui.close({})
+    --   end
+    -- end,
   },
 
   -- virtual text support to nvim-dap

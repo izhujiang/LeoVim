@@ -50,25 +50,6 @@ return {
     cmd = { "Codeium" },
     init = require("leovim.builtin.codeium").init,
     opts = require("leovim.builtin.codeium").opts or {},
-    -- config = function(_, opts)
-    -- require("codeium").setup(opts)
-
-    -- It's ok to setup the sources for blink and nvim-cmp here,
-    -- but prefer to setup in their own config
-    -- if vim.g.completion == "blink" then
-    --   vim.print("setup source for blink")
-    -- elseif vim.g.completion == "nvim-cmp" then
-    --   -- appdend codeium to cmp-sources
-    --   local cmp = require("cmp")
-    --   local config = cmp.get_config()
-    --   table.insert(config.sources, {
-    --     name = "codeium",
-    --     group_index = 1,
-    --     priority = 700,
-    --   })
-    --   cmp.setup(config)
-    -- end
-    -- end,
   },
 
   {
@@ -113,7 +94,25 @@ return {
       chat.setup(opts)
     end,
   },
+
   {
+    -- AI IDE.
+    -- provides users with AI-driven code suggestions
+    -- and the ability to apply these recommendations directly to their source files with minimal effort.
+    --
+    -- usage:
+    -- :AvanteAsk [question] [position]	Ask AI about your code.
+    -- :AvanteBuild	Build dependencies for the project
+    -- :AvanteChat	Start a chat session with AI about your codebase. Default is ask=false
+    -- :AvanteClear	Clear the chat history
+    -- :AvanteEdit	Edit the selected code blocks
+    -- :AvanteFocus	Switch focus to/from the sidebar
+    -- :AvanteRefresh	Refresh all Avante windows
+    -- :AvanteStop	Stop the current AI request
+    -- :AvanteSwitchProvider	Switch AI provider (e.g. openai)
+    -- :AvanteShowRepoMap	Show repo map for project's structure
+    -- :AvanteToggle	Toggle the Avante sidebar
+    -- :AvanteModels
     "yetone/avante.nvim",
     cond = vim.fn.has("nvim-0.10")
       and vim.tbl_contains({ "claude", "openai", "azure", "gemini", "cohere", "copilot" }, vim.g.ai_provider)
@@ -133,23 +132,48 @@ return {
       "nvim-tree/nvim-web-devicons", -- or echasnovski/mini.icons
       "zbirenbaum/copilot.lua", -- for providers='copilot'
       {
-        -- support for image pasting
         "HakonHarnes/img-clip.nvim",
-        event = "VeryLazy",
-        -- cond = vim.tbl_contains({ "claude", "openai", "azure", "gemini", "cohere", "copilot" }, vim.g.ai_provider)
-        -- and vim.g.ai_ui == "avante",
-        opts = require("leovim.builtin.img-clip").opts or {},
+        cond = vim.tbl_contains({ "claude", "openai", "azure", "gemini", "cohere", "copilot" }, vim.g.ai_provider)
+          and vim.g.ai_ui == "avante",
       },
       {
-        -- Make sure to set this up properly if you have lazy=true
         "MeanderingProgrammer/render-markdown.nvim",
-        -- cond = vim.tbl_contains({ "claude", "openai", "azure", "gemini", "cohere", "copilot" }, vim.g.ai_provider)
-        --   and vim.g.ai_ui == "avante",
-        ft = { "markdown", "Avante" },
-        opts = require("leovim.builtin.render-markdown").opts or {},
+        cond = vim.tbl_contains({ "claude", "openai", "azure", "gemini", "cohere", "copilot" }, vim.g.ai_provider)
+          and vim.g.ai_ui == "avante",
       },
     },
+    keys = require("leovim.builtin.avante").keys,
     opts = require("leovim.builtin.avante").opts or {},
     init = require("leovim.builtin.avante").init,
+  },
+
+  {
+    -- support for image pasting
+    "HakonHarnes/img-clip.nvim",
+    event = "VeryLazy",
+    opts = {
+      -- recommended settings
+      default = {
+        embed_image_as_base64 = false,
+        prompt_for_file_name = false,
+        drag_and_drop = {
+          insert_mode = true,
+        },
+        -- required for Windows users
+        use_absolute_path = true,
+      },
+    },
+  },
+  {
+    -- Make sure to set this up properly if you have lazy=true
+    "MeanderingProgrammer/render-markdown.nvim",
+    ft = { "markdown", "Avante" },
+    opts = {
+      file_types = { "markdown", "Avante" },
+      completions = {
+        lsp = { enabled = true },
+        blink = { enabled = true },
+      },
+    },
   },
 }

@@ -1,9 +1,9 @@
 return {
   keys = {
     {
-      "<leader><leader>c",
+      "<leader>oC",
       "<cmd>TSContextToggle<cr>",
-      desc = "Toggle TS_Context",
+      desc = "TS_Context",
     },
   },
   opts = {

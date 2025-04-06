@@ -19,8 +19,8 @@ return {
       "TSConfigInfo",
     },
     keys = require("leovim.builtin.nvim-treesitter").keys or {},
-    opts = require("leovim.builtin.nvim-treesitter").opts or {},
     init = require("leovim.builtin.nvim-treesitter").init,
+    opts = require("leovim.builtin.nvim-treesitter").opts or {},
 
     config = function(_, opts)
       -- avoid running in headless mode since it's harder to detect failures
@@ -61,12 +61,6 @@ return {
       -- vim way: ; goes to the direction you were moving.
       vim.keymap.set({ "n", "x", "o" }, "].", ts_repeat_move.repeat_last_move)
       vim.keymap.set({ "n", "x", "o" }, "[.", ts_repeat_move.repeat_last_move_opposite)
-
-      -- Optionally, make builtin f, F, t, T also repeatable with ; and ,
-      -- vim.keymap.set({ "n", "x", "o" }, "f", ts_repeat_move.builtin_f)
-      -- vim.keymap.set({ "n", "x", "o" }, "F", ts_repeat_move.builtin_F)
-      -- vim.keymap.set({ "n", "x", "o" }, "t", ts_repeat_move.builtin_t)
-      -- vim.keymap.set({ "n", "x", "o" }, "T", ts_repeat_move.builtin_T)
     end,
   },
 
@@ -80,10 +74,10 @@ return {
       require("ts_context_commentstring").setup(opts)
 
       -- override the Neovim internal get_option function which is called whenever the commentstring is requested:
-      local get_option = vim.filetype.get_option
+      local original_get_option = vim.filetype.get_option
       vim.filetype.get_option = function(filetype, option)
         return option == "commentstring" and require("ts_context_commentstring.internal").calculate_commentstring()
-          or get_option(filetype, option)
+          or original_get_option(filetype, option)
       end
     end,
   },

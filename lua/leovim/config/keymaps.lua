@@ -9,17 +9,24 @@ vim.keymap.set("n", "\\", ",", { silent = true })
 -- Buffers and augument list -----------------------------------
 -- vim.keymap.set("n", "<leader>%", "<cmd>lcd %:p:h<cr>", { desc = "CWD" })
 vim.keymap.set("n", "<leader>n", "<cmd>ene | startinsert<cr>", { desc = "New" })
-vim.keymap.set("n", "<leader>e", "<cmd>e <C-r>=expand('%:p:h') . '/' <cr>", { desc = "Open" })
+vim.keymap.set("n", "<leader>e", ":e <C-r>=expand('%:p:h') . '/'<cr>", { desc = "Open" })
 vim.keymap.set("n", "<leader>w", vim.cmd.write, { silent = true, desc = "Save" })
 vim.keymap.set("n", "<leader>W", "<cmd>noautocmd w<cr>", { silent = true, desc = "Save(no formatting)" })
-vim.keymap.set("n", "<Leader>x", vim.cmd.bdelete, { silent = true, desc = "Unload" })
+vim.keymap.set("n", "<Leader>c", vim.cmd.bdelete, { silent = true, desc = "Unload" })
 -- Like :bdelete, but really delete the buffer.  Everything(marks, options...) related to the buffer is lost.  Don't use this
 -- vim.keymap.set("n", "<leader>X", vim.cmd.bwipeout, { silent = true, desc = "wipeout" })
 
-vim.keymap.set("n", "]b", vim.cmd.bnext, { silent = true, desc = "Next buffer" })
-vim.keymap.set("n", "[b", vim.cmd.bprevious, { silent = true, desc = "Previous buffer" })
-vim.keymap.set("n", "]B", vim.cmd.blast, { silent = true, desc = "Last buffer" })
-vim.keymap.set("n", "[B", vim.cmd.bfirst, { silent = true, desc = "First buffer" })
+-- since nvim-0.11
+-- [q, ]q, [Q, ]Q, [CTRL-Q, ]CTRL-Q navigate through the quickfix list
+-- [l, ]l, [L, ]L, [CTRL-L, ]CTRL-L navigate through the location list
+-- [t, ]t, [T, ]T, [CTRL-T, ]CTRL-T navigate through the tag matchlist
+-- [a, ]a, [A, ]A navigate through the argument list
+-- [b, ]b, [B, ]B navigate through the buffer list
+
+-- vim.keymap.set("n", "]b", vim.cmd.bnext, { silent = true, desc = "Next buffer" })
+-- vim.keymap.set("n", "[b", vim.cmd.bprevious, { silent = true, desc = "Previous buffer" })
+-- vim.keymap.set("n", "]B", vim.cmd.blast, { silent = true, desc = "Last buffer" })
+-- vim.keymap.set("n", "[B", vim.cmd.bfirst, { silent = true, desc = "First buffer" })
 -- alternate(Alt key) / ultimate file /
 -- <C-^>/<C-6>, or :buf #<cr>
 
@@ -34,8 +41,8 @@ vim.keymap.set("n", "[B", vim.cmd.bfirst, { silent = true, desc = "First buffer"
 -- Window(Ventana) and tabpage commands
 -- vim.keymap.set("n", "<leader>v", "<c-w>", { desc = "Window", remap = true })
 
-vim.keymap.set({ "n", "t" }, "<leader>q", vim.cmd.quit, { silent = true, desc = "Quit" })
-vim.keymap.set({ "n", "t" }, "<leader>Q", vim.cmd.only, { silent = true, desc = "Only" })
+-- vim.keymap.set({ "n", "t" }, "<leader>q", vim.cmd.quit, { silent = true, desc = "Quit" })
+-- vim.keymap.set({ "n", "t" }, "<leader>Q", vim.cmd.only, { silent = true, desc = "Only" })
 
 vim.keymap.set("n", "<leader><Bar>", vim.cmd.vsplit, { silent = true, desc = "Vsplit window" })
 vim.keymap.set("n", "<leader>-", vim.cmd.split, { silent = true, desc = "Split window" })
@@ -43,24 +50,21 @@ vim.keymap.set("n", "<leader>-", vim.cmd.split, { silent = true, desc = "Split w
 -- window navigation
 -- Use builtin <C-w>hjkl keybinds to jump between windows
 -- Should disable ^<-, ^->, ^↑, ^↓ in MissionControl shortcuts (macos)
--- local wincmd = function(cmd)
---   return function()
---     vim.cmd.wincmd(cmd)
---   end
--- end
+local wincmd = function(cmd)
+  return function()
+    vim.cmd.wincmd(cmd)
+  end
+end
 
--- vim.keymap.set({ "n", "t", "i" }, "<A-h>", wincmd("h"), { silent = true, desc = "left window" })
--- vim.keymap.set({ "n", "t", "i" }, "<A-j>", wincmd("j"), { silent = true, desc = "lower window" })
--- vim.keymap.set({ "n", "t", "i" }, "<A-k>", wincmd("k"), { silent = true, desc = "upper window" })
--- vim.keymap.set({ "n", "t", "i" }, "<A-l>", wincmd("l"), { silent = true, desc = "right window" })
+vim.keymap.set({ "n", "t", "i" }, "<A-h>", wincmd("h"), { silent = true, desc = "left window" })
+vim.keymap.set({ "n", "t", "i" }, "<A-j>", wincmd("j"), { silent = true, desc = "lower window" })
+vim.keymap.set({ "n", "t", "i" }, "<A-k>", wincmd("k"), { silent = true, desc = "upper window" })
+vim.keymap.set({ "n", "t", "i" }, "<A-l>", wincmd("l"), { silent = true, desc = "right window" })
 
 -- <A-6>/<A-^> alternate window, vs. <C-6>/<C-^> for alternate buffer
-vim.keymap.set({ "n", "i", "t" }, "<A-6>", function()
-  vim.cmd.wincmd("p")
-end, { silent = true, desc = "Recent window" })
-vim.keymap.set({ "n", "i", "t" }, "<A-^>", function()
-  vim.cmd.wincmd("p")
-end, { silent = true, desc = "Recent window" })
+vim.keymap.set({ "n", "i", "t" }, "<A-6>", wincmd("p"), { silent = true, desc = "Recent window" })
+vim.keymap.set({ "n", "i", "t" }, "<A-^>", wincmd("p"), { silent = true, desc = "Recent window" })
+
 -- windows resize
 vim.keymap.set("n", "<A-Up>", "<cmd>resize +2<cr>", { silent = true, desc = "Window height ++" })
 vim.keymap.set("n", "<A-Down>", "<cmd>resize -2<cr>", { silent = true, desc = "Window height --" })
@@ -82,49 +86,53 @@ vim.keymap.set("t", "<A-Right>", "<C-\\><C-n><cmd>vertical resize +5<cr>a", { si
 -- OR use (better) tmux to arrange workspaces
 
 -- Tags
-vim.keymap.set("n", "]t", vim.cmd.tnext, { desc = "Next tag" })
-vim.keymap.set("n", "[t", vim.cmd.tprevious, { desc = "Previous tag" })
-vim.keymap.set("n", "]T", vim.cmd.tlast, { desc = "Last tag" })
-vim.keymap.set("n", "[T", vim.cmd.tfirst, { desc = "First tag" })
+-- vim.keymap.set("n", "]t", vim.cmd.tnext, { desc = "Next tag" })
+-- vim.keymap.set("n", "[t", vim.cmd.tprevious, { desc = "Previous tag" })
+-- vim.keymap.set("n", "]T", vim.cmd.tlast, { desc = "Last tag" })
+-- vim.keymap.set("n", "[T", vim.cmd.tfirst, { desc = "First tag" })
 
--- quickfix list and location list
 -- toggle(alternate) quickfix
-vim.keymap.set("n", "<leader><leader>q", function()
+vim.keymap.set("n", "<A-q>", function()
   if vim.fn.getqflist({ winid = 1 }).winid ~= 0 then
     vim.cmd.cclose()
   else
     vim.cmd.copen()
   end
-end, { silent = true, desc = "Display error" })
-vim.keymap.set("n", "]q", vim.cmd.cnext, { silent = true, desc = "Next error(qf)" })
-vim.keymap.set("n", "[q", vim.cmd.cprevious, { silent = true, desc = "Previous error(qf)" })
-vim.keymap.set("n", "]Q", vim.cmd.clast, { silent = true, desc = "Last error(qf)" })
-vim.keymap.set("n", "[Q", vim.cmd.cfirst, { silent = true, desc = "First error(qf)" })
+end, { silent = true, desc = "Toggle quickfix" })
+-- vim.keymap.set("n", "]q", vim.cmd.cnext, { silent = true, desc = "Next error(qf)" })
+-- vim.keymap.set("n", "[q", vim.cmd.cprevious, { silent = true, desc = "Previous error(qf)" })
+-- vim.keymap.set("n", "]Q", vim.cmd.clast, { silent = true, desc = "Last error(qf)" })
+-- vim.keymap.set("n", "[Q", vim.cmd.cfirst, { silent = true, desc = "First error(qf)" })
 
--- vim.keymap.set("n", "<leader><leader>Q", function()
---   toggle_qf_loc_list("location")
--- end, { silent = true, desc = "loclist" })
-vim.keymap.set("n", "]l", vim.cmd.lnext, { silent = true, desc = "Next error(loc)" })
-vim.keymap.set("n", "[l", vim.cmd.lprevious, { silent = true, desc = "Previous error(loc)" })
-vim.keymap.set("n", "]L", vim.cmd.llast, { silent = true, desc = "Last error(loc)" })
-vim.keymap.set("n", "[L", vim.cmd.lfirst, { silent = true, desc = "First error(loc)" })
+-- ? mapping to <A-Q>
+vim.keymap.set("n", "<A-l>", function()
+  if vim.fn.getloclist(0).winid ~= 0 then
+    vim.cmd.lclose()
+  else
+    vim.cmd.lopen()
+  end
+end, { silent = true, desc = "Toggle loclist" })
+-- vim.keymap.set("n", "]l", vim.cmd.lnext, { silent = true, desc = "Next error(loc)" })
+-- vim.keymap.set("n", "[l", vim.cmd.lprevious, { silent = true, desc = "Previous error(loc)" })
+-- vim.keymap.set("n", "]L", vim.cmd.llast, { silent = true, desc = "Last error(loc)" })
+-- vim.keymap.set("n", "[L", vim.cmd.lfirst, { silent = true, desc = "First error(loc)" })
 
 -- diagnostic
-local diagnostic_goto = function(next, severity)
-  local go = next and vim.diagnostic.goto_next or vim.diagnostic.goto_prev
-  severity = severity and vim.diagnostic.severity[severity] or nil
-  return function()
-    go({ severity = severity })
-  end
-end
+-- local diagnostic_goto = function(next, severity)
+--   local go = next and vim.diagnostic.goto_next or vim.diagnostic.goto_prev
+--   severity = severity and vim.diagnostic.severity[severity] or nil
+--   return function()
+--     go({ severity = severity })
+--   end
+-- end
 -- go and open diagnostic window (float window)
 vim.keymap.set("n", "<C-k>", vim.diagnostic.open_float, { desc = "Show diagnostic" })
-vim.keymap.set("n", "]d", diagnostic_goto(true), { desc = "Next diagnostic" })
-vim.keymap.set("n", "[d", diagnostic_goto(false), { desc = "Previous diagnostic" })
-vim.keymap.set("n", "]e", diagnostic_goto(true, "ERROR"), { desc = "Next error" })
-vim.keymap.set("n", "[e", diagnostic_goto(false, "ERROR"), { desc = "Previous error" })
-vim.keymap.set("n", "]w", diagnostic_goto(true, "WARN"), { desc = "Next warning" })
-vim.keymap.set("n", "[w", diagnostic_goto(false, "WARN"), { desc = "Previous warning" })
+-- vim.keymap.set("n", "]d", diagnostic_goto(true), { desc = "Next diagnostic" })
+-- vim.keymap.set("n", "[d", diagnostic_goto(false), { desc = "Previous diagnostic" })
+-- vim.keymap.set("n", "]e", diagnostic_goto(true, "ERROR"), { desc = "Next error" })
+-- vim.keymap.set("n", "[e", diagnostic_goto(false, "ERROR"), { desc = "Previous error" })
+-- vim.keymap.set("n", "]w", diagnostic_goto(true, "WARN"), { desc = "Next warning" })
+-- vim.keymap.set("n", "[w", diagnostic_goto(false, "WARN"), { desc = "Previous warning" })
 
 -- traversal through change list
 --    g;  -- Go to [count] older position in change list.
@@ -141,12 +149,12 @@ vim.keymap.set("n", "[w", diagnostic_goto(false, "WARN"), { desc = "Previous war
 -- vim.keymap.set({ "n", "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 
 -- move Lines
-vim.keymap.set("n", "<A-j>", ":m .+1<cr>", { desc = "Move down" })
-vim.keymap.set("n", "<A-k>", ":m .-2<cr>", { desc = "Move up" })
-vim.keymap.set("i", "<A-j>", "<esc>:m .+1<cr>gi", { desc = "Move down" })
-vim.keymap.set("i", "<A-k>", "<esc>:m .-2<cr>gi", { desc = "Move up" })
-vim.keymap.set("v", "<A-j>", ":m '>+1<CR>gv=gv", { desc = "Move down" })
-vim.keymap.set("v", "<A-k>", ":m '<-2<CR>gv=gv", { desc = "Move up" })
+vim.keymap.set("n", "<A-m>", ":m .+1<cr>", { desc = "Move down" })
+vim.keymap.set("n", "<A-S-m>", ":m .-2<cr>", { desc = "Move up" })
+vim.keymap.set("i", "<A-m>", "<esc>:m .+1<cr>gi", { desc = "Move down" })
+vim.keymap.set("i", "<A-S-m>", "<esc>:m .-2<cr>gi", { desc = "Move up" })
+-- vim.keymap.set("v", "<A-j>", ":m '>+1<CR>gv=gv", { desc = "Move down" })
+-- vim.keymap.set("v", "<A-k>", ":m '<-2<CR>gv=gv", { desc = "Move up" })
 
 -- better paste
 -- Better paste. With P, the unnamed register not changed, v_P is
@@ -189,7 +197,7 @@ vim.keymap.set("n", "<C-l>", function()
 end, { silent = true, desc = "Clean highlight/Diff update" })
 
 -- :Inspect
-vim.keymap.set("n", "<C-k>", "<cmd>Inspect<cr>", { desc = "Inspect" }) -- vim.show_pos
+vim.keymap.set("n", "<C-h>", "<cmd>Inspect<cr>", { desc = "Inspect" }) -- vim.show_pos
 
 -- Run make command, depend on language
 -- vim.keymap.set("n", "<leader>B", "<cmd>make<cr>", { desc = "make/compile" })
@@ -260,13 +268,8 @@ end, { silent = true, desc = "Close" })
 
 vim.keymap.set("n", "<leader>zz", "<cmd>Lazy<cr>", { desc = "Lazy", silent = true })
 vim.keymap.set("n", "<leader>zh", "<cmd>checkhealth<cr>", { desc = "Check health", silent = true })
-vim.keymap.set(
-  "n",
-  "<leader>zl",
-  -- vim.cmd.edit(vim.env.NVIM_LOG_FILE),
-  "<cmd>edit $NVIM_LOG_FILE<cr>",
-  { desc = "Log(Neovim)", silent = true }
-)
+vim.keymap.set("n", "<leader>zi", "<cmd>checkhealth vim.lsp<cr>", { desc = "Info(LSP)", silent = true })
+vim.keymap.set("n", "<leader>zl", "<cmd>edit $NVIM_LOG_FILE<cr>", { desc = "Log(Neovim)", silent = true })
 
 -- command-line and command window
 vim.keymap.set("c", "<C-o>", "<C-f>", { silent = true, desc = "Command window" })

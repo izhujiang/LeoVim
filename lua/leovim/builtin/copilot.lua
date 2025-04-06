@@ -41,7 +41,9 @@ return {
           inlineSuggestCount = 3, -- #completions for getCompletions
           debugLogging = false,
         },
-        telemetry = false,
+        telemetry = {
+          telemetryLevel = "off",
+        },
       },
     },
   },

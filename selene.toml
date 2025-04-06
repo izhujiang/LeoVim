@@ -1,3 +1,6 @@
+# The standard library given can either be one of the builtin ones (currently only lua51 and lua52)
+# or the filename of a standard library file in this format. For example, if we had a file named luajit.toml,
 std = "luajit"
+
 [lints]
 mixed_table = "allow"

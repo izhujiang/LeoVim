@@ -6,6 +6,9 @@ return {
     lazy = false,
     priority = 2000,
     opts = require("leovim.builtin.colorscheme").gruvbox and require("leovim.builtin.colorscheme").gruvbox.opts or {},
+    config = function()
+      vim.cmd.colorscheme(vim.g.colorscheme)
+    end,
   },
   {
     -- tokyonight, A clean, dark Neovim theme written in Lua, with support for lsp, treesitter and lots of plugins.
@@ -15,6 +18,9 @@ return {
     priority = 1000, -- make sure to load this before all the other start plugins
     opts = require("leovim.builtin.colorscheme").tokyonight and require("leovim.builtin.colorscheme").tokyonight.opts
       or {},
+    config = function()
+      vim.cmd.colorscheme(vim.g.colorscheme)
+    end,
   },
   {
     -- Everforest is a green based color scheme; it's designed to be warm and soft in order to protect developers' eyes.
@@ -25,6 +31,9 @@ return {
     opts = require("leovim.builtin.colorscheme").everforest and require("leovim.builtin.colorscheme").everforest.opts
       or {},
     init = require("leovim.builtin.colorscheme").everforest and require("leovim.builtin.colorscheme").everforest.init,
+    config = function()
+      vim.cmd.colorscheme(vim.g.colorscheme)
+    end,
   },
   {
     -- catppuccin, Soothing pastel theme for (Neo)vim
@@ -38,5 +47,8 @@ return {
     priority = 1000, -- make sure to load this before all the other start plugins
     opts = require("leovim.builtin.colorscheme").catppuccin and require("leovim.builtin.colorscheme").catppuccin.opts
       or {},
+    config = function()
+      vim.cmd.colorscheme(vim.g.colorscheme)
+    end,
   },
 }

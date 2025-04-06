@@ -38,13 +38,12 @@ return {
     {
       "<leader>ff",
       function()
-        -- TODO: if get_root() return nil, then use current path
         local root = require("leovim.utils").get_root()
-        if root == nil then
-          require("fzf-lua").files()
-        else
-          require("fzf-lua").files({ cwd = root })
-        end
+        -- if root == nil then
+        -- require("fzf-lua").files()
+        -- else
+        require("fzf-lua").files({ cwd = root })
+        -- end
       end,
       desc = "Find file",
     },
@@ -62,20 +61,21 @@ return {
     { "<leader>fH", "<cmd>FzfLua highlights<cr>", desc = "Find highlight" },
     { "<leader>fk", "<cmd>FzfLua keymaps<cr>", desc = "Find keymap" },
     { "<leader>fj", "<cmd>FzfLua jumps<cr>", desc = "Find jump" },
-    -- lsp (TODO:)
-    { "<leader>fla", "<cmd>FzfLua lsp_code_actions<cr>", desc = "Find code action" },
-    { "<leader>flc", "<cmd>FzfLua lsp_incoming_calls<cr>", desc = "Find incoming call" },
-    { "<leader>flC", "<cmd>FzfLua lsp_outgoing_calls<cr>", desc = "Find outgoing call" },
-    { "<leader>fld", "<cmd>FzfLua lsp_definitions<cr>", desc = "Find definition" },
-    { "<leader>flD", "<cmd>FzfLua lsp_declarations<cr>", desc = "Fid declaration" },
-    { "<leader>fll", "<cmd>FzfLua lsp_finder<cr>", desc = "LSP finder" },
-    { "<leader>fli", "<cmd>FzfLua lsp_implementations<cr>", desc = "Find implementation" },
-    { "<leader>flr", "<cmd>FzfLua lsp_references<cr>", desc = "Find reference" },
-    { "<leader>fls", "<cmd>FzfLua lsp_document_symbols<cr>", desc = "Find symbol(document)" },
-    { "<leader>flS", "<cmd>FzfLua lsp_workspace_symbols<cr>", desc = "Find symbol(workspace)" },
-    { "<leader>flt", "<cmd>FzfLua lsp_typedefs<cr>", desc = "Find type definition" },
-    { "<leader>flw", "<cmd>FzfLua lsp_live_workspace_symbols<cr>", desc = "Search symbol(dynamic)" },
-    --
+
+    { "<leader>fl", "<cmd>FzfLua lsp_finder<cr>", desc = "LSP finder" },
+    -- { "<leader>fla", "<cmd>FzfLua lsp_code_actions<cr>", desc = "Find code action" },
+    -- { "<leader>flc", "<cmd>FzfLua lsp_incoming_calls<cr>", desc = "Find incoming call" },
+    -- { "<leader>flC", "<cmd>FzfLua lsp_outgoing_calls<cr>", desc = "Find outgoing call" },
+    -- { "<leader>fld", "<cmd>FzfLua lsp_definitions<cr>", desc = "Find definition" },
+    -- { "<leader>flD", "<cmd>FzfLua lsp_declarations<cr>", desc = "Fid declaration" },
+    -- { "<leader>fll", "<cmd>FzfLua lsp_finder<cr>", desc = "LSP finder" },
+    -- { "<leader>fli", "<cmd>FzfLua lsp_implementations<cr>", desc = "Find implementation" },
+    -- { "<leader>flr", "<cmd>FzfLua lsp_references<cr>", desc = "Find reference" },
+    -- { "<leader>fls", "<cmd>FzfLua lsp_document_symbols<cr>", desc = "Find symbol(document)" },
+    -- { "<leader>flS", "<cmd>FzfLua lsp_workspace_symbols<cr>", desc = "Find symbol(workspace)" },
+    -- { "<leader>flt", "<cmd>FzfLua lsp_typedefs<cr>", desc = "Find type definition" },
+    -- { "<leader>flw", "<cmd>FzfLua lsp_live_workspace_symbols<cr>", desc = "Search symbol(dynamic)" },
+
     { "<leader>fm", "<cmd>FzfLua marks<cr>", desc = "Find mark" },
     { "<leader>fM", "<cmd>FzfLua man_pages<cr>", desc = "Find manpage" },
     { "<leader>fq", "<cmd>FzfLua quickfix<cr>", desc = "Find error" },

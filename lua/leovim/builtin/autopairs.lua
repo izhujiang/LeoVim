@@ -1,6 +1,6 @@
 return {
   opts = {
-    disable_filetype = { "TelescopePrompt", "spectre_panel", "vim" },
+    disable_filetype = vim.g.non_essential_filetypes,
     -- disable_in_macro = true,           -- disable when recording or executing a macro
     disable_in_visualblock = true, -- disable when insert after visual block mode
     -- disable_in_replace_mode = true,
@@ -11,7 +11,9 @@ return {
     -- enable_bracket_in_quote = true,
     -- enable_abbr = false,               -- trigger abbreviation
     -- break_undo = true,                 -- switch for basic rule break undo sequence
-    check_ts = true, -- check treesitter
+
+    -- use treesitter to check for a pair
+    check_ts = true,
     ts_config = {
       lua = { "string", "source" },
       javascript = { "string", "template_string" },

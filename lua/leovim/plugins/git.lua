@@ -21,13 +21,12 @@ return {
       -- lists all commits (git-log)
       "DiffviewFileHistory",
     },
-    keys = require("leovim.builtin.diffview").keys or {},
-    opts = require("leovim.builtin.diffview").opts or {},
+    keys = require("leovim.builtin.nvim-diffview").keys or {},
+    opts = require("leovim.builtin.nvim-diffview").opts or {},
 
     config = function(_, opts)
       require("diffview").setup(opts)
 
-      -- TODO: use 'q' to exit diffview
       vim.keymap.set({ "n" }, "<leader>q", function()
         if #vim.api.nvim_list_tabpages() > 1 and vim.t.is_diffview_tabpage then
           -- vim.cmd.tabclose()

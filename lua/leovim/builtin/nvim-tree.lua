@@ -1,12 +1,12 @@
 return {
   keys = {
     {
-      "<leader>ue",
+      "<A-e>",
       "<cmd>NvimTreeToggle<cr>",
       desc = "explorer",
     },
     {
-      "<leader>uf",
+      "<A-E>",
       "<cmd>:NvimTreeFindFileToggle<cr>",
       desc = "explorer(%)",
     },

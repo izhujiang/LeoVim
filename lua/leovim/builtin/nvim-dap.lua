@@ -8,7 +8,6 @@ return {
       desc = "Toggle breakpoint",
     },
     {
-      -- TODO: add <C-F5> start without debugging,  <C-S-F5> Restart debugging
       "<F5>",
       function()
         require("dap").continue()
@@ -17,20 +16,26 @@ return {
     },
     {
       -- NOTE: Disable <S-F5> in iterm2 (setting -> profiles -> keys -> key mappings)
-      -- TODO: <S-F5> doesn't work
-      -- "<S-F5>",
-      "<F4>",
+      -- Press <Alt-Shift-F5>, TODO: have no idea <Shift-F5> and <Shift-F11> not working
+      "<S-F5>",
       function()
         require("dap").terminate()
       end,
       desc = "Stop debug",
     },
     {
-      "<C-S-F5>",
+      "<F6>",
       function()
         require("dap").run_last()
       end,
       desc = "Run last debug",
+    },
+    {
+      "<F10>",
+      function()
+        require("dap").step_over()
+      end,
+      desc = "Step over",
     },
     {
       "<F11>",
@@ -40,20 +45,16 @@ return {
       desc = "Step into",
     },
     {
+      -- press <A-S-F11>
       "<S-F11>",
       function()
         require("dap").step_out()
       end,
       desc = "Step out",
     },
-    {
-      "<F10>",
-      function()
-        require("dap").step_over()
-      end,
-      desc = "Step over",
-    },
-
+    -- TODO:
+    -- enter debug mode
+    -- map b, c, g, s, o, n, p without <leader>d for simplify debugging
     {
       "<leader>db",
       function()
@@ -125,19 +126,27 @@ return {
       desc = "Pause",
     },
     {
-      "<leader>dh",
+      "<leader>dS",
       function()
-        require("dap").close()
+        -- require("dap").close()
+        require("dap").terminate()
       end,
-      desc = "Close/halt",
+      desc = "Stop",
     },
     {
-      -- toggle repl
-      "<leader><leader>R",
+      "<leader>dd",
+      function()
+        require("dap").run_last()
+      end,
+      desc = "Run last/recent debug",
+    },
+    {
+      -- toggle repl, dapui also provide the same repl window
+      "<leader>dr",
       function()
         require("dap").repl.toggle()
       end,
-      desc = "Toggle repl(debug)",
+      desc = "Toggle repl",
     },
     {
       "<leader>dw",
@@ -152,6 +161,7 @@ return {
     -- adapters = {},
     -- configurations = {},
     adapters = {
+      -- setup adapter for js/ts or use "mxsdev/nvim-dap-vscode-js" instead
       ["pwa-node"] = function()
         local adapter_root = require("mason-registry").get_package("js-debug-adapter"):get_install_path()
         return {

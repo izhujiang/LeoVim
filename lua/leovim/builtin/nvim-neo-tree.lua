@@ -1,14 +1,15 @@
 return {
   keys = {
     {
-      "<leader><leader>e",
-      "<cmd>Neotree last toggle reveal<cr>",
+      "<A-e>",
+      "<cmd>Neotree last toggle<cr>",
+      -- "<cmd>Neotree last toggle reveal<cr>",
       desc = "Explorer",
     },
   },
   -- ref: neo-tree.nvim/lua/neo-tree/defaults.lua
   opts = function(_, opts)
-    local icons = require("leovim.config.defaults").icons
+    local icons = require("leovim.builtin.icons")
     opts = vim.tbl_deep_extend("force", opts or {}, {
       -- add_blank_line_at_top = true,
       close_if_last_window = true,
@@ -117,6 +118,7 @@ return {
           },
         },
       }, -- end of git_status
+
       -- document_symbols = {
       --   kinds = {
       --     File = { icon = icons.kinds.File, hl = "Tag" },
@@ -138,6 +140,7 @@ return {
       --     StaticMethod = { icon = icons.kinds.StaticMethod, hl = "Function" },
       --   },
       -- },
+
       -- winbar used by source_selector conflict with lualine
       source_selector = {
         winbar = true,

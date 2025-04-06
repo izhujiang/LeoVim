@@ -1,77 +1,69 @@
 return {
   keys = {
     {
-      "<leader>kd",
+      "<leader>xd",
       "<cmd>Trouble diagnostics toggle filter.buf=0<cr>",
       desc = "Trouble diagnostics(document)",
     },
     {
-      "<leader>kD",
+      "<leader>xD",
       "<cmd>Trouble diagnostics toggle<cr>",
       desc = "Trouble diagnostics(workspace)",
     },
     {
-      "<leader>kl",
+      "<leader>xl",
       "<cmd>Trouble lsp toggle<cr>",
       desc = "Trouble LSP",
     },
     {
-      "<leader>kr",
+      "<leader>xr",
       "<cmd>Trouble lsp_references toggle<cr>",
       desc = "Trouble references",
     },
     {
-      "<leader>kq",
-      "<cmd>Trouble quickfix toggle<cr>",
+      "<leader>xq",
+      "<cmd>Trouble qflist toggle<cr>",
       desc = "Trouble quickfix",
     },
     {
-      "]q",
+      "]x",
       function()
         local t = require("trouble")
         if t.is_open() then
           t.next({ skip_groups = true, jump = true })
-        else
-          vim.cmd.cnext()
         end
       end,
-      desc = "Next trouble/quickfix",
+      desc = "Next trouble",
     },
     {
-      "[q",
+      "[x",
       function()
         local t = require("trouble")
         if t.is_open() then
           t.prev({ skip_groups = true, jump = true })
-        else
-          vim.cmd.cprevious()
         end
       end,
-      desc = "Previous trouble/quickfix",
+      desc = "Previous trouble",
     },
     {
-      "]Q",
+      "]X",
       function()
         local t = require("trouble")
         if t.is_open() then
           t.last({ skip_groups = true, jump = true })
-        else
-          vim.cmd.clast()
         end
       end,
-      desc = "Last trouble/quickfix",
+      desc = "Last trouble",
     },
     {
-      "[Q",
+      "[X",
       function()
         local t = require("trouble")
         if t.is_open() then
           t.first({ skip_groups = true, jump = true })
-        else
-          vim.cmd.cfirst()
         end
       end,
-      desc = "First trouble/quickfix",
+      desc = "First trouble",
     },
   },
 

@@ -31,7 +31,7 @@ return {
       { "<leader>f", group = "Fuzzy Finder" },
       { "<leader>fg", group = "Find git" },
       { "<leader>fl", group = "Find LSP" },
-      { "<leader>k", group = "Trouble" },
+      { "<leader>x", group = "Trouble" },
       { "<leader>g", group = "Git" },
       { "<leader>g", name = "Git" },
       { "<leader>h", group = "Hunk" },
@@ -40,8 +40,7 @@ return {
       { "<leader>oh", group = "Gitsigns" },
       { "<leader>p", group = "Select(Pick)" },
       { "<leader>t", group = "Test" },
-      { "<leader>z", group = "Info" },
-      { "<leader><leader>", group = "Toggle" },
+      { "<leader>z", group = "System" },
     },
     disable = {
       bt = {
@@ -50,7 +49,7 @@ return {
         "terminal",
         "prompt",
       },
-      ft = require("leovim.config.defaults").non_essential_filetypes,
+      ft = vim.g.non_essential_filetypes,
     },
     -- sort = { "alphanum", "case" },
     sort = { "local", "order", "group", "alphanum", "mod" },

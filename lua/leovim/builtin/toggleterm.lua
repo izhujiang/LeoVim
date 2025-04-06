@@ -1,33 +1,32 @@
 return {
   keys = {
-    -- override <C-1>, <C-2> in keymaps.lua
     {
-      "<C-1>",
+      "<A-1>",
       "<cmd>ToggleTerm direction=horizontal<cr>",
       mode = { "n", "i", "t" },
       desc = "Horizontal terminal",
     },
     {
-      "<C-2>",
+      "<A-2>",
       "<cmd>ToggleTerm direction=vertical<cr>",
       -- "<cmd>ToggleTerm =vertical<cr>",
       mode = { "n", "i", "t" },
       desc = "Hertical terminal",
     },
     {
-      "<C-3>",
+      "<A-3>",
       "<cmd>ToggleTerm direction=float<cr>",
       mode = { "n", "i", "t" },
       desc = "Float terminal",
     },
     {
-      "<C-\\>",
+      "<A-t>",
       "<cmd>ToggleTerm direction=float<cr>",
       mode = { "n", "i", "t" },
       desc = "Float terminal",
     },
     {
-      "<leader><leader>t",
+      "<A-\\>",
       "<cmd>ToggleTerm direction=float<cr>",
       mode = { "n", "i", "t" },
       desc = "Float terminal",
@@ -43,7 +42,7 @@ return {
         return 0
       end
     end,
-    open_mapping = [[<C-\>]],
+    open_mapping = [[<A-\>]],
     hide_numbers = true,
     shade_terminals = true,
     shading_factor = 2,
