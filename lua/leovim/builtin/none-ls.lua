@@ -13,23 +13,37 @@ return {
     local methods = null_ls.methods
 
     return {
-      debug = true,
+      debug = false,
       --   -- root_dir(function) Determines the root of the null-ls server.
       --   -- On startup, null-ls will call root_dir with the full path to the first file that null-ls attaches to.
       --   -- root_dir = require("null-ls.utils").root_pattern(".null-ls-root", ".neoconf.json", "Makefile", ".git"),
+      should_attach = function(bufnr)
+        local buf_name = vim.api.nvim_buf_get_name(bufnr)
+        return not (
+          buf_name:match("^git://")
+          -- or buf_name:match(".go$")
+          or buf_name == "go.mod"
+          or buf_name == "go.work"
+          or buf_name:match(".c$")
+          or buf_name:match(".cpp$")
+          or buf_name:match(".h$")
+          or buf_name:match(".hpp$")
+          or buf_name:match(".rs$")
+          or buf_name == "Cargo.toml" -- or buf_name:match(".py$")
+        -- or buf_name:match(".json$")
 
+
+        )
+      end,
       sources = {
-        -- Code Actions
+        -- Code Actions (gra)
         code_actions.gitrebase, -- { "gitrebase" }
         code_actions.gomodifytags, -- Go tool to modify struct field tags
         code_actions.impl, -- implementing an interface (go)
+        -- https://github.com/ThePrimeagen/refactoring.nvim
         code_actions.refactoring, -- { "go", "javascript", "lua", "python", "typescript" }
 
         -- Completion
-        -- completion.spell, -- Spell suggestions, sounds good for plain text
-        -- completion.luasnip,     -- DON'T use luasnip and tags, which have been sources of nvim-cmp.
-        -- completion.tags,
-
         -- Diagnostics
         -- diagnostics.actionlint.with({
         --   method = methods.DIAGNOSTICS_ON_SAVE,
@@ -52,7 +66,9 @@ return {
         -- diagnostics.editorconfig_checker.with({
         --   method = methods.DIAGNOSTICS_ON_SAVE,
         -- }),                        -- .editorconfig
-        diagnostics.golangci_lint, -- Go linter aggregator.
+
+        -- diagnostics with gopls's analyzar which is quite nice,  run golangci_lint via cmdline for  linting
+        -- diagnostics.golangci_lint, -- Go linter aggregator.
 
         -- diagnostics.hadolint.with({
         --   method = methods.DIAGNOSTICS_ON_SAVE,
@@ -67,16 +83,12 @@ return {
           method = methods.DIAGNOSTICS_ON_SAVE,
         }), -- Lua code linter. Filetypes: { "lua", "luau" }
 
-        -- diagnostics.staticcheck,   -- Advanced Go linter.
         -- diagnostics.vint.with({
         --   method = methods.DIAGNOSTICS_ON_SAVE,
         -- }),                        -- Linter for Vimscript.
         -- diagnostics.yamllint.with({
         --   method = methods.DIAGNOSTICS_ON_SAVE,
         -- }),                        -- A linter for YAML files.
-        -- diagnostics.zsh.with({
-        --   method = methods.DIAGNOSTICS_ON_SAVE,
-        -- }),                        -- zsh linter
 
         -- Formatting
         -- Formatter, linter, bundler, and more for JavaScript, TypeScript,
@@ -84,28 +96,21 @@ return {
         formatting.biome,
         -- formatting.buf, -- Protocol Buffers
         -- formatting.cmake_format,
-        -- By default, gopls uses gofmt for formatting Go code.
-        formatting.gofumpt, -- A stricter version of gofmt with more stylistic rules.
-        formatting.goimports, -- A superset of gofmt that also manages imports.
-        -- formatting.google_java_format,
+        formatting.goimports, -- automatically organize imports, remove it when gopls support it.
         -- formatting.markdownlint, -- A Node.js style checker and lint tool for Markdown files
         -- formatting.pg_format,     -- PostgreSQL SQL syntax beautifier
         -- formatting.prisma_format, -- Filetypes: { "prisma" }
         -- formatting.remark,        --  extensive and complex Markdown formatter/prettifier
-        -- formatting.rustywind,     -- organizing Tailwind CSS classes
         formatting.shfmt, -- A shell parser, formatter, and interpreter with bash support.
         formatting.stylua, -- Filetypes: { "lua", "luau" }
         -- formatting.yamlfmt,
 
         -- Golang:
-        -- gopls, provides IDE-like features such as autocompletion, linting,
-        -- and formatting for Go code. It integrates with editors (like
-        -- VSCode, Neovim, etc.) to offer real-time support for Go
-        -- developers. It typically uses gofmt as the default formatter but
-        -- can also be configured to use goimports or gofumpt.
-        -- gofmt, the “standard” for Go code formatting, formats Go code according to a canonical style.
-        -- goimports, a superset of gofmt that also manages imports.
-        -- gofumpt, a stricter version of gofmt with more stylistic rules.
+        -- gopls, provides IDE-like features such as autocompletion, linting, and formatting for Go code.
+        -- It typically uses gofmt as the default formatter but can also be configured to use goimports or gofumpt.
+        --    gofmt, the “standard” for Go code formatting, formats Go code according to a canonical style.
+        --    goimports, a superset of gofmt that also manages imports.
+        --    gofumpt, a stricter version of gofmt with more stylistic rules.
 
         -- lua:
         -- •	lua_ls: Real-time code intelligence and basic formatting, often integrated into editors.

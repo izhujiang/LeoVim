@@ -6,7 +6,6 @@ return {
         "<leader>tt",
         function()
           require("neotest").run.run()
-          -- require("neotest").output_panel.open({ enter = false, auto_close = true })
         end,
         desc = "Test nearest",
       },
@@ -14,7 +13,6 @@ return {
         "<leader>tr",
         function()
           require("neotest").run.run_last()
-          -- require("neotest").output_panel.open({ enter = false, auto_close = true })
         end,
         desc = "Test last(recent)",
       },
@@ -22,8 +20,7 @@ return {
         "<leader>tf",
         function()
           require("neotest").run.run(vim.fn.expand("%"))
-          -- require("neotest").output_panel.open({ enter = false, auto_close = true })
-          require("neotest").summary.open({ enter = false, auto_close = true })
+          -- require("neotest").summary.open({ enter = false, auto_close = true })
         end,
         desc = "Test file(%)",
       },
@@ -32,8 +29,7 @@ return {
         "<leader>tF",
         function()
           require("neotest").run.run(vim.fn.getcwd())
-          -- require("neotest").output_panel.open({ enter = false, auto_close = true })
-          require("neotest").summary.open({ enter = false, auto_close = true })
+          -- require("neotest").summary.open({ enter = false, auto_close = true })
         end,
         desc = "Test directory(%)",
       },
@@ -42,22 +38,11 @@ return {
         "<leader>ta",
         function()
           require("neotest").run.run(require("leovim.utils").get_root())
-          -- require("neotest").output.open({ enter = false, auto_close = true })
-          require("neotest").summary.open({ enter = false, auto_close = true })
+          -- require("neotest").summary.open({ enter = false, auto_close = true })
         end,
         desc = "Test suite",
       },
 
-      {
-        -- test race
-        "<leader>tR",
-        function()
-          -- Additional arguments for the go test command can be sent using the `extra_args` field e.g.
-          -- require("neotest").run.run({ path, extra_args = { "-race" } })
-          vim.notify("TODO: run go test -race")
-        end,
-        desc = "Test race",
-      },
       {
         "<leader>tS",
         function()

@@ -63,7 +63,7 @@ return {
       -- 2) Tree-sitter Integration with = Command (filter external program) ({count}== v{motion}= gg=G) when you trigger the = command (for re-indentation).
       -- By default, Neovim uses the = command to re-indent code according to the traditional indentation rules.
       enable = true,
-      -- disable = { "python", "css", "yaml" },
+      disable = { "rust" }, -- disables buggy Treesitter indent for Rust, ( TODO: ) until Tree-sitter's Rust indentation improves (it's been a long-standing issue with {} and blocks).
 
       -- Tree-sitter Indentation and  lsp.buf.format (LSP-based Formatting) can work together to provide a better overall development experience:
       -- •	Tree-sitter keeps indentation correct as you write and edit code.

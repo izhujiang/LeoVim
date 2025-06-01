@@ -27,9 +27,9 @@ vim.g.markdown_fenced_languages = { "ts=typescript" }
 vim.g.colorscheme = "everforest"
 vim.g.explorer = "neo-tree" -- "neo-tree" | "nvim-tree"
 vim.g.completion = "blink" -- "blink" | "nvim-cmp"
-vim.g.ai_provider = "copilot" -- "claude" | "openai" | "azure" | "gemini" | "cohere" | "copilot" | "codeium" | string
--- vim.g.ai_provider = "codeium" -- "claude" | "openai" | "azure" | "gemini" | "cohere" | "copilot" | "codeium" | string
-vim.g.ai_ui = "avante" -- "avante" | "copilotchat" (only valid for copilot)
+-- vim.g.ai_provider = "copilot" -- "claude" | "openai" | "azure" | "gemini" | "cohere" | "copilot" | "codeium" | string
+vim.g.ai_provider = "codeium" -- "claude" | "openai" | "azure" | "gemini" | "cohere" | "copilot" | "codeium" | string
+-- vim.g.ai_ui = "avante" -- "avante" | "copilotchat" (only valid for copilot)
 
 vim.g.non_essential_filetypes = {
   "dashboard",
@@ -74,7 +74,7 @@ vim.opt.confirm = true -- Confirm to save changes before exiting modified buffer
 vim.opt.cursorline = true -- highlight the current line
 -- vim.opt.fillchars = { horiz = "-", vert = "|", foldopen = "", foldclose = "", fold = "-", diff = "-", eob = "~" }
 vim.opt.fillchars = { horiz = "-", vert = "|", foldopen = "", foldclose = "", fold = "-", diff = "-", eob = " " }
-
+vim.opt.fixendofline = true
 vim.opt.foldlevel = 10
 vim.opt.foldmethod = "expr" -- "manual", "indent", "expr", "syntax", "diff", "marker",
 vim.opt.foldnestmax = 10
@@ -85,7 +85,6 @@ if vim.fn.executable("rg") then
   vim.opt.grepprg = "rg --column --line-number --no-heading --smart-case"
   vim.opt.grepformat = "%f:%l:%c:%m,%f:%l:%m"
 end
-
 vim.opt.history = 2000
 vim.opt.ignorecase = true -- ignore case in search patterns
 vim.opt.smartcase = true

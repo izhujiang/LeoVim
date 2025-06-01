@@ -73,6 +73,26 @@ return {
 
       require("neotest").setup(opts)
     end,
+
+    init = function()
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = "go",
+        callback = function()
+          vim.keymap.set("n", "<leader>tR", function()
+            -- Additional arguments for the go test command can be sent using the `extra_args` field e.g.
+            -- require("neotest").run.run({ path, extra_args = { "-race" } })
+            require("neotest").run.run({ extra_args = { "-race" } })
+          end, { desc = "Test race" })
+
+          vim.keymap.set("n", "<leader>tb", function()
+            -- Additional arguments for the go test command can be sent using the `extra_args` field e.g.
+            -- require("neotest").run.run({ path, extra_args = { "-race" } })
+            vim.print("test bench")
+            require("neotest").run.run({ vim.fn.expand("%"), extra_args = { "-bench=." } })
+          end, { desc = "Test banch" })
+        end,
+      })
+    end,
   },
 
   -- debug

@@ -117,7 +117,7 @@ local function setup_keybinds(client, bufnr)
     vim.keymap.set("n", "grd", vim.diagnostic.open_float, opts({ desc = "Show diagnostic(LSP)" }))
 
     vim.keymap.set("n", "grq", vim.diagnostic.setqflist, opts({ desc = "Quickfix(LSP)" }))
-    vim.keymap.set("n", "grl", vim.diagnostic.setloclist, opts({ desc = "Loclist(LSP)" }))
+    vim.keymap.set("n", "grQ", vim.diagnostic.setloclist, opts({ desc = "Loclist(LSP)" }))
   end
 
   -- vim.lsp.hover()
@@ -178,10 +178,16 @@ local function setup_keybinds(client, bufnr)
   end
   if client:supports_method("textDocument/codeAction") then
     -- Code actions are available suggestions to fix errors and warnings.
-    vim.keymap.set({ "n", "v" }, "gra", vim.lsp.buf.code_action, opts({ desc = "Code_action(LSP)" }))
+    vim.keymap.set({ "n", "v" }, "gra", vim.lsp.buf.code_action, opts({ desc = "Code action(LSP)" }))
   end
-  -- TODO: setup codelens
-  vim.keymap.set("n", "grc", vim.lsp.codelens.run, opts({ desc = "Codelens(LSP)" }))
+
+  -- CodeLens (contextual, interactive annotations) is an LSP feature that adds virtual text (actions) above code elements.
+  -- These actions can be executed, such as running tests, generating methods, or refactoring.
+  --
+  -- Requests the server to recompute and display CodeLens annotations.
+  vim.keymap.set("n", "grl", vim.lsp.codelens.refresh, opts({ desc = "Codelens refresh(LSP)" }))
+  -- Execute CodeLens under the cursor
+  vim.keymap.set("n", "grc", vim.lsp.codelens.run, opts({ desc = "Codelens run(LSP)" }))
 end
 
 -- TODO: workspace operations
@@ -332,7 +338,7 @@ if vim.fn.has("nvim-0.11") then
       -- Usually not needed if server supports "textDocument/willSaveWaitUntil".
       -- To avoid multiple active lsp server(null-ls) format at same time,
       -- skip servers in the dict, prefer format buffer with null-ls
-      local skip_formatting_servers = { "gopls", "lua_ls", "pyright", "jsonls", "ts_ls" }
+      local skip_formatting_servers = { "lua_ls", "pyright", "jsonls", "ts_ls" }
       -- local skip_formatting_servers = {}
       if
         not client:supports_method("textDocument/willSaveWaitUntil")
@@ -350,6 +356,24 @@ if vim.fn.has("nvim-0.11") then
           end,
         })
       end
+
+      -- stylize (colorize) the annotation (virtual text) displayed by vim.lsp.codelens.refresh()
+      vim.api.nvim_set_hl(0, "LspCodeLens", { fg = "#008888", italic = true })
+      vim.api.nvim_set_hl(0, "LspCodeLensSeparator", { fg = "#444444" })
+      -- TODO: consist with theme changes
+      -- vim.api.nvim_create_autocmd("ColorScheme", {
+      --   callback = function()
+      --     vim.api.nvim_set_hl(0, "LspCodeLens", { fg = "#999999", italic = true })
+      --   end,
+      -- })
+
+      -- Refresh CodeLens on certain events
+      -- vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "CursorHold" }, {
+      --   buffer = args.buf,
+      --   callback = function()
+      --     vim.lsp.codelens.refresh()
+      --   end,
+      -- })
     end,
   })
 
@@ -365,6 +389,12 @@ if vim.fn.has("nvim-0.11") then
           buffer = args.buf,
         })
       end
+
+      -- disable refreshing CodeLens
+      -- vim.api.nvim_clear_autocmds({
+      --   event = { "BufEnter", "BufWritePost", "CursorHold" },
+      --   buffer = args.buf,
+      -- })
     end,
   })
 

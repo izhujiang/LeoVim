@@ -3,12 +3,17 @@ return {
     {
       "<leader>xd",
       "<cmd>Trouble diagnostics toggle filter.buf=0<cr>",
-      desc = "Trouble diagnostics(document)",
+      desc = "Trouble diagnostics(buffer)",
     },
     {
       "<leader>xD",
       "<cmd>Trouble diagnostics toggle<cr>",
       desc = "Trouble diagnostics(workspace)",
+    },
+    {
+      "<leader>xs",
+      "<cmd>Trouble symbols toggle focus=false<cr>",
+      desc = "Trouble symbols ",
     },
     {
       "<leader>xl",
@@ -24,6 +29,11 @@ return {
       "<leader>xq",
       "<cmd>Trouble qflist toggle<cr>",
       desc = "Trouble quickfix",
+    },
+    {
+      "<leader>xQ",
+      "<cmd>Trouble loclist toggle<cr>",
+      desc = "Trouble loclist",
     },
     {
       "]x",
@@ -68,6 +78,7 @@ return {
   },
 
   opts = {
+    auto_close = true,
     modes = {
       lsp = {
         win = { position = "right" },
