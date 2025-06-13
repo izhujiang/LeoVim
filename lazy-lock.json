@@ -8,6 +8,7 @@
   "blink.cmp": { "branch": "main", "commit": "cb5e346d9e0efa7a3eee7fd4da0b690c48d2a98e" },
   "blink.compat": { "branch": "main", "commit": "2ed6d9a28b07fa6f3bface818470605f8896408c" },
   "bufferline.nvim": { "branch": "main", "commit": "655133c3b4c3e5e05ec549b9f8cc2894ac6f51b3" },
+  "cargo.nvim": { "branch": "main", "commit": "2b470e72a5bcf9e5b4185944cf76b9a24fb093ec" },
   "catppuccin": { "branch": "main", "commit": "5b5e3aef9ad7af84f463d17b5479f06b87d5c429" },
   "clangd_extensions.nvim": { "branch": "main", "commit": "db28f29be928d18cbfb86fbfb9f83f584f658feb" },
   "codeium.nvim": { "branch": "main", "commit": "9569c9095a70370849345c861cdb2b06c4cadac7" },

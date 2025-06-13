@@ -49,24 +49,58 @@ return {
       border = "rounded",
     },
   },
-  -- TODO: setup nvim-cmp for clangd_extensions
-  -- config = function(_, opts)
-  --   require("clangd_extensions").setup(opts)
-  --   local cmp = require("cmp")
-  --   cmp.setup({
-  --     -- ... rest of your cmp setup ...
-  --     sorting = {
-  --       comparators = {
-  --         cmp.config.compare.offset,
-  --         cmp.config.compare.exact,
-  --         cmp.config.compare.recently_used,
-  --         require("clangd_extensions.cmp_scores"),
-  --         cmp.config.compare.kind,
-  --         cmp.config.compare.sort_text,
-  --         cmp.config.compare.length,
-  --         cmp.config.compare.order,
-  --       },
-  --     },
-  --   })
-  -- end,
+
+  {
+    -- Prerequisites
+    --  neovim >= 0.11
+    --  rust-analyzer
+    --  optional: dot, cargo, a debug adapter (e.g. lldb or codelldb), tree-sitter parser for Rust
+    "mrcjkb/rustaceanvim",
+    version = "^6", -- Recommended
+    enabled = false,
+  },
+
+  {
+    -- usage:
+    --   "CargoBench",
+    --   "CargoBuild",
+    --   "CargoClean",
+    --   "CargoDoc",
+    --   "CargoNew",
+    --   "CargoRun",
+    --   "CargoRunTerm",
+    --   "CargoTest",
+    --   "CargoUpdate",
+    --   "CargoCheck",
+    --   "CargoClippy",
+    --   "CargoAdd",
+    --   "CargoRemove",
+    --   "CargoFmt",
+    --   "CargoFix",
+
+    "nwiizo/cargo.nvim",
+    build = "cargo build --release",
+    opts = {
+      float_window = true,
+      window_width = 0.8,
+      window_height = 0.8,
+      border = "rounded",
+      auto_close = true,
+      close_timeout = 5000,
+    },
+    -- config = function(_, opts)
+    --   require("cargo").setup(opts)
+    -- end,
+    ft = { "rust" },
+    init = function()
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = "rust",
+        callback = function()
+          vim.keymap.set("n", "<leader>r", ":CargoRun<cr>", { buffer = true, desc = "Cargo run" })
+          vim.keymap.set("n", "<leader>R", ":CargoRunTerm<cr>", { buffer = true, desc = "Cargo run (terminal)" })
+          vim.keymap.set("n", "<leader>b", ":CargoBuild<cr>", { buffer = true, desc = "Cargo build" })
+        end,
+      })
+    end,
+  },
 }
