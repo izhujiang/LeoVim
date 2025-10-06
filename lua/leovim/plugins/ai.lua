@@ -35,12 +35,12 @@ return {
     cond = vim.g.ai_provider == "copilot",
     build = ":Copilot auth",
     cmd = "Copilot",
-    opts = require("leovim.builtin.copilot").opts or {},
+    opts = require("leovim.config.plugins.copilot").opts or {},
   },
   {
     -- Free, ultrafast Copilot alternative for Vim and Neovim
     -- But, no embedded chat ui to interact with codeium
-    "Exafunction/codeium.nvim",
+    "Exafunction/windsurf.nvim",
     cond = vim.g.ai_provider == "codeium",
     event = { "InsertEnter" },
     dependencies = {
@@ -48,8 +48,12 @@ return {
     },
     build = ":Codeium Auth",
     cmd = { "Codeium" },
-    init = require("leovim.builtin.codeium").init,
-    opts = require("leovim.builtin.codeium").opts or {},
+    init = require("leovim.config.plugins.windsurf").init,
+    opts = require("leovim.config.plugins.windsurf").opts or {},
+    main = "codeium",
+    -- config = function()
+    --   require("codeium").setup({})
+    -- end,
   },
 
   {
@@ -78,8 +82,8 @@ return {
       "CopilotChatModels",
       "CopilotChatAgents",
     },
-    keys = require("leovim.builtin.copilotchat").keys or {},
-    opts = require("leovim.builtin.copilotchat").opts or {},
+    keys = require("leovim.config.plugins.copilotchat").keys or {},
+    opts = require("leovim.config.plugins.copilotchat").opts or {},
     config = function(_, opts)
       local chat = require("CopilotChat")
 
@@ -114,7 +118,7 @@ return {
     -- :AvanteToggle	Toggle the Avante sidebar
     -- :AvanteModels
     "yetone/avante.nvim",
-    cond = vim.fn.has("nvim-0.10")
+    cond = (vim.version().major == 0 and vim.version().minor >= 10)
       and vim.tbl_contains({ "claude", "openai", "azure", "gemini", "cohere", "copilot" }, vim.g.ai_provider)
       and vim.g.ai_ui == "avante",
     event = "VeryLazy",
@@ -142,9 +146,9 @@ return {
           and vim.g.ai_ui == "avante",
       },
     },
-    keys = require("leovim.builtin.avante").keys,
-    opts = require("leovim.builtin.avante").opts or {},
-    init = require("leovim.builtin.avante").init,
+    keys = require("leovim.config.plugins.avante").keys,
+    opts = require("leovim.config.plugins.avante").opts or {},
+    init = require("leovim.config.plugins.avante").init,
   },
 
   {

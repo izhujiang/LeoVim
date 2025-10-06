@@ -17,73 +17,26 @@ local function register_plugins(opts)
   end
   vim.opt.rtp:prepend(lazypath)
 
-  -- When import specs, override them by simply adding a spec for the same plugin to your local specs,
-  --    -- opts, dependencies, cmd, event, ft and keys are always merged with the parent spec.
-  --    -- any other property will override the property from the parent spec.
-  require("lazy").setup({
-    -- update & upgrade (add, replace and delele) plugins, ref https: //www.lazyvim.org/news
+  local lazy_opts = require("leovim.config.plugins.nvim-lazy").opts or {}
+  lazy_opts = vim.tbl_deep_extend("force", lazy_opts, {
     spec = {
       { import = "leovim.plugins" },
-      -- import any extras modules here
       { import = opts.user_plugins },
     },
-    defaults = {
-      -- set this to `true` to have all your plugins lazy-loaded by default.
-      lazy = true,
-      -- the latest stable version for plugins that support semver
-      version = "*",
-    },
-    install = {
-      -- install missing plugins on startup.
-      missing = true,
-      -- colorscheme that will be used when installing plugins.
-      colorscheme = { "habamax" },
-    },
-    ui = {
-      border = "single",
-    },
+
+    -- local plugin projects
     -- dev = {
-    -- 	-- directory where you store your local plugin projects
-    -- 	path = "~/projects",
-    -- 	---@type string[] plugins that match these patterns will use your local versions instead of being fetched from GitHub
-    -- 	patterns = {}, -- For example {"folke"}
-    -- 	fallback = false, -- Fallback to git when local plugin doesn't exist
+    --   path = "~/projects",
+    --   patterns = {}, -- For example {"folke"}
+    --   fallback = false, -- Fallback to git when local plugin doesn't exist
     -- },
-    checker = {
-      enabled = false,
-      frequency = 604800, -- check for updates every week 60*60*24*7
-    }, -- automatically check for plugin updates
-    performance = {
-      rtp = {
-        disabled_plugins = {
-          "gzip",
-          -- "matchit",
-          -- "matchparen",
-          "netrwPlugin",
-          "tarPlugin",
-          "tohtml",
-          "tutor",
-          "zipPlugin",
-        },
-      },
-    },
   })
+
+  require("lazy").setup(lazy_opts)
 end
 
--- Profiling Neovim Startup
-if vim.env.PROF then
-  -- path of plugin manager
-  local snacks = vim.fn.stdpath("data") .. "/lazy/snacks.nvim"
-  vim.opt.rtp:append(snacks)
-  require("snacks.profiler").startup({
-    startup = {
-      event = "VimEnter", -- stop profiler on this event. Defaults to `VimEnter`
-    },
-  })
-end
-
-if not vim.fn.has("nvim-0.11") then
-  vim.notify("nvim-0.11 or newer is required", vim.log.levels.WARN)
+if vim.version().major == 0 and vim.version().minor < 11 then
+  vim.notify("neovim-0.11 or newer is required", vim.log.levels.WARN)
 end
 if not jit then
   vim.notify("luaJIT is required", vim.log.levels.WARN)
@@ -91,8 +44,8 @@ end
 
 -- nvim entry point
 
--- setup core nvim config
-require("leovim.config").setup()
+-- load core nvim config
+require("leovim.config").load()
 
 local only_neovim = false
 
@@ -103,11 +56,10 @@ else
 end
 
 -- lazy.nvim does NOT use Neovim's builtin plugin manager 'packages' and even
--- disables plugin loading completely (vim.go.loadplugins = false). It takes
--- over the complete startup sequence for more flexibility and better
--- performance.
---
--- In practice this means that step 10 of Neovim Initialization is done by Lazy:
+-- disables plugin loading completely (vim.go.loadplugins = false).
+-- It takes over the complete startup sequence for more flexibility and better performance.
+
+-- In practice, this means that step 11 of Neovim Initialization is done by Lazy:
 --    -- All the plugins' init() functions are executed
 --    -- All plugins with lazy=false are loaded. This includes sourcing /plugin
 --    and /ftdetect files. (/after will not be sourced yet)

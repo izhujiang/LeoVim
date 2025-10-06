@@ -2,9 +2,9 @@ return {
   {
     -- git signs, Git integration for Buffers
     "lewis6991/gitsigns.nvim",
-    event = { "VeryLazy" },
-    keys = require("leovim.builtin.gitsigns").keys or {},
-    opts = require("leovim.builtin.gitsigns").opts or {},
+    event = { "BufReadPost", "BufNewFile" },
+    keys = require("leovim.config.plugins.gitsigns").keys or {},
+    opts = require("leovim.config.plugins.gitsigns").opts or {},
   },
 
   {
@@ -21,8 +21,8 @@ return {
       -- lists all commits (git-log)
       "DiffviewFileHistory",
     },
-    keys = require("leovim.builtin.nvim-diffview").keys or {},
-    opts = require("leovim.builtin.nvim-diffview").opts or {},
+    keys = require("leovim.config.plugins.nvim-diffview").keys or {},
+    opts = require("leovim.config.plugins.nvim-diffview").opts or {},
 
     config = function(_, opts)
       require("diffview").setup(opts)
@@ -53,7 +53,24 @@ return {
       "NeogitLogCurrent", -- Opens log buffer for any changes to the current file or a path the user has specified
       "NeogitResetState", -- Performs a full reset of saved flags for all popups
     },
-    keys = require("leovim.builtin.neogit").keys or {},
-    opts = require("leovim.builtin.neogit").opts or {},
+    keys = require("leovim.config.plugins.neogit").keys or {},
+    opts = require("leovim.config.plugins.neogit").opts or {},
+  },
+  {
+    "kdheepak/lazygit.nvim",
+    lazy = true,
+    cmd = {
+      "LazyGit",
+      "LazyGitConfig",
+      "LazyGitCurrentFile",
+      "LazyGitFilter",
+      "LazyGitFilterCurrentFile",
+    },
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+    },
+    keys = {
+      { "<leader>gg", "<cmd>LazyGit<cr>", desc = "LazyGit" },
+    },
   },
 }

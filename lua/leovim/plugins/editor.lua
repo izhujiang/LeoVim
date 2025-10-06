@@ -1,15 +1,5 @@
 return {
   {
-    -- A collection of small QoL plugins for Neovim.
-    "folke/snacks.nvim",
-    priority = 1000,
-    lazy = false,
-    -- Snacks is a global variable defined in snacks.nvim, use it directly
-    keys = require("leovim.builtin.snacks").keys or {},
-    init = require("leovim.builtin.snacks").init,
-    opts = require("leovim.builtin.snacks").opts or {},
-  },
-  {
     -- fuzzy finder: a highly extendable fuzzy finder over lists.
     -- Built on the latest awesome features from neovim core.
     -- Optional dependencies:
@@ -24,10 +14,11 @@ return {
     "ibhagwan/fzf-lua",
     dependencies = {
       "nvim-tree/nvim-web-devicons",
+      -- "nvim-treesitter/nvim-treesitter-context"
     },
     cmd = { "FzfLua" },
-    keys = require("leovim.builtin.fzf").keys or {},
-    opts = require("leovim.builtin.fzf").opts or {},
+    keys = require("leovim.config.plugins.fzf").keys or {},
+    opts = require("leovim.config.plugins.fzf").opts or {},
     config = function(_, opts)
       local fzf = require("fzf-lua")
       fzf.setup(opts)
@@ -51,9 +42,9 @@ return {
       "nvim-tree/nvim-web-devicons",
     },
     cmd = { "NvimTreeOpen", "NvimTreeToggle", "NvimTreeFindFile" },
-    keys = require("leovim.builtin.nvim-tree").keys or {},
-    opts = require("leovim.builtin.nvim-tree").opts or {},
-    init = require("leovim.builtin.nvim-tree").init,
+    keys = require("leovim.config.plugins.nvim-tree").keys or {},
+    opts = require("leovim.config.plugins.nvim-tree").opts or {},
+    init = require("leovim.config.plugins.nvim-tree").init,
   },
   {
     -- File Explorer (a feature-rich, customizable, and modern experience), manage the file system and other tree like structures.
@@ -66,14 +57,13 @@ return {
       "nvim-tree/nvim-web-devicons", -- not strictly required, but recommended
       "MunifTanjim/nui.nvim",
     },
-    event = { "VimEnter" },
     cmd = "Neotree",
-    keys = require("leovim.builtin.nvim-neo-tree").keys or {},
+    keys = require("leovim.config.plugins.nvim-neo-tree").keys or {},
     deactivate = function()
       vim.cmd([[Neotree close]])
     end,
-    init = require("leovim.builtin.nvim-neo-tree").init,
-    opts = require("leovim.builtin.nvim-neo-tree").opts or {},
+    init = require("leovim.config.plugins.nvim-neo-tree").init,
+    opts = require("leovim.config.plugins.nvim-neo-tree").opts or {},
 
     config = function(_, opts)
       require("neo-tree").setup(opts)
@@ -93,8 +83,8 @@ return {
     -- toggle multiple terminals during an editing session
     "akinsho/toggleterm.nvim",
     cmd = { "ToggleTerm" },
-    keys = require("leovim.builtin.toggleterm").keys or {},
-    opts = require("leovim.builtin.toggleterm").opts or {},
+    keys = require("leovim.config.plugins.toggleterm").keys or {},
+    opts = require("leovim.config.plugins.toggleterm").opts or {},
     -- config = function(_, opts)
     --   local status_ok, toggleterm = pcall(require, "toggleterm")
     --   if not status_ok then
@@ -129,27 +119,48 @@ return {
     --   node:toggle()
     -- end
 
-    -- local python = Terminal:new({ cmd = "python3", hidden = true })
-    -- function _PYTHON_TOGGLE()
-    --   python:toggle()
-    -- end
     -- end,
+  },
+  {
+    "LintaoAmons/scratch.nvim",
+    dependencies = {
+      { "ibhagwan/fzf-lua" },
+    },
+    cmd = {
+      "Scratch", -- new scratch (note)
+      "ScratchWithName", -- new scratch with name
+      "ScratchOpen", -- open scratch with fzf file_picker
+    },
+    keys = {
+      { "<leader>N", "<cmd>Scratch<cr>", desc = "New note (scratch)" },
+      { "<leader>fN", "<cmd>ScratchOpen<cr>", desc = "Note (scratch)" },
+    },
+    opts = {
+      use_telescope = false,
+      file_picker = "fzflua",
+    },
   },
   {
     -- Simple session management for Neovim
     -- automatically saves the active session under ~/.local/state/nvim/sessions on exit
     -- usage:
-    -- :SessionLoadLast, :SessionLoadCurrent, :SessionStop, :SessionStart, :SessionSave
-    -- Alternate: rmagatti/auto-session
+    -- :SessionLoadCwd, :SessionLoadLast, :SessionStart, :SessionStop, :SessionSave
     "folke/persistence.nvim",
-    event = "VeryLazy",
-    opts = require("leovim.builtin.nvim-persistence").opts or {},
+    event = { "BufReadPost", "BufNewFile" },
+    cmd = {
+      "SessionLoadCwd",
+      "SessionLoadLast",
+      "SessionSelect",
+      "SessionStart",
+    },
+    keys = require("leovim.config.plugins.nvim-persistence").keys or {},
+    opts = require("leovim.config.plugins.nvim-persistence").opts or {},
     config = function(_, opts)
       local persistence = require("persistence")
       persistence.setup(opts)
 
       -- load the session for the current directory
-      vim.api.nvim_create_user_command("SessionLoad", function()
+      vim.api.nvim_create_user_command("SessionLoadCwd", function()
         persistence.load()
       end, {})
       -- restore(load) session
@@ -176,30 +187,22 @@ return {
     end,
   },
   {
+    "nvimdev/dashboard-nvim",
+    lazy = false, -- As https://github.com/nvimdev/dashboard-nvim/pull/450, dashboard-nvim shouldn't be lazy-loaded to properly handle stdin.
+    keys = require("leovim.config.plugins.dashboard").keys or {},
+    opts = require("leovim.config.plugins.dashboard").opts or {},
+  },
+  {
     -- which-key
-    -- displays a popup with possible key bindings of the command you started typing.
-    -- and built-in plugins: marks, registers, presets(built-in key binding help for motions, text-objects, operators, windows, nav, z and g) and spelling suggestions.
-    --
-    -- usage:
-    --  to triggger text-objects:         i and a
-    --  to triggger operators:            c, d, y, ~, g~, !, =, gq,
-    --  to triggger motions:              b, w, j, f, /, ? g
-    --
-    -- 	to trigger marks:                 ' and `
-    --  to trigger register:              " in normal mode and <C-r> in insert mode
-    --  to trigger fold:                  z
-    --  to trigger spelling suggestions: 	z=
-    --  to trigger window commands:		    <c-w>
-    --  scroll_down = "<c-d>", -- binding to scroll down inside the popup
-    --  scroll_up = "<c-u>", -- binding to scroll up inside the popup
+    -- displays a popup with possible key bindings of the command you started typing and built-in plugins.
     "folke/which-key.nvim",
     event = "VeryLazy",
     dependencies = {
       "nvim-tree/nvim-web-devicons",
       "echasnovski/mini.icons",
     },
-    keys = require("leovim.builtin.which-key").keys or {},
-    init = require("leovim.builtin.which-key").init,
-    opts = require("leovim.builtin.which-key").opts or {},
+    keys = require("leovim.config.plugins.which_key").keys or {},
+    init = require("leovim.config.plugins.which_key").init,
+    opts = require("leovim.config.plugins.which_key").opts or {},
   },
 }

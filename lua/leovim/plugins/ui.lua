@@ -14,8 +14,8 @@ return {
     -- A fancy, configurable, notification manager for NeoVim
     "rcarriga/nvim-notify",
     event = { "VeryLazy" },
-    init = require("leovim.builtin.nvim-notify").init,
-    opts = require("leovim.builtin.nvim-notify").opts or {},
+    init = require("leovim.config.plugins.nvim-notify").init,
+    opts = require("leovim.config.plugins.nvim-notify").opts or {},
     config = function(_, opts)
       local notify = require("notify")
       notify.setup(opts)
@@ -25,12 +25,15 @@ return {
   {
     -- Statusline, A blazing fast and easy to configure neovim statusline plugin
     "nvim-lualine/lualine.nvim",
-    event = { "VeryLazy" },
+    event = { "BufReadPost", "BufNewFile" },
     dependencies = {
       "nvim-tree/nvim-web-devicons",
     },
-    init = require("leovim.builtin.lualine").init,
-    opts = require("leovim.builtin.lualine").opts or {},
+    keys = require("leovim.config.plugins.lualine").keys or {},
+    opts = require("leovim.config.plugins.lualine").opts or {},
+    init = function()
+      vim.opt.showmode = false
+    end,
   },
   {
     -- nvim-navic, A simple statusline/winbar component that uses LSP to show your current code context.
@@ -45,7 +48,7 @@ return {
       -- highlight = false,
       depth_limit = 5,
       -- lazy_update_context = true,
-      icons = require("leovim.builtin.icons").kinds,
+      icons = require("leovim.config.icons").kinds,
     },
     init = function()
       vim.g.navic_silence = true
@@ -63,18 +66,19 @@ return {
     -- However, Combine "bufferline.nvim" with "scope.nvim" to achieve this kind of behaviour.
     -- Although a better long-term solution for users who want this functionality is to ask for real native support for this upstream.
     "akinsho/bufferline.nvim",
-    event = { "VeryLazy" },
+    event = { "BufReadPost", "BufNewFile" },
     dependencies = {
       "nvim-tree/nvim-web-devicons",
     },
-    keys = require("leovim.builtin.bufferline").keys or {},
-    opts = require("leovim.builtin.bufferline").opts or {},
+    keys = require("leovim.config.plugins.bufferline").keys or {},
+    opts = require("leovim.config.plugins.bufferline").opts or {},
   },
 
   {
     -- revolutionizes tab management by introducing scoped buffers.
     "tiagovla/scope.nvim",
-    event = { "VeryLazy" },
+    enabled = false,
+    -- event = { "VeryLazy" },
     opts = {},
     -- init = function()
     -- Session Support
@@ -84,5 +88,14 @@ return {
     --     "globals",
     -- }
     -- end,
+  },
+  {
+    "lukas-reineke/indent-blankline.nvim",
+    main = "ibl",
+    event = "VeryLazy",
+    opts = require("leovim.config.plugins.indent").opts or {},
+    -- config = function(_, opts)
+    --   require("ibl").setup(opts)
+    -- end
   },
 }

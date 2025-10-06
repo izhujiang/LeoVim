@@ -6,41 +6,44 @@ vim.keymap.set("n", "<Left>", "<Nop>", { silent = true })
 vim.keymap.set("n", "<Right>", "<Nop>", { silent = true })
 
 vim.keymap.set("n", "\\", ",", { silent = true })
+
+-- Navigation -----------------------------------
+-- builtin keys since nvim-0.11
+-- [q, ]q, [Q, ]Q,    --    Quickfix
+-- [l, ]l, [L, ]L,    --    Location list
+-- [t, ]t, [T, ]T,    --    Tags
+-- [a, ]a, [A, ]A     --    Argument list
+-- [b, ]b, [B, ]B     --    Buffer list
+-- gt, gT             --    Tabpages
+-- [s, ]s             --    Spell
+-- [c, ]c             --    Diff/change
+
+-- :close vs. :quit
+--   - :close command is specifically for closing windows when you have multiple windows in a split layout,
+--      Vim requires at least one window to be open in each tab, so it prevent the last one to close.
+--   - while :quit is for closing windows/tabs/Vim itself.
+--   - close the buffer but keep window open: :bdelete or :bd
+
 -- Buffers and augument list -----------------------------------
--- vim.keymap.set("n", "<leader>%", "<cmd>lcd %:p:h<cr>", { desc = "CWD" })
-vim.keymap.set("n", "<leader>n", "<cmd>ene | startinsert<cr>", { desc = "New" })
-vim.keymap.set("n", "<leader>e", ":e <C-r>=expand('%:p:h') . '/'<cr>", { desc = "Open" })
+vim.keymap.set("n", "<leader>%", "<Cmd>lcd %:p:h<CR>", { desc = "CWD" })
+vim.keymap.set("n", "<leader>n", "<Cmd>ene | startinsert<CR>", { desc = "New file" })
+vim.keymap.set("n", "<leader>e", ":e <C-r>=expand('%:p:h') . '/'<CR>", { desc = "Open file" })
 vim.keymap.set("n", "<leader>w", vim.cmd.write, { silent = true, desc = "Save" })
-vim.keymap.set("n", "<leader>W", "<cmd>noautocmd w<cr>", { silent = true, desc = "Save(no formatting)" })
-vim.keymap.set("n", "<Leader>c", vim.cmd.bdelete, { silent = true, desc = "Unload" })
--- Like :bdelete, but really delete the buffer.  Everything(marks, options...) related to the buffer is lost.  Don't use this
--- vim.keymap.set("n", "<leader>X", vim.cmd.bwipeout, { silent = true, desc = "wipeout" })
+vim.keymap.set("n", "<leader>W", vim.cmd.wall, { silent = true, desc = "Save all" })
+vim.keymap.set("n", "<Leader>c", vim.cmd.bdelete, { silent = true, desc = "Close" })
+-- :bwipeout like :bdelete, but really delete the buffer.
+-- Everything(marks, options...) related to the buffer is lost. Don't use this.
+-- vim.keymap.set("n", "<leader>C", vim.cmd.bwipeout, { silent = true, desc = "Close" })
 
--- since nvim-0.11
--- [q, ]q, [Q, ]Q, [CTRL-Q, ]CTRL-Q navigate through the quickfix list
--- [l, ]l, [L, ]L, [CTRL-L, ]CTRL-L navigate through the location list
--- [t, ]t, [T, ]T, [CTRL-T, ]CTRL-T navigate through the tag matchlist
--- [a, ]a, [A, ]A navigate through the argument list
--- [b, ]b, [B, ]B navigate through the buffer list
-
--- vim.keymap.set("n", "]b", vim.cmd.bnext, { silent = true, desc = "Next buffer" })
--- vim.keymap.set("n", "[b", vim.cmd.bprevious, { silent = true, desc = "Previous buffer" })
--- vim.keymap.set("n", "]B", vim.cmd.blast, { silent = true, desc = "Last buffer" })
--- vim.keymap.set("n", "[B", vim.cmd.bfirst, { silent = true, desc = "First buffer" })
--- alternate(Alt key) / ultimate file /
--- <C-^>/<C-6>, or :buf #<cr>
+-- alternate(Alt key) file /
+-- <C-^>/<C-6>, or :buf #<CR>
 
 -- argument list(vim's command args, vim multi-files) usage
 -- :args {pattern}
 -- :[range]argdo[!] {cmd}
--- vim.keymap.set("n", "]a", vim.cmd.next, { silent = true, desc = "Next argument" })
--- vim.keymap.set("n", "[a", vim.cmd.previous, { silent = true, desc = "Previous argument" })
--- vim.keymap.set("n", "]A", vim.cmd.last, { silent = true, desc = "Last argument" })
--- vim.keymap.set("n", "[A", vim.cmd.first, { silent = true, desc = "First argument" })
 
--- Window(Ventana) and tabpage commands
+-- Window(Ventana) commands
 -- vim.keymap.set("n", "<leader>v", "<c-w>", { desc = "Window", remap = true })
-
 -- vim.keymap.set({ "n", "t" }, "<leader>q", vim.cmd.quit, { silent = true, desc = "Quit" })
 -- vim.keymap.set({ "n", "t" }, "<leader>Q", vim.cmd.only, { silent = true, desc = "Only" })
 
@@ -56,40 +59,45 @@ local wincmd = function(cmd)
   end
 end
 
-vim.keymap.set({ "n", "t", "i" }, "<A-h>", wincmd("h"), { silent = true, desc = "left window" })
-vim.keymap.set({ "n", "t", "i" }, "<A-j>", wincmd("j"), { silent = true, desc = "lower window" })
-vim.keymap.set({ "n", "t", "i" }, "<A-k>", wincmd("k"), { silent = true, desc = "upper window" })
-vim.keymap.set({ "n", "t", "i" }, "<A-l>", wincmd("l"), { silent = true, desc = "right window" })
+-- vim.keymap.set({ "n", "t", "i" }, "<A-h>", wincmd("h"), { silent = true, desc = "left window" })
+-- vim.keymap.set({ "n", "t", "i" }, "<A-j>", wincmd("j"), { silent = true, desc = "lower window" })
+-- vim.keymap.set({ "n", "t", "i" }, "<A-k>", wincmd("k"), { silent = true, desc = "upper window" })
+-- vim.keymap.set({ "n", "t", "i" }, "<A-l>", wincmd("l"), { silent = true, desc = "right window" })
 
--- <A-6>/<A-^> alternate window, vs. <C-6>/<C-^> for alternate buffer
+-- how terminal emulators and terminal protocols handle keyboard input.
+-- Why <C-6> and <C-^> work:
+-- These are actually the same keybind (Ctrl+6 produces the ^ character in ASCII).
+-- This combination happens to be representable in the traditional terminal protocol and gets passed through to Vim correctly.
+-- Also: <C-2> (sometimes, may act like <C-@>)
+-- Also: <C-$ or other characters> work.
+-- Why <C-other numbers> don't work:
+-- Most Ctrl+number combinations don't produce distinct, recognizable sequences in the terminal protocol.
+-- The terminal either doesn't send anything meaningful to Vim, or sends the same sequence as another key, so Vim can't distinguish them.
+--
+-- <A-6>/<A-^> or <C-$> to alternate window, vs. <C-6>/<C-^> to alternate buffer
 vim.keymap.set({ "n", "i", "t" }, "<A-6>", wincmd("p"), { silent = true, desc = "Recent window" })
 vim.keymap.set({ "n", "i", "t" }, "<A-^>", wincmd("p"), { silent = true, desc = "Recent window" })
+vim.keymap.set({ "n", "i", "t" }, "<C-$>", wincmd("p"), { silent = true, desc = "Recent window" })
 
 -- windows resize
-vim.keymap.set("n", "<A-Up>", "<cmd>resize +2<cr>", { silent = true, desc = "Window height ++" })
-vim.keymap.set("n", "<A-Down>", "<cmd>resize -2<cr>", { silent = true, desc = "Window height --" })
-vim.keymap.set("n", "<A-Left>", "<cmd>vertical resize -5<cr>", { silent = true, desc = "Window width --" })
-vim.keymap.set("n", "<A-Right>", "<cmd>vertical resize +5<cr>", { silent = true, desc = "Window width ++" })
+vim.keymap.set("n", "<A-Up>", "<Cmd>resize +2<CR>", { silent = true, desc = "Window height ++" })
+vim.keymap.set("n", "<A-Down>", "<Cmd>resize -2<CR>", { silent = true, desc = "Window height --" })
+vim.keymap.set("n", "<A-Left>", "<Cmd>vertical resize -5<CR>", { silent = true, desc = "Window width --" })
+vim.keymap.set("n", "<A-Right>", "<Cmd>vertical resize +5<CR>", { silent = true, desc = "Window width ++" })
 
-vim.keymap.set("i", "<A-Up>", "<Esc><cmd>resize +2<cr>gi", { silent = true, desc = "win height ++" })
-vim.keymap.set("i", "<A-Down>", "<Esc><cmd>resize -2<cr>gi", { silent = true, desc = "win height --" })
-vim.keymap.set("i", "<A-Left>", "<Esc><cmd>vertical resize -5<cr>gi", { silent = true, desc = "win width --" })
-vim.keymap.set("i", "<A-Right>", "<Esc><cmd>vertical resize +5<cr>gi", { silent = true, desc = "win width ++" })
+vim.keymap.set("i", "<A-Up>", "<Esc><Cmd>resize +2<CR>gi", { silent = true, desc = "win height ++" })
+vim.keymap.set("i", "<A-Down>", "<Esc><Cmd>resize -2<CR>gi", { silent = true, desc = "win height --" })
+vim.keymap.set("i", "<A-Left>", "<Esc><Cmd>vertical resize -5<CR>gi", { silent = true, desc = "win width --" })
+vim.keymap.set("i", "<A-Right>", "<Esc><Cmd>vertical resize +5<CR>gi", { silent = true, desc = "win width ++" })
 
-vim.keymap.set("t", "<A-Up>", "<C-\\><C-n><cmd>resize +2<cr>a", { silent = true, desc = "Window height ++" })
-vim.keymap.set("t", "<A-Down>", "<C-\\><C-n><cmd>resize -2<cr>a", { silent = true, desc = "Window height --" })
-vim.keymap.set("t", "<A-Left>", "<C-\\><C-n><cmd>vertical resize -5<cr>a", { silent = true, desc = "Window width --" })
-vim.keymap.set("t", "<A-Right>", "<C-\\><C-n><cmd>vertical resize +5<cr>a", { silent = true, desc = "Window width ++" })
+vim.keymap.set("t", "<A-Up>", "<C-\\><C-n><Cmd>resize +2<CR>a", { silent = true, desc = "Window height ++" })
+vim.keymap.set("t", "<A-Down>", "<C-\\><C-n><Cmd>resize -2<CR>a", { silent = true, desc = "Window height --" })
+vim.keymap.set("t", "<A-Left>", "<C-\\><C-n><Cmd>vertical resize -5<CR>a", { silent = true, desc = "Window width --" })
+vim.keymap.set("t", "<A-Right>", "<C-\\><C-n><Cmd>vertical resize +5<CR>a", { silent = true, desc = "Window width ++" })
 
 -- Tag-pages
 -- use built-in gt/gT for :tabnext/tabprev or Ex-commands directly,
 -- OR use (better) tmux to arrange workspaces
-
--- Tags
--- vim.keymap.set("n", "]t", vim.cmd.tnext, { desc = "Next tag" })
--- vim.keymap.set("n", "[t", vim.cmd.tprevious, { desc = "Previous tag" })
--- vim.keymap.set("n", "]T", vim.cmd.tlast, { desc = "Last tag" })
--- vim.keymap.set("n", "[T", vim.cmd.tfirst, { desc = "First tag" })
 
 -- toggle(alternate) quickfix
 vim.keymap.set("n", "<A-q>", function()
@@ -99,40 +107,33 @@ vim.keymap.set("n", "<A-q>", function()
     vim.cmd.copen()
   end
 end, { silent = true, desc = "Toggle quickfix" })
--- vim.keymap.set("n", "]q", vim.cmd.cnext, { silent = true, desc = "Next error(qf)" })
--- vim.keymap.set("n", "[q", vim.cmd.cprevious, { silent = true, desc = "Previous error(qf)" })
--- vim.keymap.set("n", "]Q", vim.cmd.clast, { silent = true, desc = "Last error(qf)" })
--- vim.keymap.set("n", "[Q", vim.cmd.cfirst, { silent = true, desc = "First error(qf)" })
 
--- ? mapping to <A-Q>
-vim.keymap.set("n", "<A-l>", function()
+-- ? mapping to <A-l>
+vim.keymap.set("n", "<A-Q>", function()
   if vim.fn.getloclist(0).winid ~= 0 then
     vim.cmd.lclose()
   else
     vim.cmd.lopen()
   end
 end, { silent = true, desc = "Toggle loclist" })
--- vim.keymap.set("n", "]l", vim.cmd.lnext, { silent = true, desc = "Next error(loc)" })
--- vim.keymap.set("n", "[l", vim.cmd.lprevious, { silent = true, desc = "Previous error(loc)" })
--- vim.keymap.set("n", "]L", vim.cmd.llast, { silent = true, desc = "Last error(loc)" })
--- vim.keymap.set("n", "[L", vim.cmd.lfirst, { silent = true, desc = "First error(loc)" })
 
 -- diagnostic
--- local diagnostic_goto = function(next, severity)
---   local go = next and vim.diagnostic.goto_next or vim.diagnostic.goto_prev
---   severity = severity and vim.diagnostic.severity[severity] or nil
---   return function()
---     go({ severity = severity })
---   end
--- end
+local diagnostic_goto = function(next, severity)
+  local go = vim.diagnostic.jump
+  local count = next and 1 or -1
+  severity = severity and vim.diagnostic.severity[severity] or nil
+  return function()
+    go({ count = count, float = true, severity = severity })
+  end
+end
 -- go and open diagnostic window (float window)
 vim.keymap.set("n", "<C-k>", vim.diagnostic.open_float, { desc = "Show diagnostic" })
--- vim.keymap.set("n", "]d", diagnostic_goto(true), { desc = "Next diagnostic" })
--- vim.keymap.set("n", "[d", diagnostic_goto(false), { desc = "Previous diagnostic" })
--- vim.keymap.set("n", "]e", diagnostic_goto(true, "ERROR"), { desc = "Next error" })
--- vim.keymap.set("n", "[e", diagnostic_goto(false, "ERROR"), { desc = "Previous error" })
--- vim.keymap.set("n", "]w", diagnostic_goto(true, "WARN"), { desc = "Next warning" })
--- vim.keymap.set("n", "[w", diagnostic_goto(false, "WARN"), { desc = "Previous warning" })
+vim.keymap.set("n", "]d", diagnostic_goto(true), { desc = "Next diagnostic" })
+vim.keymap.set("n", "[d", diagnostic_goto(false), { desc = "Previous diagnostic" })
+vim.keymap.set("n", "]e", diagnostic_goto(true, "ERROR"), { desc = "Next error" })
+vim.keymap.set("n", "[e", diagnostic_goto(false, "ERROR"), { desc = "Previous error" })
+vim.keymap.set("n", "]w", diagnostic_goto(true, "WARN"), { desc = "Next warning" })
+vim.keymap.set("n", "[w", diagnostic_goto(false, "WARN"), { desc = "Previous warning" })
 
 -- traversal through change list
 --    g;  -- Go to [count] older position in change list.
@@ -144,24 +145,20 @@ vim.keymap.set("n", "<C-k>", vim.diagnostic.open_float, { desc = "Show diagnosti
 --    do (diff obtain) for :diffget (modify the current buffer to undo difference with another buffer)
 --    dp (diff put) for :diffput (modify another buffer to undo difference with the current buffer)
 
--- better up/down
--- vim.keymap.set({ "n", "x" }, "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
--- vim.keymap.set({ "n", "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
-
 -- move Lines
-vim.keymap.set("n", "<A-m>", ":m .+1<cr>", { desc = "Move down" })
-vim.keymap.set("n", "<A-S-m>", ":m .-2<cr>", { desc = "Move up" })
-vim.keymap.set("i", "<A-m>", "<esc>:m .+1<cr>gi", { desc = "Move down" })
-vim.keymap.set("i", "<A-S-m>", "<esc>:m .-2<cr>gi", { desc = "Move up" })
--- vim.keymap.set("v", "<A-j>", ":m '>+1<CR>gv=gv", { desc = "Move down" })
--- vim.keymap.set("v", "<A-k>", ":m '<-2<CR>gv=gv", { desc = "Move up" })
+vim.keymap.set("n", "<A-j>", ":m .+1<CR>", { desc = "Move down" })
+vim.keymap.set("n", "<A-k>", ":m .-2<CR>", { desc = "Move up" })
+vim.keymap.set("i", "<A-j>", "<Esc>:m .+1<CR>gi", { desc = "Move down" })
+vim.keymap.set("i", "<A-k>", "<Esc>:m .-2<CR>gi", { desc = "Move up" })
+vim.keymap.set("v", "<A-j>", ":m '>+1<CR>gv=gv", { desc = "Move down" })
+vim.keymap.set("v", "<A-k>", ":m '<-2<CR>gv=gv", { desc = "Move up" })
 
 -- better paste
 -- Better paste. With P, the unnamed register not changed, v_P is
 -- repeatable.(ref :h v_p and v_P)
 -- vim.keymap.set("n", "<leader>p", '"+gP', { desc = "Paste" })
--- paste over visual selection
-vim.keymap.set("v", "p", "P")
+-- paste over visual selection, not good for snippets completion
+-- vim.keymap.set("v", "p", "P")
 
 -- repeat search
 vim.keymap.set("n", "n", "'Nn'[v:searchforward].'zv'", { expr = true, desc = "Next match" })
@@ -169,24 +166,9 @@ vim.keymap.set({ "x", "o" }, "n", "'Nn'[v:searchforward]", { expr = true, desc =
 vim.keymap.set("n", "N", "'nN'[v:searchforward].'zv'", { expr = true, desc = "Previous match" })
 vim.keymap.set({ "x", "o" }, "N", "'nN'[v:searchforward]", { expr = true, desc = "Previous match" })
 
--- search for the current 'selection' in Visual mode using * and #
--- similar to * and # for searching the 'word' under current cursor in Normal mode.
-vim.keymap.set(
-  "x",
-  "*",
-  [[:lua vset_search()<cr>/<C-R>=@/<cr><cr>]],
-  { desc = "Search for selection", noremap = true, silent = true }
-)
-vim.keymap.set(
-  "x",
-  "#",
-  [[:lua vset_search()<cr>?<C-R>=@/<cr><cr>]],
-  { desc = "Search for selection", noremap = true, silent = true }
-)
-
 -- repeat last substitution with flags
-vim.keymap.set("n", "&", "<cmd>&&<cr>", { desc = "Last substitute" })
-vim.keymap.set("x", "&", "<cmd>'<,'>&&<cr><Esc>", { desc = "Last substitute" })
+vim.keymap.set("n", "&", "<Cmd>&&<CR>", { desc = "Last substitute" })
+vim.keymap.set("x", "&", "<Cmd>'<,'>&&<CR><Esc>", { desc = "Last substitute" })
 
 -- clean highlight / diff update
 vim.keymap.set("n", "<C-l>", function()
@@ -196,27 +178,27 @@ vim.keymap.set("n", "<C-l>", function()
   end
 end, { silent = true, desc = "Clean highlight/Diff update" })
 
--- :Inspect
-vim.keymap.set("n", "<C-h>", "<cmd>Inspect<cr>", { desc = "Inspect" }) -- vim.show_pos
+-- :Inspect, print out a human-readable representation of the given object.
+vim.keymap.set("n", "<C-p>", "<Cmd>Inspect<CR>", { desc = "Inspect" }) -- vim.show_pos
 
 -- Run make command, depend on language
--- vim.keymap.set("n", "<leader>B", "<cmd>make<cr>", { desc = "make/compile" })
+-- vim.keymap.set("n", "<leader>B", "<Cmd>make<CR>", { desc = "make/compile" })
 
 vim.cmd([[
 cnoreabbrev <expr> grep getcmdtype() == ':' && getcmdline() =~# '^grep' ? 'silent grep' : 'grep'
 cnoreabbrev <expr> lgrep getcmdtype() == ':' && getcmdline() =~# '^lgrep' ? 'silent lgrep' : 'lgrep'
 ]])
 
-if vim.fn.has("nvim-0.8") == 1 then
-  vim.keymap.set("n", "<C-1>", "<cmd>horizontal terminal<cr>", { desc = "Horizontal terminal", silent = true })
-  vim.keymap.set("n", "<C-2>", "<cmd>vertical terminal<cr>", { desc = "Vertical terminal", silent = true })
+if vim.version().major == 0 and vim.version().minor >= 8 then
+  vim.keymap.set("n", "<C-1>", "<Cmd>horizontal terminal<CR>", { desc = "Horizontal terminal", silent = true })
+  vim.keymap.set("n", "<C-2>", "<Cmd>vertical terminal<CR>", { desc = "Vertical terminal", silent = true })
 end
 
 -- terminal mode
 -- <Esc> switch terminal mode to normal mode (Not good idea, DON'T use <Esc> to
 -- exit terminal mode, which change the behavior of <Esc> in shell)
 -- vim.keymap.set("t", "<Esc>", "<C-\\><C-n>", { silent = true, desc = "Normal Mode" })
--- <A-[> or <C-v><Esc> send <ESC> to the program running inside the terminal buffer
+-- <A-[> or <C-v><Esc> send <Esc> to the program running inside the terminal buffer
 -- vim.keymap.set("t", "<A-[>", "<Esc>", { silent = true, desc = "<Esc>" })
 -- vim.keymap.set("t", "<C-v><Esc>", "<Esc>", { desc = "<Esc>" })
 --
@@ -229,56 +211,63 @@ end, { silent = true, desc = "Close" })
 
 -- options
 -- -------------------------------------------------------------------
--- vim.keymap.set("n", "<leader>ob", function()
---   vim.opt.background = vim.opt.background:get() == "dark" and "light" or "dark"
--- end, { desc = "Background" })
+vim.keymap.set("n", "<leader>ob", function()
+  vim.opt.background = vim.opt.background:get() == "dark" and "light" or "dark"
+end, { desc = "background" })
 
--- vim.keymap.set("n", "<leader>oc", function()
---   vim.opt.conceallevel = vim.opt.conceallevel:get() == 0 and 3 or 0
--- end, { desc = "Conceal" })
+vim.keymap.set("n", "<leader>oc", function()
+  vim.opt.conceallevel = vim.opt.conceallevel:get() == 0 and 3 or 0
+end, { desc = "conceal" })
 
--- vim.keymap.set("n", "<leader>od", function()
---   vim.diagnostic.enable(not vim.diagnostic.is_enabled())
--- end, { desc = "Diagnostic" })
+vim.keymap.set("n", "<leader>od", function()
+  vim.diagnostic.enable(not vim.diagnostic.is_enabled())
+end, { desc = "diagnostic" })
 
--- if vim.lsp.inlay_hint then
---   vim.keymap.set("n", "<leader>oi", function()
---     vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = 0 }), { bufnr = 0 })
---   end, { desc = "Inlay hints" })
--- end
+if vim.lsp.inlay_hint then
+  vim.keymap.set("n", "<leader>oi", function()
+    vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = 0 }), { bufnr = 0 })
+  end, { desc = "inlay hints" })
+end
 
--- vim.keymap.set("n", "<leader>on", function()
---   local nb = vim.opt_local.number:get()
---   vim.opt_local.number = not nb
---   vim.opt_local.relativenumber = not nb
--- end, { desc = "Number", buffer = 0 })
+vim.keymap.set("n", "<leader>ol", function()
+  vim.o.list = not vim.list
+end, { desc = "listchars" })
 
--- vim.keymap.set("n", "<leader>op", function()
---   vim.api.nvim_set_option_value("paste", not vim.opt_local.paste:get(), { scope = "local" })
--- end, { desc = "Paste", buffer = 0 })
+vim.keymap.set("n", "<leader>on", function()
+  vim.wo.number = not vim.wo.number
+  vim.wo.relativenumber = not vim.wo.relativenumber
+end, { desc = "number" })
 
--- vim.keymap.set("n", "<leader>ot", function()
---   vim.b.ts_highlight = not vim.b.ts_highlight
---   if vim.b.ts_highlight then
---     vim.treesitter.start()
---   else
---     vim.treesitter.stop()
---   end
--- end, { desc = "Treesitter", buffer = 0 })
+vim.keymap.set("n", "<leader>op", function()
+  vim.api.nvim_set_option_value("paste", not vim.opt_local.paste:get(), { scope = "local" })
+end, { desc = "paste", buffer = 0 })
 
-vim.keymap.set("n", "<leader>zz", "<cmd>Lazy<cr>", { desc = "Lazy", silent = true })
-vim.keymap.set("n", "<leader>zh", "<cmd>checkhealth<cr>", { desc = "Check health", silent = true })
-vim.keymap.set("n", "<leader>zi", "<cmd>checkhealth vim.lsp<cr>", { desc = "Info(LSP)", silent = true })
-vim.keymap.set("n", "<leader>zl", "<cmd>edit $NVIM_LOG_FILE<cr>", { desc = "Log(Neovim)", silent = true })
+vim.keymap.set("n", "<leader>ot", function()
+  vim.b.ts_highlight = not vim.b.ts_highlight
+  if vim.b.ts_highlight then
+    vim.treesitter.start()
+  else
+    vim.treesitter.stop()
+  end
+end, { desc = "Treesitter", buffer = 0 })
+
+vim.keymap.set("n", "<leader>ow", function()
+  vim.wo.wrap = not vim.wo.wrap
+end, { desc = "wrap" })
+
+vim.keymap.set("n", "<leader>zz", "<Cmd>Lazy<CR>", { desc = "Lazy", silent = true })
+vim.keymap.set("n", "<leader>zh", "<Cmd>checkhealth<CR>", { desc = "Check health", silent = true })
+vim.keymap.set("n", "<leader>zi", "<Cmd>checkhealth vim.lsp<CR>", { desc = "Info(LSP)", silent = true })
+vim.keymap.set("n", "<leader>zl", "<Cmd>edit $NVIM_LOG_FILE<CR>", { desc = "Log(Neovim)", silent = true })
+vim.keymap.set("n", "<leader>zn", require("leovim.utils").neovim_news, { desc = "Neovim News", silent = true })
 
 -- command-line and command window
 vim.keymap.set("c", "<C-o>", "<C-f>", { silent = true, desc = "Command window" })
--- vim.keymap.set("c", "<C-j>", "<Down>", { silent = false, desc = "next command" }) -- silent must be false
--- vim.keymap.set("c", "<C-k>", "<Up>", { silent = false, desc = "previous command" })
-
+vim.keymap.set("c", "<C-j>", "<Down>", { silent = false, desc = "next command" }) -- silent must be false
+vim.keymap.set("c", "<C-k>", "<Up>", { silent = false, desc = "previous command" })
 -- %% expands to the directory of the active buffer, like :w %% or :e %%
 vim.keymap.set("c", "%%", function()
-  return vim.fn.getcmdtype() == "<cmd>" and vim.fn.expand("%:p:h") .. "/" or "%%"
+  return vim.fn.getcmdtype() == "<Cmd>" and vim.fn.expand("%:p:h") .. "/" or "%%"
 end, { expr = true, desc = "Expand directory" })
 
 -- command-line abbreviations
@@ -289,6 +278,8 @@ vim.cmd.cnoreabbrev("Wq wq")
 vim.cmd.cnoreabbrev("Wa wa")
 vim.cmd.cnoreabbrev("wQ wq")
 vim.cmd.cnoreabbrev("WQ wq")
+-- ++p to ensure its parent directory is created
+vim.cmd.cnoreabbrev("w w ++p")
 
 -- misc -------------------------------------------------------------------
 -- Abbreviations, used in Insert mode, Replace mode and Command-line mode.
@@ -312,22 +303,6 @@ end, { desc = "Arguments from quickfix" })
 vim.api.nvim_create_user_command("CTagsGen", "!ctags -R --exclude=.git", { desc = "Run !ctags" })
 
 -- Helper functions -------------------------------------------------------------------
-function vset_search()
-  -- Save the current contents of the 's' register
-  local temp = vim.fn.getreg("s")
-
-  -- Visually select the previously selected text and copy it to the 's' register
-  vim.cmd('normal! gv"sy')
-
-  -- Escape special characters and set the search register
-  local search = vim.fn.escape(vim.fn.getreg("s"), "/\\")
-  search = vim.fn.substitute(search, "\n", "\\n", "g")
-  vim.fn.setreg("/", "\\V" .. search)
-
-  -- Restore the original contents of the 's' register
-  vim.fn.setreg("s", temp)
-end
-
 function quickfix_filenames()
   local buffer_numbers = {}
   for _, quickfix_item in ipairs(vim.fn.getqflist()) do

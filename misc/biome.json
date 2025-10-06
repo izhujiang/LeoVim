@@ -1,0 +1,12 @@
+{
+	"$schema": "https://biomejs.dev/schemas/1.9.0/schema.json",
+	"formatter": {
+		"enabled": true,
+		"formatWithErrors": false
+	},
+	"html": {
+		"formatter": {
+			"enabled": true
+		}
+	}
+}

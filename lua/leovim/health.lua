@@ -8,7 +8,7 @@ local error = vim.health.error
 function M.check()
   start("LeoVim")
 
-  if vim.fn.has("nvim-0.8.0") == 1 then
+  if vim.version().major == 0 and vim.version().minor >= 8 then
     ok("Using Neovim >= 0.8.0")
   else
     error("Neovim >= 0.8.0 is required")

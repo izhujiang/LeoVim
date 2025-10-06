@@ -1,4 +1,44 @@
 return {
+  -- gopher.nvim - A focused plugin that enhances golang experience
+  -- by wrapping essential Go tools Go, simpler and more lightweight
+  {
+    -- access directly through gopls in Neovim requires using a Go-specific plugin.
+    --    gomodifytags, impl
+    "olexsmir/gopher.nvim",
+    ft = "go",
+    dependencies = {
+      "nvim-treesitter/nvim-treesitter",
+    },
+    build = ":GoInstallDeps",
+    opts = require("leovim.config.plugins.gopher").opts or {},
+  },
+  -- ray-x/go.nvim - A comprehensive, feature-packed plugin based on treesitter, nvim-lsp and dap debugger,
+  -- written in Lua and async as much as possible, covering most features required for a gopher
+  {
+    "ray-x/go.nvim",
+    enabled = false,
+    dependencies = {
+      "nvim-treesitter/nvim-treesitter",
+    },
+    ft = { "go", "gomod" },
+    build = ':lua require("go.install").update_all_sync()', -- if you need to install/update all binaries
+    opts = {
+      -- lsp_keymaps = false,
+      -- other options
+    },
+    config = function(_, opts)
+      require("go").setup(opts)
+      local format_sync_grp = vim.api.nvim_create_augroup("GoFormat", {})
+      vim.api.nvim_create_autocmd("BufWritePre", {
+        pattern = "*.go",
+        callback = function()
+          require("go.format").goimports()
+        end,
+        group = format_sync_grp,
+      })
+    end,
+  },
+
   -- Clangd's off-spec features for neovim's LSP client
   -- usage:
   -- -- :ClangdSwitchSourceHeader

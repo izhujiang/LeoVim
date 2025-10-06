@@ -1,8 +1,8 @@
 return {
-  cmd = { "gopls" },
   filetypes = { "go", "gomod", "gowork", "gotmpl" },
+  cmd = { "gopls" },
   root_markers = { "go.work", "go.mod", ".git" },
-  single_file_support = true,
+  single_file_support = false,
 
   settings = {
     gopls = {

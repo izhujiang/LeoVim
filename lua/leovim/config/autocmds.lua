@@ -25,17 +25,98 @@ vim.api.nvim_create_autocmd("BufReadPost", {
   end,
 })
 
--- create dirs when saving a file, in case some intermediate directory does not exist
-vim.api.nvim_create_autocmd({ "BufWritePre" }, {
-  group = vim.api.nvim_create_augroup("leovim.buffer", { clear = false }),
-  callback = function(event)
-    if event.match:match("^%w%w+://") then
-      return
-    end
-    local file = vim.uv.fs_realpath(event.match) or event.match
-    vim.fn.mkdir(vim.fn.fnamemodify(file, ":p:h"), "p")
-  end,
-})
+-- better: run stylua in Language Server Mode
+-- vim.api.nvim_create_autocmd("BufWritePre", {
+--   group = vim.api.nvim_create_augroup("leovim.buffer", { clear = false }),
+--   pattern = "*.lua",
+--   -- stylua reads from stdin and writes to stdout
+--   callback = function()
+--     -- Get current buffer content
+--     local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+--     local content = table.concat(lines, "\n")
+--
+--     -- Format with stylua
+--     local result = vim.fn.system("stylua -", content)
+--
+--     -- Check if stylua succeeded
+--     if vim.v.shell_error == 0 then
+--       -- Split result back into lines
+--       local formatted_lines = vim.split(result, "\n", { plain = true })
+--
+--       -- Remove trailing empty line if exists (stylua adds newline)
+--       if formatted_lines[#formatted_lines] == "" then
+--         table.remove(formatted_lines)
+--       end
+--
+--       -- Replace buffer content with formatted version
+--       vim.api.nvim_buf_set_lines(0, 0, -1, false, formatted_lines)
+--     else
+--       vim.notify("StyLua formatting failed: " .. result, vim.log.levels.ERROR)
+--     end
+--   end,
+-- })
+
+-- use selene in cmdline or CI/CD
+-- vim.api.nvim_create_autocmd("BufWritePost", {
+--   pattern = "*.lua",
+--   callback = function()
+--     local bufnr = vim.api.nvim_get_current_buf()
+--     local file = vim.api.nvim_buf_get_name(bufnr)
+--
+--     -- Find selene.toml
+--     local config = vim.fs.find({ "selene.toml" }, {
+--       upward = true,
+--       path = vim.fn.fnamemodify(file, ":h"),
+--     })[1]
+--
+--     local cmd = "selene --display-style=json"
+--     if config then
+--       cmd = cmd .. " --config " .. vim.fn.shellescape(config)
+--     end
+--     cmd = cmd .. " " .. vim.fn.shellescape(file)
+--
+--     local output = vim.fn.system(cmd)
+--
+--     -- Clear previous diagnostics
+--     local ns = vim.api.nvim_create_namespace("selene")
+--     vim.diagnostic.reset(ns, bufnr)
+--
+--     if output ~= "" then
+--       local diagnostics = {}
+--
+--       vim.print(output)
+--       -- Parse NDJSON - each line is a diagnostic object
+--       for line in output:gmatch("[^\r\n]+") do
+--         local ok, diag = pcall(vim.json.decode, line)
+--
+--         if ok and diag and diag.primary_label then
+--           local severity = vim.diagnostic.severity.WARN
+--           if diag.severity == "Error" then
+--             severity = vim.diagnostic.severity.ERROR
+--           elseif diag.severity == "Warning" then
+--             severity = vim.diagnostic.severity.WARN
+--           end
+--
+--           local span = diag.primary_label.span
+--
+--           table.insert(diagnostics, {
+--             bufnr = bufnr,
+--             lnum = span.start_line - 1, -- 0-indexed
+--             col = span.start_column - 1, -- 0-indexed
+--             end_lnum = span.end_line - 1, -- 0-indexed
+--             end_col = span.end_column - 1, -- 0-indexed
+--             severity = severity,
+--             source = "selene",
+--             message = diag.message,
+--             code = diag.code,
+--           })
+--         end
+--       end
+--
+--       vim.diagnostic.set(ns, bufnr, diagnostics, {})
+--     end
+--   end,
+-- })
 
 vim.api.nvim_create_autocmd({ "TermOpen", "WinEnter" }, {
   group = vim.api.nvim_create_augroup("leovim.buffer", { clear = false }),
@@ -46,45 +127,59 @@ vim.api.nvim_create_autocmd({ "TermOpen", "WinEnter" }, {
     end
   end,
 })
--- Check if we need to reload the file when it changed
--- vim.api.nvim_create_autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
--- group = vim.api.nvim_create_augroup("leovim.buffer", { clear = false }),
---   command = "checktime",
--- })
 
--- close window  with <q> when current buffer has specified filetypes
+-- close buf and quit window with non-normal buffer when press q
+-- specific buffers: quickfix, help, terminal, directory, scratch, buflisted
+-- :close = “close this view” (like closing a tab or split).
+-- set buflisted = false and bufhidden = 'wipe' (delete when close)
 vim.api.nvim_create_autocmd("FileType", {
   group = vim.api.nvim_create_augroup("leovim_ft", { clear = true }),
-  pattern = {
-    "PlenaryTestPopup",
-    "help",
-    "man",
-    "notify",
-    "qf",
-    "checkhealth",
-    "startuptime",
-    -- "tsplayground",
-    "Trouble",
-    "neotest*",
-    "dap*",
-    "Avante*",
-  },
-  callback = function(event)
-    vim.bo[event.buf].buflisted = false
-    vim.keymap.set("n", "q", "<cmd>close<cr>", { buffer = event.buf, silent = true })
+  callback = function(e)
+    local buf = e.buf
+    local bt = vim.bo[buf].buftype
+    local ft = vim.bo[buf].filetype
+
+    if bt ~= "" or vim.api.nvim_win_get_config(0).relative ~= "" then
+      vim.bo[buf].buflisted = false
+      vim.bo[buf].bufhidden = "wipe"
+
+      vim.keymap.set("n", "q", function()
+        -- Handle quickfix window
+        local win_info = vim.fn.getwininfo(vim.api.nvim_get_current_win())[1]
+        if win_info.quickfix == 1 then
+          if win_info.loclist == 1 then
+            vim.cmd("lclose")
+          else
+            vim.cmd("cclose")
+          end
+          return
+        end
+
+        -- Handle known plugin/filetypes
+        local known_fts = { "help", "man", "lspinfo", "checkhealth" }
+        if vim.tbl_contains(known_fts, ft) then
+          vim.cmd("quit")
+        elseif vim.api.nvim_win_get_config(0).relative ~= "" then
+          -- Floating window
+          vim.api.nvim_win_close(0, true)
+        else
+          vim.cmd("close")
+        end
+      end, { buffer = buf, silent = true, nowait = true })
+    end
   end,
 })
 
-vim.api.nvim_create_autocmd("FileType", {
-  group = vim.api.nvim_create_augroup("leovim_ft", { clear = false }),
-  pattern = { "gitcommit", "gitrebase", "gitconfig" },
-  command = "set bufhidden=delete",
-})
+-- vim.api.nvim_create_autocmd("FileType", {
+--   group = vim.api.nvim_create_augroup("leovim_ft", { clear = false }),
+--   pattern = { "gitcommit", "gitrebase", "gitconfig" },
+--   command = "set bufhidden=delete",
+-- })
 
 -- more plain file types
 vim.api.nvim_create_autocmd("FileType", {
   group = vim.api.nvim_create_augroup("leovim_ft", { clear = false }),
-  pattern = { "gitcommit", "markdown", "text", "plaintex", "typst" },
+  pattern = { "gitcommit", "markdown", "text", "plaintex" },
   callback = function()
     vim.opt_local.wrap = true
     vim.opt_local.spell = true
@@ -104,38 +199,6 @@ vim.api.nvim_create_autocmd({ "VimResized" }, {
   group = vim.api.nvim_create_augroup("leovim.win", { clear = true }),
   callback = function()
     vim.cmd("tabdo wincmd =")
-  end,
-})
--- close_if_last_window: close all non-normal windows when the last normal window is closed
--- When using `:quit`, `:wq` or `:qall`, before deciding whether it closes the current window or quits Vim.
--- For `:wq` the buffer is written before QuitPre is triggered.
--- Can be used to close any non-essential window (quickfix, neo-tree, fugitive, spectre ...) if the current window is the last ordinary window.
-vim.api.nvim_create_autocmd({ "QuitPre" }, {
-  group = vim.api.nvim_create_augroup("leovim.win", { clear = false }),
-  callback = function()
-    local non_essential_filetypes = vim.g.non_essential_filetypes
-
-    local win_id = vim.api.nvim_get_current_win()
-    local tabid = vim.api.nvim_get_current_tabpage()
-    local wins = vim.api.nvim_tabpage_list_wins(tabid)
-
-    local is_essential_win = function(win)
-      local bufnr = vim.api.nvim_win_get_buf(win)
-      local ft = vim.api.nvim_get_option_value("filetype", { buf = bufnr })
-      return not vim.tbl_contains(non_essential_filetypes, ft)
-    end
-
-    local essential_wins = vim.tbl_filter(is_essential_win, wins)
-    local win_count = #essential_wins
-
-    if win_count == 1 and is_essential_win(win_id) then
-      -- close nonessential windows except current window which is closing
-      for _, win in ipairs(wins) do
-        if win ~= win_id then
-          vim.api.nvim_win_close(win, true)
-        end
-      end
-    end
   end,
 })
 

@@ -59,4 +59,54 @@ function M.get_root()
   return root
 end
 
+function M.neovim_news()
+  local news_file = vim.api.nvim_get_runtime_file("doc/news.txt", false)[1]
+  if not news_file then
+    vim.notify("Could not find news.txt", vim.log.levels.ERROR)
+    return
+  end
+
+  -- Create a new buffer
+  local buf = vim.api.nvim_create_buf(false, true)
+
+  -- Read the file into the buffer
+  local lines = {}
+  for line in io.lines(news_file) do
+    table.insert(lines, line)
+  end
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+
+  -- Set buffer options
+  vim.bo[buf].modifiable = false
+  vim.bo[buf].buftype = "nofile"
+  vim.bo[buf].bufhidden = "wipe"
+
+  -- Calculate window dimensions (90% of editor size)
+  local width = math.floor(vim.o.columns * 0.9)
+  local height = math.floor(vim.o.lines * 0.9)
+  local row = math.floor((vim.o.lines - height) / 2)
+  local col = math.floor((vim.o.columns - width) / 2)
+
+  -- Create floating window
+  local win = vim.api.nvim_open_win(buf, true, {
+    relative = "editor",
+    width = width,
+    height = height,
+    row = row,
+    col = col,
+    style = "minimal",
+    border = "rounded",
+  })
+
+  -- Set window options
+  vim.wo[win].spell = false
+  vim.wo[win].wrap = false
+  vim.wo[win].signcolumn = "yes"
+  vim.wo[win].statuscolumn = " "
+  vim.wo[win].conceallevel = 3
+
+  -- Set up keybinding to close the window
+  vim.api.nvim_buf_set_keymap(buf, "n", "q", ":close<CR>", { noremap = true, silent = true })
+end
+
 return M

@@ -1,4 +1,5 @@
 return {
+  filetypes = { "c", "cpp", "objc", "objcpp", "cuda", "proto" },
   cmd = { "clangd", "--background-index" },
   -- cmd = {
   --   "clangd",
@@ -9,7 +10,6 @@ return {
   --   "--function-arg-placeholders",
   --   "--fallback-style=llvm",
   -- },
-  filetypes = { "c", "cpp", "objc", "objcpp", "cuda", "proto" },
   root_markers = {
     ".clangd",
     ".clang-tidy",
@@ -21,6 +21,7 @@ return {
     "compile_flags.txt",
     ".git",
   },
+  single_file_support = false,
 
   init_options = {
     usePlaceholders = true,
@@ -34,7 +35,7 @@ return {
         editsNearCursor = true,
       },
     },
-    offsetEncoding = { "utf-8", "utf-16" },
+    -- offsetEncoding = { "utf-8", "utf-16" },
   },
 }
 -- Ref: https://github.com/neovim/nvim-lspconfig/blob/master/lua/lspconfig/configs/clangd.lua

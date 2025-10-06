@@ -5,7 +5,9 @@ return {
     enabled = vim.g.colorscheme == "gruvbox",
     lazy = false,
     priority = 2000,
-    opts = require("leovim.builtin.colorscheme").gruvbox and require("leovim.builtin.colorscheme").gruvbox.opts or {},
+    opts = require("leovim.config.plugins.colorscheme").gruvbox
+        and require("leovim.config.plugins.colorscheme").gruvbox.opts
+      or {},
     config = function()
       vim.cmd.colorscheme(vim.g.colorscheme)
     end,
@@ -16,7 +18,8 @@ return {
     enabled = vim.g.colorscheme == "tokyonight",
     lazy = false,
     priority = 1000, -- make sure to load this before all the other start plugins
-    opts = require("leovim.builtin.colorscheme").tokyonight and require("leovim.builtin.colorscheme").tokyonight.opts
+    opts = require("leovim.config.plugins.colorscheme").tokyonight
+        and require("leovim.config.plugins.colorscheme").tokyonight.opts
       or {},
     config = function()
       vim.cmd.colorscheme(vim.g.colorscheme)
@@ -28,9 +31,11 @@ return {
     enabled = vim.g.colorscheme == "everforest",
     lazy = false, -- make sure we load this during startup if it is your main colorscheme
     priority = 1000, -- make sure to load this before all the other start plugins
-    opts = require("leovim.builtin.colorscheme").everforest and require("leovim.builtin.colorscheme").everforest.opts
+    opts = require("leovim.config.plugins.colorscheme").everforest
+        and require("leovim.config.plugins.colorscheme").everforest.opts
       or {},
-    init = require("leovim.builtin.colorscheme").everforest and require("leovim.builtin.colorscheme").everforest.init,
+    init = require("leovim.config.plugins.colorscheme").everforest
+      and require("leovim.config.plugins.colorscheme").everforest.init,
     config = function()
       vim.cmd.colorscheme(vim.g.colorscheme)
     end,
@@ -45,7 +50,8 @@ return {
     lazy = false,
     version = false, -- latest development version
     priority = 1000, -- make sure to load this before all the other start plugins
-    opts = require("leovim.builtin.colorscheme").catppuccin and require("leovim.builtin.colorscheme").catppuccin.opts
+    opts = require("leovim.config.plugins.colorscheme").catppuccin
+        and require("leovim.config.plugins.colorscheme").catppuccin.opts
       or {},
     config = function()
       vim.cmd.colorscheme(vim.g.colorscheme)

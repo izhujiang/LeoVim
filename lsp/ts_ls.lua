@@ -1,20 +1,25 @@
 return {
-  cmd = { 'typescript-language-server', '--stdio' },
   filetypes = {
-    'javascript',
-    'javascriptreact',
-    'javascript.jsx',
-    'typescript',
-    'typescriptreact',
-    'typescript.tsx',
+    "javascript",
+    "javascriptreact",
+    "javascript.jsx",
+    "typescript",
+    "typescriptreact",
+    "typescript.tsx",
   },
-  root_markers = { 'tsconfig.json', 'jsconfig.json', 'package.json', '.git' },
-  single_file_support = true,
-  init_options = { hostInfo = 'neovim' },
+  cmd = { "typescript-language-server", "--stdio" },
+  root_markers = { "tsconfig.json", "jsconfig.json", "package.json", ".git" },
 
-  settings = {
-    completions = {
-      completeFunctionCalls = true,
-    },
+  -- capabilities = require("blink.cmp").get_lsp_capabilities(),
+  on_attach = function(client, _bufnr)
+    -- Disable capabilities: formatting
+    client.server_capabilities.documentFormattingProvider = false
+    client.server_capabilities.documentRangeFormattingProvider = false
+  end,
+
+  handlers = {
+    -- ignore diagnostic messages, use biome
+    ["textDocument/publishDiagnostics"] = function() end,
   },
 }
+

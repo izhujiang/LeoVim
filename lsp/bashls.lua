@@ -1,6 +1,6 @@
 return {
-  cmd = { "bash-language-server", "start" },
   filetypes = { "bash", "sh", "zsh" },
+  cmd = { "bash-language-server", "start" },
 
   single_file_support = true,
   settings = {
@@ -14,5 +14,8 @@ return {
       -- Default upstream pattern is "**/*@(.sh|.inc|.bash|.command)".
       globPattern = vim.env.GLOB_PATTERN or "*@(.sh|.inc|.bash|.zsh|.command)",
     },
+
+    -- install shellcheck to enable linting
+    -- install shfmt, format scripts consistently.
   },
 }

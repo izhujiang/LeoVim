@@ -18,9 +18,9 @@ return {
       "TSInstallInfo",
       "TSConfigInfo",
     },
-    keys = require("leovim.builtin.nvim-treesitter").keys or {},
-    init = require("leovim.builtin.nvim-treesitter").init,
-    opts = require("leovim.builtin.nvim-treesitter").opts or {},
+    keys = require("leovim.config.plugins.nvim-treesitter").keys or {},
+    -- init = require("leovim.config.plugins.nvim-treesitter").init,
+    opts = require("leovim.config.plugins.nvim-treesitter").opts or {},
 
     config = function(_, opts)
       -- avoid running in headless mode since it's harder to detect failures
@@ -29,7 +29,7 @@ return {
         return
       end
 
-      require("nvim-treesitter.configs").setup(opts)
+      require("nvim-treesitter").setup(opts)
     end,
   },
 
@@ -44,8 +44,8 @@ return {
       "TSContextEnable",
       "TSContextDisable",
     },
-    keys = require("leovim.builtin.nvim-treesitter-context").keys or {},
-    opts = require("leovim.builtin.nvim-treesitter-context").opts or {},
+    keys = require("leovim.config.plugins.nvim-treesitter-context").keys or {},
+    opts = require("leovim.config.plugins.nvim-treesitter-context").opts or {},
   },
 
   {
@@ -53,11 +53,11 @@ return {
     "nvim-treesitter/nvim-treesitter-textobjects",
     dependencies = { "nvim-treesitter/nvim-treesitter" }, -- Ensure it loads after nvim-treesitter
     event = { "BufReadPost", "BufNewFile" },
-    opts = require("leovim.builtin.nvim-treesitter-textobjects").opts or {},
+    opts = require("leovim.config.plugins.nvim-treesitter-textobjects").opts or {},
     config = function(_, opts)
-      require("nvim-treesitter.configs").setup({ textobjects = opts })
+      require("nvim-treesitter").setup({ textobjects = opts })
 
-      local ts_repeat_move = require("nvim-treesitter.textobjects.repeatable_move")
+      local ts_repeat_move = require("nvim-treesitter-textobjects.repeatable_move")
       -- vim way: ; goes to the direction you were moving.
       vim.keymap.set({ "n", "x", "o" }, "].", ts_repeat_move.repeat_last_move)
       vim.keymap.set({ "n", "x", "o" }, "[.", ts_repeat_move.repeat_last_move_opposite)
@@ -69,7 +69,7 @@ return {
     -- TODO: unable to set /* %s */ for c/c++ code block, guess it's bug, wait...
     "JoosepAlviste/nvim-ts-context-commentstring",
     event = { "BufReadPost", "BufNewFile" },
-    opts = require("leovim.builtin.nvim-ts-context-commentstring").opts or {},
+    opts = require("leovim.config.plugins.nvim-ts-context-commentstring").opts or {},
     config = function(_, opts)
       require("ts_context_commentstring").setup(opts)
 

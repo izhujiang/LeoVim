@@ -1,15 +1,15 @@
----@type LeoVimConfig
 local M = {
   lazy_version = ">=9.1.0",
 }
 
----@type LeoVimConfig
-local options
+local options = {}
 
--- setup: load "options, keymaps, and autocmds" and schedule colorscheme
----@param opts? LeoVimConfig
-function M.setup(opts)
+-- load "options, keymaps, and autocmds" and schedule colorscheme
+function M.load(opts)
   opts = vim.tbl_deep_extend("force", {}, opts or {})
+
+  -- disable syntax highlight, use nvim-treesitter to highlight instead
+  -- vim.cmd("syntax off")
 
   require("leovim.config.options")
   require("leovim.config.keymaps")
@@ -19,10 +19,6 @@ end
 
 setmetatable(M, {
   __index = function(_, key)
-    if options == nil then
-      return vim.deepcopy(defaults)[key]
-    end
-    ---@cast options LeoVimConfig
     return options[key]
   end,
 })

@@ -1,8 +1,7 @@
 return {
-  cmd = { "rust-analyzer" },
   filetypes = { "rust" },
+  cmd = { "rust-analyzer" },
   root_markers = { "Cargo.toml", ".git" },
-  single_file_support = true,
 
   settings = {
     ["rust-analyzer"] = {
@@ -13,7 +12,9 @@ return {
         command = "clippy", -- Optional: Use Clippy for linting on save
       },
       completion = {
-        fullFunctionSignatures = { enable = true },
+        fullFunctionSignatures = {
+          enable = true,
+        },
         -- limit = 10,
       },
       diagnostics = {

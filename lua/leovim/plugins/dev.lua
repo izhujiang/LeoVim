@@ -1,7 +1,24 @@
+-- format, lint, diagnostics, debug, test, fix, and refactor
 return {
-  -- diagnostics, debug, test, and fix
+  -- {
+  --   -- nvim-lspconfig is a collection of LSP server configurations for the Nvim LSP client.
+  --   -- Requires Nvim 0.11.3+.
+  --   "neovim/nvim-lspconfig",
+  --   lazy = false, -- must load before call vim.lsp.enable()
+  -- },
+
+  -- {
+  --   "nvimtools/none-ls.nvim",
+  --   event = { "BufReadPost", "BufNewFile" },
+  --   dependencies = {
+  --     "nvim-lua/plenary.nvim",
+  --   },
+  --   keys = require("leovim.config.plugins.none-ls").keys or {},
+  --   opts = require("leovim.config.plugins.none-ls").opts or {}, -- once opts is set, default config function will cause none-ls.setup(opts) automatically.
+  -- },
   {
     -- trouble.nvim (enhanced QuicKfix or C(K)ompass ), better diagnostics list and others
+    -- the trouble solver or troubleshooter
     -- A pretty diagnostics, references, telescope results, quickfix and location list to help you solve all the troubles.
     -- usage:
     --  :Trouble [mode] [action] [options]
@@ -14,8 +31,8 @@ return {
     cmd = {
       "Trouble",
     },
-    keys = require("leovim.builtin.nvim-trouble").keys or {},
-    opts = require("leovim.builtin.nvim-trouble").opts or {},
+    keys = require("leovim.config.plugins.nvim-trouble").keys or {},
+    opts = require("leovim.config.plugins.nvim-trouble").opts or {},
     config = function(_, opts)
       require("trouble").setup(opts)
 
@@ -39,8 +56,8 @@ return {
       { "fredrikaverpil/neotest-golang", version = "*" }, -- Installation
       { "nvim-neotest/neotest-python" },
     },
-    keys = require("leovim.builtin.nvim-neotest").keys or {},
-    opts = require("leovim.builtin.nvim-neotest").opts or {},
+    keys = require("leovim.config.plugins.nvim-neotest").keys or {},
+    opts = require("leovim.config.plugins.nvim-neotest").opts or {},
     config = function(_, opts)
       opts = vim.tbl_deep_extend("keep", opts, {
         adapters = {
@@ -85,11 +102,8 @@ return {
           end, { desc = "Test race" })
 
           vim.keymap.set("n", "<leader>tb", function()
-            -- Additional arguments for the go test command can be sent using the `extra_args` field e.g.
-            -- require("neotest").run.run({ path, extra_args = { "-race" } })
-            vim.print("test bench")
             require("neotest").run.run({ vim.fn.expand("%"), extra_args = { "-bench=." } })
-          end, { desc = "Test banch" })
+          end, { desc = "Test bench" })
         end,
       })
     end,
@@ -109,11 +123,11 @@ return {
       -- { "jbyuki/one-small-step-for-vimkind" },
     },
     cmd = { "Debug" },
-    keys = require("leovim.builtin.nvim-dap").keys or {},
-    opts = require("leovim.builtin.nvim-dap").opts or {},
+    keys = require("leovim.config.plugins.nvim-dap").keys or {},
+    opts = require("leovim.config.plugins.nvim-dap").opts or {},
 
     config = function(_, opts)
-      local icons = require("leovim.builtin.icons")
+      local icons = require("leovim.config.icons")
       for _, hl in ipairs({
         "DapBreakpoint",
         "DapBreakpointCondition",
@@ -142,21 +156,13 @@ return {
       vim.tbl_deep_extend("keep", dap.adapters, opts.adapters)
       vim.tbl_deep_extend("keep", dap.configurations, opts.configurations)
 
-      -- load and setup dapui
-      -- load_module("dapui")
-
-      dap.listeners.after.event_initialized["dapui_config"] = function()
-        local dapui = require("dapui")
-        dapui.open({})
-      end
-      dap.listeners.before.event_terminated["dapui_config"] = function()
-        local dapui = require("dapui")
-        dapui.close({})
-      end
-      dap.listeners.before.event_exited["dapui_config"] = function()
-        local dapui = require("dapui")
-        dapui.close({})
-      end
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = "dap-repl",
+        callback = function()
+          -- configure completion to trigger automatically.
+          require("dap.ext.autocompl").attach()
+        end,
+      })
     end,
   },
   {
@@ -167,7 +173,7 @@ return {
       "mfussenegger/nvim-dap",
     },
     ft = { "go" },
-    opts = require("leovim.builtin.nvim-dap-go").opts or {},
+    opts = require("leovim.config.plugins.nvim-dap-go").opts or {},
   },
   {
     -- An extension for nvim-dap, providing default configurations for python and methods
@@ -197,23 +203,23 @@ return {
       "mfussenegger/nvim-dap",
       "nvim-neotest/nvim-nio",
     },
-    keys = require("leovim.builtin.nvim-dap-ui").keys or {},
-    opts = require("leovim.builtin.nvim-dap-ui").opts or {},
-    -- config = function(_, opts)
-    --   local dap = require("dap")
-    --   local dapui = require("dapui")
-    --
-    --   dapui.setup(opts)
-    --   dap.listeners.after.event_initialized["dapui_config"] = function()
-    --     dapui.open({})
-    --   end
-    --   dap.listeners.before.event_terminated["dapui_config"] = function()
-    --     dapui.close({})
-    --   end
-    --   dap.listeners.before.event_exited["dapui_config"] = function()
-    --     dapui.close({})
-    --   end
-    -- end,
+    keys = require("leovim.config.plugins.nvim-dap-ui").keys or {},
+    opts = require("leovim.config.plugins.nvim-dap-ui").opts or {},
+    config = function(_, opts)
+      local dap, dapui = require("dap"), require("dapui")
+
+      dapui.setup(opts)
+
+      dap.listeners.after.event_initialized["dapui_config"] = function()
+        dapui.open({})
+      end
+      dap.listeners.before.event_terminated["dapui_config"] = function()
+        dapui.close({})
+      end
+      dap.listeners.before.event_exited["dapui_config"] = function()
+        dapui.close({})
+      end
+    end,
   },
 
   -- virtual text support to nvim-dap
@@ -245,4 +251,19 @@ return {
   --     },
   --   },
   -- },
+
+  -- The Refactoring library based off the Refactoring book by Martin Fowler
+  -- Refactoring Features, Support for various common refactoring operations: Extract/Inline Function/Variable
+  -- Debug Features, useful features for debugging(Printf, Print var, Cleanup)
+  -- usage:
+  --   '<,'>:Refactor operation
+  {
+    "ThePrimeagen/refactoring.nvim",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "nvim-treesitter/nvim-treesitter",
+    },
+    cmd = { "Refactor" },
+    opts = {},
+  },
 }

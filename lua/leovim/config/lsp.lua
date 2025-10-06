@@ -1,118 +1,179 @@
+local icons = require("leovim.config.icons")
+
+-- config for diagnostics
+-- @type vim.diagnostic.Opts
+local diagnostic_opts = {
+  underline = true,
+  update_in_insert = false,
+  severity_sort = true,
+  signs = {
+    texthl = {
+      [vim.diagnostic.severity.ERROR] = "DiagnosticSignError",
+      [vim.diagnostic.severity.WARN] = "DiagnosticSignWarn",
+      [vim.diagnostic.severity.HINT] = "DiagnosticSignHint",
+      [vim.diagnostic.severity.INFO] = "DiagnosticSignInfo",
+    },
+    text = {
+      [vim.diagnostic.severity.ERROR] = icons.diagnostics.Error,
+      [vim.diagnostic.severity.WARN] = icons.diagnostics.Warn,
+      [vim.diagnostic.severity.HINT] = icons.diagnostics.Hint,
+      [vim.diagnostic.severity.INFO] = icons.diagnostics.Info,
+    },
+    -- Highlight entire line for errors
+    linehl = {
+      [vim.diagnostic.severity.ERROR] = "ErrorMsg",
+    },
+    -- Highlight the line number for warnings
+    numhl = {
+      [vim.diagnostic.severity.WARN] = "WarningMsg",
+    },
+  },
+  float = {
+    focusable = false,
+    border = "rounded",
+    source = "always",
+    -- header = "",
+    -- prefix = "",
+    -- suffix = "",
+  },
+  -- most time virtual_text is better option
+  virtual_text = {
+    current_line = true,
+  },
+  -- virtual_lines = {
+  --   current_line = true,
+  -- },
+}
+
+-- How to setup(config) lsp: (init_options vs. capabilities vs. server_capabilities)
+--  init_options: is sent to the LSP server during the initialize request as part of the LSP protocol.
+--  It contains server-specific configuration settings that the server uses to configure its own behavior.
+--  For example for Ruff, this includes things like:
+--   . lint.enable
+--   . format.enable
+--   . lineLength
+--   . codeAction.*
+--  client capabilities: Global, affects what ALL servers see about your Neovim
+--    The capabilities table in LSP config is meant to communicate client capabilities to the server (what the client supports)
+--  server capabilities (via on_attach): Per-client, you can selectively disable features for specific LSP servers
+--    The CORRECT and ONLY solution to selectively disable server capabilities in Neovim: modifying client.server_capabilities in on_attach
+--    disable the server capabilities in the on_attach function after the client has started.
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+capabilities = vim.tbl_deep_extend("force", capabilities, {
+  -- form require('blink.cmp').get_lsp_capabilities(config.capabilities)
+  textDocument = {
+    completion = {
+      completionItem = {
+        commitCharactersSupport = false,
+        deprecatedSupport = true,
+        documentationFormat = { "markdown", "plaintext" },
+        insertReplaceSupport = true,
+        insertTextModeSupport = {
+          valueSet = { 1 },
+        },
+        labelDetailsSupport = true,
+        preselectSupport = false,
+        resolveSupport = {
+          properties = { "documentation", "detail", "additionalTextEdits", "command", "data" },
+        },
+        snippetSupport = true,
+        tagSupport = {
+          valueSet = { 1 },
+        },
+      },
+      completionList = {
+        itemDefaults = { "commitCharacters", "editRange", "insertTextFormat", "insertTextMode", "data" },
+      },
+      contextSupport = true,
+      insertTextMode = 1,
+    },
+  },
+})
+
+local general_lsp_opts = {
+  single_file_support = true,
+  root_markers = { ".git" },
+  capabilities = capabilities,
+
+  -- WARNING: Found buffers attached to multiple clients with different position encodings.
+  -- For typical code with ASCII characters (English letters, numbers, common symbols), UTF-8 and UTF-16 position calculations are identical.
+  -- Issues arise with multi-byte characters (Emojis, Non-ASCII characters, Special symbols)
+  -- Let servers (VSCode-based Servers) choose UTF-16 if they want
+
+  -- client.offset_encoding is the actual encoding that was negotiated between
+  -- the client(capabilities.general.positionEncodings) and server during initialization.
+  -- It's the result of the handshake, not what you requested.
+  -- on_attach = function(client, _bufnr)
+  --   -- Override whatever the server chose (html_ls, tailwindcss_ls
+  --   client.offset_encoding = "utf-8"
+  -- end,
+}
+
 -- --------------------------------------------------------------------------------------------------------------------
 -- Helper functions
 
--- --------------------------------------------------------------------------------------------------------------------
-local function make_user_default_capabilities(user_capabilities)
-  local capabilities
+-- TODO: comment the keybinds which are builtin-defined, when don't need which-key plugin anymore.
+--
+-- builtin keybinds gw/gq for format
+-- Since Neovim v0.8
+--    <C-]>: "go to definition" capabilities using diagnostics
+--    <C-X><C-O>: omni mode completion in Insert mode
+--    gq: LSP formatting
+-- Since Neovim v0.9
+--    Semantic highlight
+-- Since Neovim v0.10
+--    K: maps to vim.lsp.buf.hover()
+--    [d and ]d: vim.diagnostic.goto_prev() and vim.diagnostic.goto_next()
+--    <C-W>d: vim.diagnostic.open_float()
+-- Since Neovim v0.11, keybinds are created unconditionally when Nvim starts:
 
-  local addtional_capabilities = {
-    textDocument = {
-      semanticTokens = {
-        multilineTokenSupport = true,
-      },
-      foldingRange = {
-        dynamicRegistration = false,
-        lineFoldingOnly = true,
-      },
-    },
-  }
-  -- {capabilities} verriding the default capabilities defined by vim.lsp.protocol.make_client_capabilities(),
-  -- passed to the language server on initialization. Hint: use make_client_capabilities() and modify its result.
+-- global defaults
+-- - "grn" is mapped in Normal mode to |vim.lsp.buf.rename()|
+-- - "gra" is mapped in Normal and Visual mode to |vim.lsp.buf.code_action()|
+-- - "grr" is mapped in Normal mode to |vim.lsp.buf.references()|
+-- - "gri" is mapped in Normal mode to |vim.lsp.buf.implementation()|
+-- - "grt" is mapped in Normal mode to |vim.lsp.buf.type_definition()|
+-- - "gO" is mapped in Normal mode to |vim.lsp.buf.document_symbol()|
+-- - CTRL-s is mapped in Insert mode to |vim.lsp.buf.signature_help()|
 
-  if vim.g.completion == "blink" then
-    local has_cmp, blink_lsp = pcall(require, "blink.cmp")
-
-    capabilities = vim.tbl_deep_extend(
-      "force",
-      vim.lsp.protocol.make_client_capabilities(),
-      has_cmp and blink_lsp.get_lsp_capabilities(addtional_capabilities) or {}
-    )
-  elseif vim.g.completion == "nvim-cmp" then
-    local has_cmp, cmp_nvim_lsp
-    has_cmp, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
-
-    capabilities = vim.tbl_deep_extend(
-      "force",
-      vim.lsp.protocol.make_client_capabilities(),
-      has_cmp and cmp_nvim_lsp.default_capabilities() or {},
-      addtional_capabilities
-    )
-  else
-    capabilities = vim.tbl_deep_extend("force", vim.lsp.protocol.make_client_capabilities(), addtional_capabilities)
-  end
-
-  -- !!! DON'T enable cmp_nvim_lsp snippetSupport, already got cmp_luasnip or
-  -- other snippet engines' support
-  -- Some LSP servers support auto-snippets for functions, so they insert arguments inside brackets.
-  capabilities.textDocument.completion.completionItem.snippetSupport = true
-
-  capabilities = vim.tbl_deep_extend("force", capabilities, user_capabilities or {})
-  return capabilities
-end
-
-local user_default_capabilities = make_user_default_capabilities({})
-
-local function setup_keybinds(client, bufnr)
+-- buffer-local defaults
+-- - 'omnifunc' is set to |vim.lsp.omnifunc()|, use |i_CTRL-X_CTRL-O| to trigger
+--   completion.
+-- - 'tagfunc' is set to |vim.lsp.tagfunc()|. This enables features like
+--   go-to-definition, |:tjump|, and keybinds like |CTRL-]|, |CTRL-W_]|,
+--   |CTRL-W_}| to utilize the language server.
+-- - 'formatexpr' is set to |vim.lsp.formatexpr()|, so you can format lines via
+--   |gq| if the language server supports it.
+--   - To opt out of this use |gw| instead of gq, or clear 'formatexpr' on |LspAttach|.
+-- - |K| is mapped to |vim.lsp.buf.hover()| unless |'keywordprg'| is customized or
+--   a custom keybind for `K` exists.
+local function setup_buffer_settings(client, bufnr)
+  -- wrapper opts with {buffer = bufnr} for buffer-local keybinds.
   local opts = function(user_opts)
     return vim.tbl_extend("keep", user_opts or {}, { buffer = bufnr, noremap = true, silent = true })
   end
 
-  -- builtin keymaps gw/gq for format
-  -- Since Neovim v0.8
-  --    <C-]>: "go to definition" capabilities using diagnostics
-  --    <C-X><C-O>: omni mode completion in Insert mode
-  --    gq: LSP formatting
-  -- Since Neovim v0.9
-  --    Semantic highlight
-  -- Since Neovim v0.10
-  --    K: maps to vim.lsp.buf.hover()
-  --    [d and ]d: vim.diagnostic.goto_prev() and vim.diagnostic.goto_next()
-  --    <C-W>d: vim.diagnostic.open_float()
-  -- Since Neovim v0.11, keymaps are created unconditionally when Nvim starts:
-  -- - "grn" is mapped in Normal mode to |vim.lsp.buf.rename()|
-  -- - "gra" is mapped in Normal and Visual mode to |vim.lsp.buf.code_action()|
-  -- - "grr" is mapped in Normal mode to |vim.lsp.buf.references()|
-  -- - "gri" is mapped in Normal mode to |vim.lsp.buf.implementation()|
-  -- - "gO" is mapped in Normal mode to |vim.lsp.buf.document_symbol()|
-  -- - CTRL-S is mapped in Insert mode to |vim.lsp.buf.signature_help()|
+  if client:supports_method("textDocument/foldingRange") then
+    vim.opt_local.foldmethod = "expr"
+    vim.opt_local.foldexpr = "v:lua.vim.lsp.foldexpr()"
+    -- zc, zo, zO, zC, zM, zR ...
+  end
 
-  -- - 'omnifunc' is set to |vim.lsp.omnifunc()|, use |i_CTRL-X_CTRL-O| to trigger
-  --   completion.
-  -- - 'tagfunc' is set to |vim.lsp.tagfunc()|. This enables features like
-  --   go-to-definition, |:tjump|, and keymaps like |CTRL-]|, |CTRL-W_]|,
-  --   |CTRL-W_}| to utilize the language server.
-  -- - 'formatexpr' is set to |vim.lsp.formatexpr()|, so you can format lines via
-  --   |gq| if the language server supports it.
-  --   - To opt out of this use |gw| instead of gq, or clear 'formatexpr' on |LspAttach|.
-  -- - |K| is mapped to |vim.lsp.buf.hover()| unless |'keywordprg'| is customized or
-  --   a custom keymap for `K` exists.
-
-  -- To remove or override BUFFER-LOCAL defaults
-  -- -- unset 'formatexpr'
-  -- vim.bo[args.buf].formatexpr = nil
-  -- -- Unset 'omnifunc'
-  -- vim.bo[args.buf].omnifunc = nil
-  -- -- remove keymap
-  -- vim.keymap.del('n', 'K', { buffer = args.buf })
-
-  -- diagnostic
-  -- why client:supports_method("textDocument/diagnostic") return false
   if client:supports_method("textDocument/diagnostic") or client:supports_method("textDocument/publishDiagnostics") then
     vim.keymap.set("n", "]d", function()
-      vim.diagnostic.jump({ count = 1 })
+      vim.diagnostic.jump({ count = 1, float = true })
     end, opts({ desc = "Next diagnostic(LSP)" }))
     vim.keymap.set("n", "[d", function()
-      vim.diagnostic.jump({ count = -1 })
+      vim.diagnostic.jump({ count = -1, float = true })
     end, opts({ desc = "Previous diagnostic(LSP)" }))
     vim.keymap.set("n", "]D", function()
-      vim.diagnostic.jump({ count = math.huge, wrap = false })
+      vim.diagnostic.jump({ count = math.huge, wrap = false, float = true })
     end, { desc = "Last diagnostic(LSP)" })
     vim.keymap.set("n", "[D", function()
-      vim.diagnostic.jump({ count = -math.huge, wrap = false })
+      vim.diagnostic.jump({ count = -math.huge, wrap = false, float = true })
     end, { desc = "First diagnostic(LSP)" })
 
     vim.keymap.set("n", "<C-w>d", vim.diagnostic.open_float, opts({ desc = "Show diagnostic(LSP)" }))
-
     vim.keymap.set("n", "<C-k>", vim.diagnostic.open_float, opts({ desc = "Show diagnostic(LSP)" }))
     vim.keymap.set("n", "grd", vim.diagnostic.open_float, opts({ desc = "Show diagnostic(LSP)" }))
 
@@ -121,55 +182,58 @@ local function setup_keybinds(client, bufnr)
   end
 
   -- vim.lsp.hover()
-  -- Displays hover information about the symbol under the cursor in a floating window. The window will be dismissed on cursor move.
-  -- Calling the function twice will jump into the floating window (thus by default, "KK" will open the hover window and focus it)
+  --   - Displays hover information about the symbol under the cursor in a floating window.
+  --   - Calling the function twice will jump into the floating window ("KK" open and focus on the hover window)
   if client:supports_method("textDocument/hover") then
     vim.keymap.set("n", "K", function()
       local win_width = vim.api.nvim_win_get_width(0)
-      local config = {
+      vim.lsp.buf.hover({
         -- focus = false,
         -- focusable = false,
         border = "rounded",
         max_width = math.floor(win_width * 0.8),
         -- max_height = 30,
-      }
-      vim.lsp.buf.hover(config)
+      })
     end, opts({ desc = "Hover(LSP)" }))
   end
 
   -- built-in definition: <C-]>
   if client:supports_method("textDocument/definition") then
-    vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts({ desc = "Goto definition(LSP)" }))
+    vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts({ desc = "Definition(LSP)" }))
   end
   if client:supports_method("textDocument/declaration") then
-    vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts({ desc = "Goto declaration(LSP)" }))
+    vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts({ desc = "Declaration(LSP)" }))
   end
 
-  -- todo: `'workspace/symbol'`
   if client:supports_method("textDocument/document_symbol") then
-    vim.keymap.set("n", "gO", vim.lsp.buf.document_symbol, opts({ desc = "Goto document_symbol(LSP)" }))
+    vim.keymap.set("n", "gO", vim.lsp.buf.document_symbol, opts({ desc = "Document_symbol(LSP)" }))
   end
 
   if client:supports_method("textDocument/references") then
-    vim.keymap.set("n", "grr", vim.lsp.buf.references, opts({ desc = "Goto references(LSP)" }))
+    vim.keymap.set("n", "grr", vim.lsp.buf.references, opts({ desc = "References(LSP)" }))
   end
 
   if client:supports_method("textDocument/implementation") then
-    vim.keymap.set("n", "gri", vim.lsp.buf.implementation, opts({ desc = "Goto implementation(LSP)" }))
+    vim.keymap.set("n", "gri", vim.lsp.buf.implementation, opts({ desc = "Implementation(LSP)" }))
   end
+
+  if client:supports_method("textDocument/typeDefinition") then
+    vim.keymap.set("n", "grt", vim.lsp.buf.type_definition, opts({ desc = "TypeDefinition(LSP)" }))
+  end
+
   if client:supports_method("textDocument/signatureHelp") then
     -- Signature help, information about the parameters of your function/method in a floating window.
     -- blink or nvim-cmp popup signature_help automatically in Insert mode
     -- builtin <C-s> since nvim0.11
-    -- vim.keymap.set("i", "<C-s>", vim.lsp.buf.signature_help, opts({ desc = "Show signature_help(LSP)" }))
-    vim.keymap.set("n", "grh", vim.lsp.buf.signature_help, opts({ desc = "Show signature_help(LSP)" }))
+    vim.keymap.set("i", "<C-s>", vim.lsp.buf.signature_help, opts({ desc = "Signature help(LSP)" }))
   end
 
   if client:supports_method("callHierarchy/incomingCalls") then
-    vim.keymap.set({ "n" }, "grI", vim.lsp.buf.incoming_calls, opts({ desc = "Goto incomingCalls(LSP)" }))
+    vim.keymap.set({ "n" }, "grc", vim.lsp.buf.incoming_calls, opts({ desc = "IncomingCalls(LSP)" }))
   end
+
   if client:supports_method("callHierarchy/outgoingCalls") then
-    vim.keymap.set({ "n" }, "gro", vim.lsp.buf.outgoing_calls, opts({ desc = "Goto outgoingCalls(LSP)" }))
+    vim.keymap.set({ "n" }, "grC", vim.lsp.buf.outgoing_calls, opts({ desc = "OutgoingCalls(LSP)" }))
   end
 
   -- refractor and Code actions
@@ -183,273 +247,117 @@ local function setup_keybinds(client, bufnr)
 
   -- CodeLens (contextual, interactive annotations) is an LSP feature that adds virtual text (actions) above code elements.
   -- These actions can be executed, such as running tests, generating methods, or refactoring.
-  --
-  -- Requests the server to recompute and display CodeLens annotations.
-  vim.keymap.set("n", "grl", vim.lsp.codelens.refresh, opts({ desc = "Codelens refresh(LSP)" }))
-  -- Execute CodeLens under the cursor
-  vim.keymap.set("n", "grc", vim.lsp.codelens.run, opts({ desc = "Codelens run(LSP)" }))
+  if client:supports_method("textDocument/codeLens") then
+    -- Requests the server to recompute and display CodeLens annotations.
+    vim.keymap.set("n", "grR", vim.lsp.codelens.refresh, opts({ desc = "Codelens refresh(LSP)" }))
+    -- Execute CodeLens under the cursor
+    vim.keymap.set("n", "grl", vim.lsp.codelens.run, opts({ desc = "Codelens run(LSP)" }))
+  end
 end
 
--- TODO: workspace operations
--- vim.lsp.buf.add_workspace_folder()*
--- vim.lsp.buf.list_workspace_folder()*
--- vim.lsp.buf.remove_workspace_folder()*
-
--- --------------------------------------------------------------------------------------------------------------------
-
-if vim.fn.has("nvim-0.11") then
-  -- https://neovim.io/doc/user/lsp.html#lsp-config
-  -- You can configure LSP behavior statically via vim.lsp.config(), and dynamically via lsp-attach or Client:on_attach().
-  -- Use vim.lsp.config() to define, and selectively enable, LSP configurations.
-  -- This is basically a wrapper around vim.lsp.start() which allows you to share and merge configs (which may be provided by Nvim or third-party plugins).
-  --
-  -- When an LSP client starts, it resolves its configuration by merging from the following (in increasing priority):
-  -- 1. Configuration defined for the '*' name.
-  -- 2. Configuration from the result of merging all tables returned by lsp/<name>.lua files in 'runtimepath' for a server of name name.
-  -- 3. Configurations defined anywhere else.
-  -- Note: The merge semantics of configurations follow the behaviour of vim.tbl_deep_extend().
-
-  -- global config as fallback
-  vim.lsp.config("*", {
-    capabilities = user_default_capabilities,
-    root_markers = { ".git" },
-  })
-
-  -- Defined in <rtp>/lsp/clangd.lua
-  -- return {
-  --   cmd = { 'clangd' },
-  --   root_markers = { '.clangd', 'compile_commands.json' },
-  --   filetypes = { 'c', 'cpp' },
-  -- }
-
-  -- Defined in init.lua or somewhere else
-  -- vim.lsp.config('clangd', {
-  --   filetypes = { 'c' },
-  -- })
-
-  -- setup diagnostic
-  local icons = require("leovim.builtin.icons")
-  vim.g.virtual_flag = 1
-  local diag_opts = {
-    underline = true,
-    update_in_insert = false,
-    severity_sort = true,
-    signs = {
-      -- Highlight entire line for errors
-      -- Highlight the line number for warnings
-      texthl = {
-        [vim.diagnostic.severity.ERROR] = "DiagnosticSignError",
-        [vim.diagnostic.severity.WARN] = "DiagnosticSignWarn",
-        [vim.diagnostic.severity.HINT] = "DiagnosticSignHint",
-        [vim.diagnostic.severity.INFO] = "DiagnosticSignInfo",
-      },
-      text = {
-        [vim.diagnostic.severity.ERROR] = icons.diagnostics.Error,
-        [vim.diagnostic.severity.WARN] = icons.diagnostics.Warn,
-        [vim.diagnostic.severity.HINT] = icons.diagnostics.Hint,
-        [vim.diagnostic.severity.INFO] = icons.diagnostics.Info,
-        --
-      },
-      linehl = {
-        [vim.diagnostic.severity.ERROR] = "ErrorMsg",
-      },
-      numhl = {
-        [vim.diagnostic.severity.WARN] = "WarningMsg",
-      },
-    },
-    float = {
-      focusable = false,
-      border = "rounded",
-      source = "always",
-      -- header = "",
-      -- prefix = "",
-      -- suffix = "",
-    },
-    -- most time virtual_text is better option
-    virtual_text = {
-      current_line = vim.g.virtual_flag == 1,
-    },
-    -- virtual_lines = {
-    --   current_line = true,
-    -- },
-  }
-
+function setup_global_settings()
+  -- global keymap
   vim.keymap.set("n", "<leader>ov", function()
-    vim.g.virtual_flag = (vim.g.virtual_flag + 1) % 6
-    vim.print(vim.g.virtual_flag)
-
-    if vim.g.virtual_flag == 0 then
-      vim.diagnostic.config({
-        virtual_text = false,
-        virtual_lines = false,
-      })
-    elseif vim.g.virtual_flag == 1 then
-      vim.diagnostic.config({
-        virtual_text = { current_line = true },
-        virtual_lines = false,
-      })
-    elseif vim.g.virtual_flag == 2 then
-      vim.diagnostic.config({
-        virtual_text = true,
-        virtual_lines = false,
-      })
-    elseif vim.g.virtual_flag == 3 then
-      vim.diagnostic.config({
-        virtual_text = false,
-        virtual_lines = { current_line = true },
-      })
-    elseif vim.g.virtual_flag == 4 then
-      vim.diagnostic.config({
-        virtual_text = false,
-        virtual_lines = true,
-      })
-    else
-      vim.diagnostic.config({
-        virtual_text = true,
-        virtual_lines = true,
-      })
-    end
+    vim.diagnostic.config({
+      virtual_text = not vim.diagnostic.config().virtual_text,
+    })
+  end, { desc = "Diagnostic virtual_text" })
+  vim.keymap.set("n", "<leader>oV", function()
+    vim.diagnostic.config({
+      virtual_lines = not vim.diagnostic.config().virtual_lines,
+    })
   end, { desc = "Diagnostic virtual_lines" })
 
-  vim.diagnostic.config(diag_opts)
-
+  -- autocmds
   vim.api.nvim_create_autocmd("LspAttach", {
-    group = vim.api.nvim_create_augroup("leovim.lsp", { clear = false }),
+    group = vim.api.nvim_create_augroup("leovim.lsp", { clear = true }),
     callback = function(args)
       local client = assert(vim.lsp.get_client_by_id(args.data.client_id))
 
-      setup_keybinds(client, args.buf)
+      setup_buffer_settings(client, args.buf)
 
-      -- INFO:  not ready to repalce nvim-cmp.nvim or blink.nvim
-      --
-      -- Enable auto-completion. Note: Use CTRL-Y to select an item. |complete_CTRL-Y|
-      -- if client:supports_method("textDocument/completion") then
-      --   -- Optional: trigger autocompletion on EVERY keypress. May be slow!
-      --   -- local chars = {}; for i = 32, 126 do table.insert(chars, string.char(i)) end
-      --   -- client.server_capabilities.completionProvider.triggerCharacters = chars
-      --   vim.lsp.completion.enable(true, client.id, args.buf, { autotrigger = true })
-      -- end
+      -- Auto-format on save.
+      -- no formatting needed if server supports (rarely implemented) "textDocument/willSaveWaitUntil",
+      -- Client(:save) → 'textDocument/willSave' → Server(format, lint, fix...) → 'Array of TextEdits' → Client(applies into buffer and save)
+      -- Language servers support willSaveWaitUntil usually: format code, add or organize imports automatically, fix code, apply lint fixes or style adjustments.
 
-      if client:supports_method("textDocument/willSaveWaitUntil") then
-        vim.lsp.inlay_hint.enable(true, { bufnr = args.buf })
-      end
+      -- For Biome, dynamic registration takes extra time
+      -- Wait for dynamic registration to complete
+      vim.defer_fn(function()
+        local supports_formatting = client:supports_method("textDocument/formatting")
+        local supports_range_formatting = client:supports_method("textDocument/rangeFormatting")
+        local supports_will_save = client:supports_method("textDocument/willSaveWaitUntil")
 
-      -- Auto-format ("lint") on save.
-      -- Usually not needed if server supports "textDocument/willSaveWaitUntil".
-      -- To avoid multiple active lsp server(null-ls) format at same time,
-      -- skip servers in the dict, prefer format buffer with null-ls
-      local skip_formatting_servers = { "lua_ls", "pyright", "jsonls", "ts_ls" }
-      -- local skip_formatting_servers = {}
-      if
-        not client:supports_method("textDocument/willSaveWaitUntil")
-        and client:supports_method("textDocument/formatting")
-        and not vim.tbl_contains(skip_formatting_servers, client.name)
-      then
-        vim.bo.formatexpr = "v:lua.vim.lsp.formatexpr()"
-        vim.api.nvim_create_autocmd("BufWritePre", {
-          group = vim.api.nvim_create_augroup("leovim.lsp", { clear = false }),
-          buffer = args.buf,
-          callback = function()
-            vim.lsp.buf.format({ bufnr = args.buf, id = client.id, timeout_ms = 1000 })
-            -- or save synchronously
-            -- vim.lsp.buf.format({ async = false })
-          end,
-        })
-      end
+        -- vim.print(
+        --   string.format(
+        --     "[%s] willSave=%s, formatting=%s, rangeFormatting=%s",
+        --     client.name,
+        --     supports_will_save,
+        --     supports_formatting,
+        --     supports_range_formatting
+        --   )
+        -- )
 
-      -- stylize (colorize) the annotation (virtual text) displayed by vim.lsp.codelens.refresh()
-      vim.api.nvim_set_hl(0, "LspCodeLens", { fg = "#008888", italic = true })
-      vim.api.nvim_set_hl(0, "LspCodeLensSeparator", { fg = "#444444" })
-      -- TODO: consist with theme changes
-      -- vim.api.nvim_create_autocmd("ColorScheme", {
-      --   callback = function()
-      --     vim.api.nvim_set_hl(0, "LspCodeLens", { fg = "#999999", italic = true })
-      --   end,
-      -- })
-
-      -- Refresh CodeLens on certain events
-      -- vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "CursorHold" }, {
-      --   buffer = args.buf,
-      --   callback = function()
-      --     vim.lsp.codelens.refresh()
-      --   end,
-      -- })
+        if not supports_will_save and (supports_formatting or supports_range_formatting) then
+          vim.api.nvim_create_autocmd("BufWritePre", {
+            buffer = args.buf,
+            callback = function()
+              -- vim.print(client.name, "saving")
+              vim.lsp.buf.format({
+                id = client.id,
+                timeout_ms = 3000,
+              })
+            end,
+          })
+        end
+      end, 500) -- Wait 500ms for dynamic registration
     end,
   })
 
   vim.api.nvim_create_autocmd("LspDetach", {
     group = vim.api.nvim_create_augroup("leovim.lsp", { clear = false }),
     callback = function(args)
-      -- Get the detaching client
-      local client = vim.lsp.get_client_by_id(args.data.client_id)
-      -- Remove the autocommand to format the buffer on save, if it exists
-      if client and client:supports_method("textDocument/formatting") then
-        vim.api.nvim_clear_autocmds({
-          event = "BufWritePre",
-          buffer = args.buf,
-        })
+      local client = assert(vim.lsp.get_client_by_id(args.data.client_id))
+      if
+        not client:supports_method("textDocument/willSaveWaitUntil")
+        and client:supports_method("textDocument/formatting")
+      then
+        vim.api.nvim_clear_autocmds({ event = "BufWritePre", buffer = args.buf })
       end
-
-      -- disable refreshing CodeLens
-      -- vim.api.nvim_clear_autocmds({
-      --   event = { "BufEnter", "BufWritePost", "CursorHold" },
-      --   buffer = args.buf,
-      -- })
     end,
   })
 
-  -- vim.api.nvim_create_autocmd("BufWritePre", {
-  --   group = vim.api.nvim_create_augroup("leovim.lsp", { clear = false }),
+  -- TODO: consist with theme changes
+  -- vim.api.nvim_create_autocmd("ColorScheme", {
   --   callback = function()
-  --     vim.lsp.codelens.refresh()
+  --     -- stylize (colorize) the annotation (virtual text) displayed by vim.lsp.codelens.refresh()
+  --     vim.api.nvim_set_hl(0, "LspCodeLens", { fg = "#008888", italic = true })
+  --     vim.api.nvim_set_hl(0, "LspCodeLensSeparator", { fg = "#444444" })
   --   end,
   -- })
-  --
+end
 
-  -- vim.lsp global config
-  -- vim.lsp.inlay_hint.enable(false)
-  -- border style for all floating windows
-  vim.o.winborder = "rounded"
-  -- warning: not working.
-  -- global float windows config not working with lsp config
-  -- vim.api.nvim_create_autocmd("VimResized", {
-  --   callback = function()
-  --     for _, config in pairs(vim.lsp.config) do
-  --       config.float_opts = {
-  --         max_width = math.floor(vim.o.columns * 0.8),
-  --         max_height = math.floor(vim.o.lines * 0.6),
-  --       }
-  --     end
-  --   end,
-  -- })
+-- --------------------------------------------------------------------------------------------------------------------
+if vim.version().major == 0 and vim.version().minor >= 11 then
+  -- https://neovim.io/doc/user/lsp.html#lsp-config
+  -- Configure LSP behavior statically via vim.lsp.config(), and dynamically via lsp-attach or Client:on_attach().
+  -- Use vim.lsp.config() to define, and selectively enable, LSP configurations.
+  -- When an LSP client starts, it resolves its configuration by merging from the following:
+  -- 1. Configuration defined for the '*' name.
+  -- 2. Configuration from the result of merging all tables returned by lsp/<name>.lua files in 'runtimepath'.
+  -- 3. Configurations defined anywhere else.
+  -- Note: The merge semantics of configurations follow the behaviour of vim.tbl_deep_extend().
 
-  -- enable lsp's debug mode
   vim.lsp.set_log_level(vim.g.log_level)
 
-  -- warning: not working.
-  -- Configure float window size for lua_ls,
-  -- vim.lsp.config["lua_ls"] = vim.tbl_deep_extend("force", vim.lsp.config["lua_ls"] or {}, {
-  --   float = {
-  --     max_width = math.floor(vim.o.columns * 0.8),
-  --   },
-  -- })
-  --
-  -- vim.lsp.config["gopls"] = vim.tbl_deep_extend("force", vim.lsp.config["gopls"] or {}, {
-  --     max_width = math.floor(vim.o.columns * 0.8),
-  -- })
+  -- set default configuration for all clients.
+  vim.lsp.config("*", general_lsp_opts)
+  vim.diagnostic.config(diagnostic_opts)
 
-  -- assume: $PATH include mason/bin (mason already loaded) and other path where to find language servers
-  vim.lsp.enable({
-    "bashls",
-    "clangd",
-    "cmake",
-    "gopls",
-    "jsonls",
-    "lua_ls",
-    -- "null-ls",  -- null-ls call setup() automatically
-    "pyright",
-    "rust_analyzer",
-  })
+  setup_global_settings()
+
+  -- "null-ls",  -- null-ls call setup() automatically
+  vim.lsp.enable(vim.g.enabled_lsp_servers)
 else
   vim.notify("To enable builtin lsp support, neovim version >=0.11 required.", vim.log.levels.WARN)
 end
